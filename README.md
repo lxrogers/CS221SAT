@@ -14,6 +14,10 @@ scikit-learn -
 	Documentation: http://scikit-learn.org/stable/
 	
 	pip install -U numpy scipy scikit-learn 
+	
+Glove Vectors - 
+	Download: https://www.dropbox.com/s/8xbwuqlhp2kopmc/glove_vectors.zip?dl=0
+	Paste unzipped version into data/
 
 
 COMMAND LINE REFERENCE
