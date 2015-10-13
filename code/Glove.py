@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Cayman Simpson (cayman@stanford.edu), Harley Sugarman (harleys@stanford.edu), Angelica Perez (pereza77@stanford.edu)
 # CS224U, Created: 3 May 2015
-# file: Glove.py
+# file: py
 
 import numpy as np
 import csv
@@ -10,8 +10,8 @@ global glove;
 
 class Glove:
     
-    def __init__(self, filename, delimiter = ",", header=True, quoting=csv.QUOTE_MINIMAL):
-        
+    def __init__(self, filename, delimiter = ",", header=True, quoting=csv.QUOTE_MINIMAL, v=True):
+        self.v = v;
         self.filename = filename;
 
         matrix, rows, self.cols = self.build(filename, delimiter, header, quoting)
@@ -46,3 +46,40 @@ class Glove:
     # Returns a list of all the words in the glove matrix
     def getVocab(self):
         return self.vectors.keys();
+
+    # Computes the sum of the glove vectors of all elements in words
+    def getSumVec(self, words):
+        targetvec = self.getVec(words[0]);
+        if(targetvec == None and self.v): self.error("Glove does not have \"" + words[0] + "\" in its vocabulary");
+
+        for word in words[1:]:
+            wordvec = self.getVec(word);
+            if(wordvec != None): targetvec = map(lambda i: targetvec[i] + wordvec[i], xrange(len(targetvec)));  
+            else:
+                if(self.v): self.error("Glove does not have \"" + word + "\" in its vocabulary");
+
+        return targetvec
+
+    # Computes the average of the glove vectors of all elements in words
+    def getAverageVec(self, words):
+        start = 0;
+        targetvec = self.getVec(words[start]);
+        while(targetvec == None):
+            if(self.v): self.error("Glove does not have \"" + words[start] + "\" in its vocabulary");
+            start += 1;
+            targetvec = self.getVec(words[start]);
+
+        count = 0;
+        for word in words[start:]:
+            wordvec = self.getVec(word);
+            if(wordvec != None):
+                count += 1;
+                targetvec = map(lambda i: targetvec[i] + wordvec[i], xrange(len(targetvec)));
+                
+            else:
+                if(self.v): self.error("Glove does not have \"" + word + "\" in its vocabulary");
+
+        return map(lambda x: x/count, targetvec);
+
+    def error(self, msg):
+        print '\033[91m' + msg + '\033[0m';

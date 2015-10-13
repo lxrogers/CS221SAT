@@ -98,60 +98,6 @@ def getRecursiveFiles(path, filter_fn=lambda x: True):
         error(path + " is not a directory. Exiting...", True);
 
 
-# Allows for folding data for testing purposes. Usage Example:
-# ======================================================================
-# folds = FoldData(trainingdata, labels, folds=5);
-# for train, test in folds:
-#     classifier.train(train['data'], train['labels']);
-#     classifier.evaluate(test['data'], test['labels']);
-
-class FoldData:
-    data = [];
-    labels = [];
-    folds = 10;
-    current = 0;
-    
-    def __init__(self, data, labels, folds=10):
-        # TODO: assert that data and labels are same length
-        
-        self.folds = folds;
-        i = np.arange(len(data));
-        np.random.shuffle(i);
-                
-        seen = set();
-        for indices in chunk(i, self.folds):
-            indices = list(set(indices).difference(seen));
-            
-            self.data.append([data[index] for index in indices]);
-            self.labels.append([labels[index] for index in indices]);
-            
-            seen.update(indices);
-        
-        setattr(self, "folds", self.folds);
-    
-    def __iter__(self):
-        return self;
-
-    def next(self):
-        if self.current >= self.folds:
-            raise StopIteration
-        else:
-            self.current += 1
-            return self.getFold(self.current - 1)
-        
-    def getFold(self, index):
-        train = {'data':[],'labels':[]};
-        test  = {'data':[],'labels':[]};
-        for fold in xrange(self.folds):
-            if(fold != index):
-                train['data'] += self.data[fold];
-                train['labels'] += self.labels[fold];
-            else:
-                test['data'] += self.data[fold];
-                test['labels'] += self.labels[fold];
-
-        return (train, test);
-
 
 # =====================================================================================================================================================
 # =====================================================================================================================================================
@@ -204,39 +150,7 @@ def loadQuestions(qfile="../data/train/questions-train.txt", afile="../data/trai
     return questions
 
 
-# Computes the sum of the glove vectors of all elements in words
-def getSumVec(words, glove):
-    targetvec = glove.getVec(words[0]);
-    if(targetvec == None and v): error("Glove does not have \"" + words[0] + "\" in its vocabulary", False);
 
-    for word in words[1:]:
-        wordvec = glove.getVec(word);
-        if(wordvec != None): targetvec = map(lambda i: targetvec[i] + wordvec[i], xrange(len(targetvec)));  
-        else:
-            if(v): error("Glove does not have \"" + word + "\" in its vocabulary", False);
-
-    return targetvec
-
-# Computes the average of the glove vectors of all elements in words
-def getAverageVec(words, glove):
-    start = 0;
-    targetvec = glove.getVec(words[start]);
-    while(targetvec == None):
-        if(v): error("Glove does not have \"" + words[start] + "\" in its vocabulary", False);
-        start += 1;
-        targetvec = glove.getVec(words[start]);
-
-    count = 0;
-    for word in words[start:]:
-        wordvec = glove.getVec(word);
-        if(wordvec != None):
-            count += 1;
-            targetvec = map(lambda i: targetvec[i] + wordvec[i], xrange(len(targetvec)));
-            
-        else:
-            if(v): error("Glove does not have \"" + word + "\" in its vocabulary", False);
-
-    return map(lambda x: x/count, targetvec);
 
 # Returns (unigram_dict, bigram_dict, trigram_dict)
 def getGrams(path="../data/Holmes_Training_Data/"):
@@ -262,13 +176,13 @@ def getGrams(path="../data/Holmes_Training_Data/"):
 # Finds the best answer given a target vector, answers, a distance function and a threshold
 # Returns -1 if none of the answers fall within the threshold
 # Returns None if an answer has a word we don't understand (the question is illegible);
-def findBestVector(targetvec, answers, glove, distfunc, threshold):
+def findBestVector(targetvec, answers, distfunc, threshold):
     ind, mindist = -1, 10e100;
     for i,answer in enumerate(answers):
         vec = glove.getVec(answer);
 
         # Two word answer, adding the vector
-        if(" " in answer): vec = getSumVec(answer.split(" "), glove);
+        if(any(x in answer for x in ['\'','-'])): vec = glove.getSumVec(re.split('[\'\-]', answer));
 
         # Glove does not have the answer in its vocabulary
         if(vec == None):
@@ -280,15 +194,20 @@ def findBestVector(targetvec, answers, glove, distfunc, threshold):
 
     return answers[ind];
 
-#returns lists of nouns, verbs, and adjectives of sentence
+# Gets Synonyms
+def getSynonyms(word):
+    return list(set(synset.name()[:-10] for synset in wn.synsets(word)))
+
+
+# Returns lists of nouns, verbs, and adjectives of sentence
 def getPOSVecs(sentence):
     nounVec = []
     verbVec = []
     adjVec = []
     for word in sentence:
-        ss = wn.synsets(word)
-        if len(ss) < 1 or word in stopwords.words('english'): continue
-        pos = str(ss[0].pos())
+        synsets = wn.synsets(word)
+        if len(synsets) < 1 or word in stopwords.words('english'): continue
+        pos = str(synsets[0].pos())
         if pos == 'n':
             nounVec.append(word)
         elif pos == 'v':
@@ -301,20 +220,32 @@ def getPOSVecs(sentence):
 ###################################################### MODELS #######################################################
 #####################################################################################################################
 
-
 # Returns answer word based on random chance, given the answers 
-def randomModel(question, glove, distfunc=cosine, threshold=1):
+def randomModel(question, distfunc=cosine, threshold=1):
     return question.answers[random.randint(0,len(question.answers)) - 1];
 
 # Sentence is an array of words
 # Returns answer word by averaging the sentence passed in.
 # Returns None if an answer doesn't exist in the glove vocab
 # Returns -1 if no answers pass the confidence threshold
-def sentenceModel(question, glove, distfunc=cosine, threshold=1):
-    targetvec = getAverageVec(question.getSentence(), glove);
+def sentenceModel(question, distfunc=cosine, threshold=1):
+    targetvec = glove.getAverageVec(question.getSentence());
     ind, mindist = -1, 10e100;
 
-    return findBestVector(targetvec, question.answers, glove, distfunc, threshold)
+    return findBestVector(targetvec, question.answers, distfunc, threshold)
+
+def unigramModel(question, distfunc=cosine, threshold=1):
+    return max(question.answers, key=lambda x: unigrams[x]);
+
+def bigramModel(question, distfunc=cosine, threshold=1):
+    sentence = question.getSentence()
+    ind = sentence.index('_____');
+    return max(question.answers, key=lambda x: bigrams[(sentence[ind-1], x)]);
+
+def trigramModel(question, distfunc=cosine, threshold=1):
+    sentence = question.getSentence()
+    ind = sentence.index('_____');
+    return max(question.answers, key=lambda x: trigrams[(sentence[ind-2],sentence[ind-1], x)]);
 
 
 # Main method
@@ -325,8 +256,16 @@ def main():
     # Initialize all the external data
     if(v): print "Loading all external data...";
     t = time.time();
+
+    # Initialize global variables
+    global unigrams
+    global bigrams
+    global trigrams
+    global glove
+
     unigrams, bigrams, trigrams = getGrams(path=f);
     glove = Glove(g, delimiter=" ", header=False, quoting=csv.QUOTE_NONE);
+
     tagger = POSTagger(
             'stanford-postagger/models/english-bidirectional-distsim.tagger', 
             'stanford-postagger/stanford-postagger.jar',
@@ -338,13 +277,16 @@ def main():
 
     models = [
         ("Random", randomModel),
-        ("Sentence", sentenceModel)
+        ("Sentence", sentenceModel),
+        ("Unigram", unigramModel),
+        ("Bigram", bigramModel),
+        ("Trigram", trigramModel)
     ];
 
 
 
     for name, model in models:
-        scoring.score_model( [(model(q, glove), q.getCorrectAnswer()) for q in questions], verbose=True, modelname=name)
+        scoring.score_model( [(model(q), q.getCorrectAnswer()) for q in questions], verbose=True, modelname=name)
         
 
 

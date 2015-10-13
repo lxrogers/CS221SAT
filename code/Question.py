@@ -19,7 +19,7 @@ class Question:
         "\n\tCorrect Answer: " + str(self.correctAnswer) + "; " + self.answers[self.correctAnswer]
 
     def getSentence(self):
-    	return map(lambda x: x.strip().lower(), filter(lambda x: len(x) > 0,  re.split("[^A-Za-z0-9]", self.text)));
+    	return map(lambda x: x.strip().lower(), filter(lambda x: len(x) > 0,  re.split("[^A-Za-z0-9_\']", self.text)));
 
     def getCorrectAnswer(self):
     	return self.answers[self.correctAnswer];
