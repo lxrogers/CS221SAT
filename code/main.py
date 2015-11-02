@@ -133,30 +133,16 @@ def jaccard(u,v):
 # =====================================================================================================================================================
 # =====================================================================================================================================================
 
-def loadQuestions(qfile="../data/train/questions-train.txt", afile="../data/train/answers-train.txt"):
-    qtext, atext = readFile(qfile), readFile(afile);
-    qtext = filter(lambda y: len(y) > 0, map(lambda x: x.strip(), re.split('\n\n', qtext)));
-    atext = filter(lambda y: len(y) > 0, re.split('\n', atext));
-
-    corrects = dict((a[:a.find(')')], a[a.rfind(' '):].strip()) for a in atext);
-    questions = [];
-    for q in qtext:
-        arr = q.split("\n");
-        number = arr[0][:arr[0].find(')')];
-        prompt = arr[0][arr[0].find(' '):];
-        answers = map(lambda x: x[x.find(')')+1:].strip(), arr[1:]);
-        questions.append(Question(prompt, number, answers, answers.index(corrects[number])));
-
-    return questions
-
-
+def loadQuestions(directory="../data/train/"):
+    files = getRecursiveFiles(path, lambda x: x[x.rfind("/") + 1] != "." and ".txt" in x and x[-1] != '~' and "norvig" not in x.lower());
+    return [Question(readFile(filename)) for filename in files];
 
 
 # Returns (unigram_dict, bigram_dict, trigram_dict)
 def getGrams(path="../data/Holmes_Training_Data/"):
-    unigramCounts = collections.defaultdict(lambda: 1);
-    bigramCounts = collections.defaultdict(lambda: []);
-    trigramCounts = collections.defaultdict(lambda: []);
+    u = UnigramModel();
+    b = BigramModel();
+    c = CustomLanguageModel();
 
     files = getRecursiveFiles(path) if not isfile(path) else [path];
 
@@ -165,13 +151,11 @@ def getGrams(path="../data/Holmes_Training_Data/"):
         sentences = map(lambda sentence: re.sub("[^A-Za-z\ \,\'\"]", "", sentence.replace("-"," ")).strip(), sentences);
         sentences = map(lambda sentence: filter(lambda word: len(word) > 0, re.split("[^A-Za-z]", sentence)), sentences);
 
-        for sentence in sentences:
-            for i, word in enumerate(sentence):
-                unigramCounts[word] += 1;
-                if(i + 1 < len(sentence)): bigramCounts[word] += [sentence[i+1]]
-                if(i + 2 < len(sentence)): trigramCounts[(word, sentence[i+1])] += [sentence[i+2]];
+        u.train(sentences);
+        b.train(sentences);
+        c.train(sentences);
 
-    return unigramCounts, bigramCounts, trigramCounts
+    return u, b, c
 
 # Finds the best answer given a target vector, answers, a distance function and a threshold
 # Returns -1 if none of the answers fall within the threshold
@@ -216,6 +200,7 @@ def getPOSVecs(sentence):
             adjVec.append(word)
     return nounVec, verbVec, adjVec
 
+
 #####################################################################################################################
 ###################################################### MODELS #######################################################
 #####################################################################################################################
@@ -234,61 +219,37 @@ def sentenceModel(question, distfunc=cosine, threshold=1):
 
     return findBestVector(targetvec, question.answers, distfunc, threshold)
 
+# TODO: fix, have to call score and find maximum sentence prob with 
 def unigramModel(question, distfunc=cosine, threshold=1):
     return max(question.answers, key=lambda x: unigrams[x]);
 
+# TODO: fix
 def bigramModel(question, distfunc=cosine, threshold=1):
     sentence = question.getSentence()
     ind = sentence.index('_____');
     return max(question.answers, key=lambda x: bigrams[(sentence[ind-1], x)]);
 
-def trigramModel(question, distfunc=cosine, threshold=1):
+# TODO: fix
+def backOff(question, distfunc=cosine, threshold=1):
     sentence = question.getSentence()
     ind = sentence.index('_____');
-    return max(question.answers, key=lambda x: trigrams[(sentence[ind-2],sentence[ind-1], x)]);
+    # TODO
+    return None;
 
 
 # Main method
-def main():
-    if(v): print "Loading passages...";
-    questions = loadQuestions() if train else loadQuestions(qfile="../data/test/questions-test.txt", afile="../data/test/answers-test.txt");
-
-    # Initialize all the external data
-    if(v): print "Loading all external data...";
-    t = time.time();
-
-    # Initialize global variables
-    global unigrams
-    global bigrams
-    global trigrams
-    global glove
-
-    unigrams, bigrams, trigrams = getGrams(path=f);
-    glove = Glove(g, delimiter=" ", header=False, quoting=csv.QUOTE_NONE);
-
-    tagger = POSTagger(
-            'stanford-postagger/models/english-bidirectional-distsim.tagger', 
-            'stanford-postagger/stanford-postagger.jar',
-            'utf-8'
-        );
-
-    if(v): print "Finished loading all external data in " + str(int(time.time() - start)) + " seconds!"
-    if(v): print "Starting program now..."
-
+# Global variables: unigrams, bigrams, backoff, glove, tagger
+def main(questions):
     models = [
         ("Random", randomModel),
         ("Sentence", sentenceModel),
-        ("Unigram", unigramModel),
+        ("Unigram", unigramModel), # these are broken
         ("Bigram", bigramModel),
         ("Trigram", trigramModel)
     ];
 
-
-
     for name, model in models:
-        scoring.score_model( [(model(q), q.getCorrectAnswer()) for q in questions], verbose=True, modelname=name)
-        
-
+        scoring.score_model( [(model(q), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
 
 
 # =====================================================================================================================================================
@@ -356,11 +317,41 @@ if __name__ == "__main__":
     import scoring
     from Question import *
     from Glove import *
+    from BigramModel import *
+    from UnigramModel import *
+    from CustomLanguageModel import *
     import numpy as np
     if(v): print "All modules successfully loaded in " + str(int(time.time() - start)) +  " seconds!"
 
+
+    # Initialize all the external data
+    if(v): print "Loading all external data...";
+    t = time.time();
+
+    if(v): print "Loading passages...";
+    questions = loadQuestions() if train else loadQuestions(directory="../data/test/");
+
+    # Initialize global variables
+    global unigrams
+    global bigrams
+    global backoff
+    global glove
+    global tagger
+
+    unigrams, bigrams, trigrams = getGrams(path=f);
+    glove = Glove(g, delimiter=" ", header=False, quoting=csv.QUOTE_NONE);
+
+    tagger = POSTagger(
+            'stanford-postagger/models/english-bidirectional-distsim.tagger', 
+            'stanford-postagger/stanford-postagger.jar',
+            'utf-8'
+        );
+
+    if(v): print "Finished loading all external data in " + str(int(time.time() - start)) + " seconds!"
+    if(v): print "Starting program now..."
+
     # Main Method
-    main();
+    main(questions);
 
     # Finished main execution
     if(v): printSuccess("Program successfully finished and exited in " + str(int(time.time() - start)) +  " seconds!");

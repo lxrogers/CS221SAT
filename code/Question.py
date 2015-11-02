@@ -7,19 +7,22 @@ import re
 
 class Question:
 
-    def __init__(self, prompt, number, answers, correct):
+    def __init__(self, string):
         """Question initialization."""
-        self.text = prompt;
-        self.number = number
-        self.answers = answers;
-        self.correctAnswer = correct;
+        arr = filter(lambda x: len(x) > 0, string.split("\n"));
+        self.text = arr[0].strip();
+        self.answers = map(lambda x: x.strip(), arr[1:-1]);
+        self.correctAnswer = int(arr[-1]);
 
     def __str__(self):
-        return "Question #" + self.number + ":\n\t" + self.text + "\n\t" + str(self.answers) + \
-        "\n\tCorrect Answer: " + str(self.correctAnswer) + "; " + self.answers[self.correctAnswer]
+        return "Question:\n\t" + self.text + "\n\t" + str(self.answers) + \
+        "\n\tCorrect Answer: " + str(self.correctAnswer) + "; " + self.answers[self.correctAnswer];
+
+    def __repr__(self):
+        return str(self);
 
     def getSentence(self):
     	return map(lambda x: x.strip().lower(), filter(lambda x: len(x) > 0,  re.split("[^A-Za-z0-9_\']", self.text)));
 
-    def getCorrectAnswer(self):
+    def getCorrectWord(self):
     	return self.answers[self.correctAnswer];
