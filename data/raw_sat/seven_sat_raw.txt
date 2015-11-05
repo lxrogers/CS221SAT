@@ -2,8 +2,8 @@ Scientific discoveries are often thought of as the result of ____ effort, but ma
 conscientious, a method
 incidental, a mishap
 collaborative, a design
-persistent, a n extension
-systematic, a n accident
+persistent, an extension
+systematic, an accident
 4
 
 Nations that share a border are, by definition, ____.
@@ -30,7 +30,7 @@ whimsicality
 plasticity
 4
 
-“Less government spending” is ____of this political party, a belief shared by most party members.
+“Less government spending” is ____ of this political party, a belief shared by most party members.
 an acronym
 a retraction
 a tenet
@@ -518,7 +518,7 @@ tangential, interpretation
 relevant, legislation
 1
 
-Canaries are often said ot have ____ voices because they make such sweet, harmonious sounds.
+Canaries are often said to have ____ voices because they make such sweet, harmonious sounds.
 insistent
 unnatural
 melodious
@@ -630,7 +630,7 @@ dictum
 respite
 2
 
-the ambassador argues that, in diplomacy, there is a subtle but important difference between a country’s showing a willingness to ____ and a too-obvious readiness to make ____.
+The ambassador argues that, in diplomacy, there is a subtle but important difference between a country’s showing a willingness to ____ and a too-obvious readiness to make ____.
 negotiate, concessions
 antagonize, friends
 surrender, enemies
