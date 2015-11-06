@@ -29,7 +29,12 @@ def readJson(filename):
 
 # Loads a pickle file
 def loadPickle(filename):
-    return pickle.load(file(filename));
+    return cPickle.load(file(filename));
+
+def savePickle(obj, filename):
+    w = open(filename, 'wb'); # Saving in binary format
+    cPickle.dump(obj, w, -1); # Using highest protocol
+    w.close();
 
 # Writes a matrix to a file with an optional delimiter
 def matrixToFile(matrix, filename, delimiter=','):
@@ -92,7 +97,7 @@ def getRecursiveFiles(path, filter_fn=lambda x: True):
             for child in children:
                 if not isfile(join(path,child)) and "." not in f: paths.append(join(path,child));
                 elif isfile(join(path,child)): files.append(join(path,child));
-                paths = paths[1:]; #remove te path we just looked at
+            paths = paths[1:]; #remove te path we just looked at
         return filter(filter_fn, files);
     except:
         error(path + " is not a directory. Exiting...", True);
@@ -134,27 +139,44 @@ def jaccard(u,v):
 # =====================================================================================================================================================
 
 def loadQuestions(directory="../data/train/"):
-    files = getRecursiveFiles(path, lambda x: x[x.rfind("/") + 1] != "." and ".txt" in x and x[-1] != '~' and "norvig" not in x.lower());
-    return [Question(readFile(filename)) for filename in files];
+    files = getRecursiveFiles(directory, lambda x: x[x.rfind("/") + 1] != "." and ".txt" in x and x[-1] != '~' and "norvig" not in x.lower());
+    return [Question(text) for filename in files for text in readFile(filename).split("\n\n") ];
 
 
 # Returns (unigram_dict, bigram_dict, trigram_dict)
 def getGrams(path="../data/Holmes_Training_Data/"):
+    loadFile = "../data/languagemodels"
     u = UnigramModel();
     b = BigramModel();
     c = CustomLanguageModel();
+    if(len(getRecursiveFiles("../data/languagemodels", filter_fn=lambda a: ".pickle" in a)) > 0 and not save):
+        u.total = loadPickle("../data/languagemodels/u-total.pickle")
+        u.unigramProbs = loadPickle("../data/languagemodels/u-unigramProbs.pickle")
+        unigramcounts = loadPickle("../data/languagemodels/unigramCounts.pickle")
+        u.unigramCounts = unigramcounts;
+        b.bigramCounts = loadPickle("../data/languagemodels/b-bigramCounts.pickle")
+        b.unigramCounts = unigramcounts
+        #c.ngramCounts = loadPickle("../data/languagemodels/c-ngramCounts.pickle")
+        #c.continuationProb = loadPickle("../data/languagemodels/c-continuationProb.pickle")
+        #c.total = loadPickle("../data/languagemodels/c-total.pickle")
+    else:
+        files = getRecursiveFiles(path) if not isfile(path) else [path];
+        for filename in files:
+            sentences = readFile(filename).lower().split(".");
+            sentences = map(lambda sentence: "<BEGIN> " + re.sub("[^A-Za-z\ \,\'\"]", "", sentence.replace("-"," ")).strip() + " <END>", sentences);
+            sentences = map(lambda sentence: filter(lambda word: len(word) > 0, re.split("[^A-Za-z]", sentence)), sentences);
 
-    files = getRecursiveFiles(path) if not isfile(path) else [path];
-
-    for filename in files:
-        sentences = readFile(filename).lower().split(".");
-        sentences = map(lambda sentence: re.sub("[^A-Za-z\ \,\'\"]", "", sentence.replace("-"," ")).strip(), sentences);
-        sentences = map(lambda sentence: filter(lambda word: len(word) > 0, re.split("[^A-Za-z]", sentence)), sentences);
-
-        u.train(sentences);
-        b.train(sentences);
-        c.train(sentences);
-
+            u.train(sentences);
+            b.train(sentences);
+            #c.train(sentences);
+        if(save):
+            savePickle(u.total, "../data/languagemodels/u-total.pickle")
+            savePickle(u.unigramProbs, "../data/languagemodels/u-unigramProbs.pickle")
+            savePickle(u.unigramCounts, "../data/languagemodels/unigramCounts.pickle")
+            savePickle(b.bigramCounts, "../data/languagemodels/b-bigramCounts.pickle")
+            #savePickle(c.ngramCounts, "../data/languagemodels/c-ngramCounts.pickle")
+            #savePickle(c.continuationProb, "../data/languagemodels/c-continuationProb.pickle")
+            #savePickle(c.total, "../data/languagemodels/c-total.pickle")
     return u, b, c
 
 # Finds the best answer given a target vector, answers, a distance function and a threshold
@@ -219,22 +241,15 @@ def sentenceModel(question, distfunc=cosine, threshold=1):
 
     return findBestVector(targetvec, question.answers, distfunc, threshold)
 
-# TODO: fix, have to call score and find maximum sentence prob with 
 def unigramModel(question, distfunc=cosine, threshold=1):
-    return max(question.answers, key=lambda x: unigrams[x]);
+    return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]))[0];
 
-# TODO: fix
 def bigramModel(question, distfunc=cosine, threshold=1):
-    sentence = question.getSentence()
-    ind = sentence.index('_____');
-    return max(question.answers, key=lambda x: bigrams[(sentence[ind-1], x)]);
+    return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]))[0];
 
-# TODO: fix
-def backOff(question, distfunc=cosine, threshold=1):
-    sentence = question.getSentence()
-    ind = sentence.index('_____');
-    # TODO
-    return None;
+def backOffModel(question, distfunc=cosine, threshold=1):
+    return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]))[0];
+
 
 
 # Main method
@@ -242,10 +257,19 @@ def backOff(question, distfunc=cosine, threshold=1):
 def main(questions):
     models = [
         ("Random", randomModel),
-        ("Sentence", sentenceModel),
+        #("Sentence", sentenceModel), Does not rate goodness of sentence
         ("Unigram", unigramModel), # these are broken
-        ("Bigram", bigramModel),
-        ("Trigram", trigramModel)
+        ("Bigram", bigramModel)#, # these are broken
+        #("BackOff", backOffModel) # these are broken
+    ];
+
+    distances = [
+        kldist,
+        jsd,
+        cosine,
+        L2,
+        L1,
+        jaccard
     ];
 
     for name, model in models:
@@ -264,6 +288,7 @@ def main(questions):
 #   2) -g: filename for glove vectors, default "../data/glove_vectors/glove.6B.50d.txt"
 #   3) -train/-test: designates whether you want to evaluate on train or test (required)
 #   4) -f: folder or file to read text from, default "../data/Holmes_Training_Data/"
+#   5) -save: saves the train models for faster training
 if __name__ == "__main__":
 
     # Preliminary loading to get arguments
@@ -279,6 +304,7 @@ if __name__ == "__main__":
     g = "../data/glove_vectors/glove.6B.50d.txt";
     f = "../data/Holmes_Training_Data/"
     train = None;
+    save = False;
 
     # Get command lime arguments
     for i, arg in enumerate(args):
@@ -290,14 +316,17 @@ if __name__ == "__main__":
             train = True;
         if(arg == "-test"):
             train = False;
+        if(arg == "-save"):
+            save = True;
 
     # Report error if called the wrong way
     if("help" in args or train == None):
-        error("Example call: python main.py  -v -g ../data/glove_vectors/glove.6B.300d.txt" + 
+        error("Example call: python main.py -train -v -g ../data/glove_vectors/glove.6B.300d.txt\n" + 
             "   1) -v: if you want this program to be verbose\n" +
-            "   2) -g: path to glove vector file (defaults to '../data/glove_vectors/glove.6B.50d.txt'" + 
-            "   3) -train/-test: designates whether you want to evaluate on train or test (required)" + 
-            "   4) -f: files to read tect from, default '../data/Holmes_Training_Data/'", True)
+            "   2) -g: path to glove vector file (defaults to '../data/glove_vectors/glove.6B.50d.txt'\n" + 
+            "   3) -train/-test: designates whether you want to evaluate on train or test (required)\n" + 
+            "   4) -f: files to read text from, default '../data/Holmes_Training_Data/'\n" + 
+            "   5) -save: will save the language models so you don't have to train them", True)
 
 
     # Loading Modules
@@ -321,6 +350,7 @@ if __name__ == "__main__":
     from UnigramModel import *
     from CustomLanguageModel import *
     import numpy as np
+    import cPickle
     if(v): print "All modules successfully loaded in " + str(int(time.time() - start)) +  " seconds!"
 
 
@@ -328,7 +358,7 @@ if __name__ == "__main__":
     if(v): print "Loading all external data...";
     t = time.time();
 
-    if(v): print "Loading passages...";
+    if(v): print "\tLoading passages...";
     questions = loadQuestions() if train else loadQuestions(directory="../data/test/");
 
     # Initialize global variables
@@ -338,9 +368,13 @@ if __name__ == "__main__":
     global glove
     global tagger
 
-    unigrams, bigrams, trigrams = getGrams(path=f);
+    if(v): print "\tTraining Language Models...";
+    unigrams, bigrams, backoff = getGrams(path=f);
+
+    if(v): print "\tLoading Glove Vectors...";
     glove = Glove(g, delimiter=" ", header=False, quoting=csv.QUOTE_NONE);
 
+    if(v): print "\tInitializing Part-Of-Speech Classifier";
     tagger = POSTagger(
             'stanford-postagger/models/english-bidirectional-distsim.tagger', 
             'stanford-postagger/stanford-postagger.jar',

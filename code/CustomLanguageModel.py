@@ -1,10 +1,13 @@
 import math, collections
-
+def zero_fn():
+    return 0;
+def set_fn():
+    return set();
 class CustomLanguageModel:
     def __init__(self):
         """Initialize your data structures in the constructor."""
-        self.ngramCounts = collections.defaultdict(lambda: 0);
-        self.continuationProb = collections.defaultdict(lambda: set());
+        self.ngramCounts = collections.defaultdict(zero_fn);
+        self.continuationProb = collections.defaultdict(set_fn);
         self.total = 0;
 
     def train(self, corpus):
@@ -53,6 +56,5 @@ class CustomLanguageModel:
             score =  self.getBackOff(tuple(sentence[:i+1]));
             if(score != 0):
                 s += math.log(score);
-
 
         return s

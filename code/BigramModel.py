@@ -1,11 +1,12 @@
 import collections, math
-
-class LaplaceBigramLanguageModel:
+def zero_fn():
+    return 0;
+class BigramModel:
 
     def __init__(self):
         """Initialize your data structures in the constructor."""
-        self.bigramCounts = collections.defaultdict(lambda: 0);
-        self.unigramCounts = collections.defaultdict(lambda: 0);
+        self.bigramCounts = collections.defaultdict(zero_fn);
+        self.unigramCounts = collections.defaultdict(zero_fn);
 
     def train(self, corpus):
         """ Takes a corpus and trains your language model. 
@@ -13,14 +14,14 @@ class LaplaceBigramLanguageModel:
         """  
 
 
-        for sentence in corpus.corpus:
-            for i in xrange(len(sentence.data) - 1):  
-                word1 = sentence.data[i].word;
-                word2 = sentence.data[i + 1].word;
+        for sentence in corpus:
+            for i in xrange(len(sentence) - 1):  
+                word1 = sentence[i];
+                word2 = sentence[i + 1];
                 self.bigramCounts[(word1, word2)] += 1;
                 self.unigramCounts[word1] += 1;
 
-            self.unigramCounts[sentence.data[len(sentence.data) - 1].word] += 1;
+            self.unigramCounts[sentence[len(sentence) - 1]] += 1;
         
 
     def score(self, sentence):

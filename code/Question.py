@@ -24,5 +24,16 @@ class Question:
     def getSentence(self):
     	return map(lambda x: x.strip().lower(), filter(lambda x: len(x) > 0,  re.split("[^A-Za-z0-9_\']", self.text)));
 
+    def getFilledSentence(self, index):
+        if(len(self.answers[index].split(",")) <= 1):
+            return self.text.replace("____", self.answers[index]);
+        else:
+            try:
+                answers = map(lambda x: x.strip(), self.answers[index].split(","));
+                temp = self.text.replace("____", answers[0],1)
+                return temp.replace("____", answers[1], 1);
+            except:
+                print answers;
+
     def getCorrectWord(self):
     	return self.answers[self.correctAnswer];

@@ -1,11 +1,12 @@
 import math, collections
-
-class LaplaceUnigramLanguageModel:
+def zero_fn():
+    return 0;
+class UnigramModel:
 
     def __init__(self):
         """Initialize your data structures in the constructor."""
-        self.unigramProbs = collections.defaultdict(lambda: 0)
-        self.unigramCounts = collections.defaultdict(lambda: 0);
+        self.unigramProbs = collections.defaultdict(zero_fn)
+        self.unigramCounts = collections.defaultdict(zero_fn);
         self.total = 0;
 
     def train(self, corpus):
@@ -15,14 +16,13 @@ class LaplaceUnigramLanguageModel:
 
         for sentence in corpus:
             for word in sentence:
-                unigramCounts[word] = unigramCounts[word] + 1;
+                self.unigramCounts[word] = self.unigramCounts[word] + 1;
                 self.total += 1;
 
+        self.unigramCounts["<UNK>"] = 0;
 
-        unigramCounts["<UNK>"] = 0;
-
-        for key in unigramCounts:
-            self.unigramProbs[key] = float(unigramCounts[key] + 1)/len(unigramCounts);
+        for key in self.unigramCounts:
+            self.unigramProbs[key] = float(self.unigramCounts[key] + 1)/len(self.unigramCounts);
 
 
     def score(self, sentence):
