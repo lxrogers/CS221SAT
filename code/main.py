@@ -185,14 +185,18 @@ def getGrams(path="../data/Holmes_Training_Data/"):
 def findBestVector(targetvec, answers, distfunc, threshold):
     ind, mindist = -1, 10e100;
     for i,answer in enumerate(answers):
-        vec = glove.getVec(answer);
+        vec = None;
+        if(len(re.split("[\,\s]", answer)) <= 1):
+            vec = glove.getVec(answer);
 
-        # Two word answer, adding the vector
-        if(any(x in answer for x in ['\'','-'])): vec = glove.getSumVec(re.split('[\'\-]', answer));
+            # Two word answer, adding the vector
+            if(any(x in answer for x in ['\'','-'])): vec = glove.getSumVec(re.split('[\'\-]', answer));
+        else:
+            vec = glove.getAverageVec(filter(lambda y: len(y) > 0, map(lambda x: x.strip(), re.split("[\,\s]", answer))));
 
         # Glove does not have the answer in its vocabulary
         if(vec == None):
-            if(v): error("Glove does not have the answer \"" + answer + "\" in its vocabulary", False);
+            if(v): error("Glove does not have the means to evaluate \"" + answer + "\" in its vocabulary", False);
             return None;
 
         if( distfunc(vec, targetvec) < mindist and distfunc(vec, targetvec) < threshold ):
@@ -257,23 +261,23 @@ def backOffModel(question, distfunc=cosine, threshold=1):
 def main(questions):
     models = [
         ("Random", randomModel),
-        #("Sentence", sentenceModel), Does not rate goodness of sentence
-        ("Unigram", unigramModel), # these are broken
-        ("Bigram", bigramModel)#, # these are broken
-        #("BackOff", backOffModel) # these are broken
+        ("Sentence", sentenceModel), # Does not rate goodness of sentence
+        ("Unigram", unigramModel),
+        ("Bigram", bigramModel)#,
+        #("BackOff", backOffModel) 
     ];
 
     distances = [
-        kldist,
-        jsd,
-        cosine,
-        L2,
-        L1,
-        jaccard
+        (kldist, "kldist"),
+        (jsd, "jsd"),
+        (cosine, "cosine"),
+        (L2, "L2"),
+        (L1, "L1"),
+        (jaccard, "jaccard")
     ];
 
     for name, model in models:
-        scoring.score_model( [(model(q), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
+            scoring.score_model( [(model(q), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
 
 
 # =====================================================================================================================================================
@@ -288,7 +292,7 @@ def main(questions):
 #   2) -g: filename for glove vectors, default "../data/glove_vectors/glove.6B.50d.txt"
 #   3) -train/-test: designates whether you want to evaluate on train or test (required)
 #   4) -f: folder or file to read text from, default "../data/Holmes_Training_Data/"
-#   5) -save: saves the train models for faster training
+#   5) -save: retrains the models and saves the trained models for further runs
 if __name__ == "__main__":
 
     # Preliminary loading to get arguments
@@ -372,7 +376,7 @@ if __name__ == "__main__":
     unigrams, bigrams, backoff = getGrams(path=f);
 
     if(v): print "\tLoading Glove Vectors...";
-    glove = Glove(g, delimiter=" ", header=False, quoting=csv.QUOTE_NONE);
+    glove = Glove(g, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
 
     if(v): print "\tInitializing Part-Of-Speech Classifier";
     tagger = POSTagger(

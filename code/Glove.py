@@ -62,15 +62,9 @@ class Glove:
 
     # Computes the average of the glove vectors of all elements in words
     def getAverageVec(self, words):
-        start = 0;
-        targetvec = self.getVec(words[start]);
-        while(targetvec == None):
-            if(self.v): self.error("Glove does not have \"" + words[start] + "\" in its vocabulary");
-            start += 1;
-            targetvec = self.getVec(words[start]);
-
+        targetvec = [0]*len(self.vectors.values()[0])
         count = 0;
-        for word in words[start:]:
+        for word in words:
             wordvec = self.getVec(word);
             if(wordvec != None):
                 count += 1;
@@ -79,6 +73,7 @@ class Glove:
             else:
                 if(self.v): self.error("Glove does not have \"" + word + "\" in its vocabulary");
 
+        if(count == 0): return None;
         return map(lambda x: x/count, targetvec);
 
     def error(self, msg):
