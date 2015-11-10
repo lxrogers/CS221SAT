@@ -228,7 +228,7 @@ def getPOSVecs(sentence):
 
 
 #####################################################################################################################
-###################################################### MODELS #######################################################
+################################################# GOOD MODELS #######################################################
 #####################################################################################################################
 
 # Returns answer word based on random chance, given the answers 
@@ -241,8 +241,6 @@ def randomModel(question, distfunc=cosine, threshold=1):
 # Returns -1 if no answers pass the confidence threshold
 def sentenceModel(question, distfunc=cosine, threshold=1):
     targetvec = glove.getAverageVec(question.getSentence());
-    ind, mindist = -1, 10e100;
-
     return findBestVector(targetvec, question.answers, distfunc, threshold)
 
 def unigramModel(question, distfunc=cosine, threshold=1):
@@ -255,13 +253,27 @@ def backOffModel(question, distfunc=cosine, threshold=1):
     return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]))[0];
 
 
+#####################################################################################################################
+############################################# BAD-PREDICTING MODELS #################################################
+#####################################################################################################################
+
+def badunigramModel(question, distfunc=cosine, threshold=1):
+    return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]))[0];
+
+def badbigramModel(question, distfunc=cosine, threshold=1):
+    return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]))[0];
+
+def badsentenceModel(question, distfunc=cosine, threshold=1):
+    targetvec = glove.getAverageVec(question.getSentence());
+    return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
+
 
 # Main method
 # Global variables: unigrams, bigrams, backoff, glove, tagger
 def main(questions):
     models = [
         ("Random", randomModel),
-        ("Sentence", sentenceModel), # Does not rate goodness of sentence
+        ("Sentence", sentenceModel),
         ("Unigram", unigramModel),
         ("Bigram", bigramModel)#,
         #("BackOff", backOffModel) 
@@ -278,6 +290,17 @@ def main(questions):
 
     for name, model in models:
             scoring.score_model( [(model(q), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
+
+
+    badModels = [
+        ("Sentence", badsentenceModel),
+        ("Unigram", badunigramModel),
+        ("Bigram", badbigramModel)#,
+        #("BackOff", backOffModel) 
+    ];
+
+    for name, model in badModels:
+            scoring.score_elimination_model( [(model(q), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
 
 
 # =====================================================================================================================================================
@@ -372,7 +395,9 @@ if __name__ == "__main__":
     global glove
     global tagger
 
-    if(v): print "\tTraining Language Models...";
+    if(v):
+        if(save): print "\tTraining Language Models...";
+        else: print "\tLoading Language Models...";
     unigrams, bigrams, backoff = getGrams(path=f);
 
     if(v): print "\tLoading Glove Vectors...";

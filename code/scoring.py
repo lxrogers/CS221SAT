@@ -17,8 +17,8 @@ SCORE_CONVERSION_TABLE = dict([(67, 800), (31, 500), (66, 800), (30, 500),
                                (35, 530), (-1, 210), (34, 520), (-2, 200),
                                (33, 520), (32, 510)])
 
-def score_model(guess_answer_pairs, verbose=False, modelname=""):
-    print '\033[95m' + modelname + "\033[0m";
+def score_model(guess_answer_pairs, verbose=False, modelname="Name Not Given"):
+    print '\033[95mModel: ' + modelname + "\033[0m";
 
     num_correct = 0
     unscaled_score = 0.0
@@ -40,6 +40,18 @@ def score_model(guess_answer_pairs, verbose=False, modelname=""):
         print "\tScaled Score: " + str(scaled_score) + "/" + str(len(SCORE_CONVERSION_TABLE)-3)
         print "\tConverted SAT Score: " + str(score) + "/800\n"
     return score
+
+def score_elimination_model(guess_answer_pairs, verbose=False, modelname="Name Not Given"):
+    print '\033[95m Bad-Answer PredictingModel: ' + modelname + "\033[0m";
+    num_correct = sum([1 if g == a else 0 for g,a in guess_answer_pairs]);
+    num_wrong = sum([1 if g != a else 0 for g,a in guess_answer_pairs]);
+
+    if(verbose):
+        print "\tBreakdown:"
+        print "\tNumber of Correctly Identified Bad Answers: " + str(num_wrong) + "/" + str(len(guess_answer_pairs))
+        print "\tPercent Correctly Identified Bad Answers: " + str(float(int(float(num_wrong)/len(guess_answer_pairs)*10000))/100) + "%"
+        print "\tNumber of Accidental Right Answers: " + str(num_correct) + "/" + str(len(guess_answer_pairs))
+        print "\tPercent Accidental Right Answers: " + str(float(int(float(num_correct)/len(guess_answer_pairs)*10000))/100) + "%\n"
 
 def scale_score(unscaled_score, num_questions):
     float_scaled_score = (unscaled_score/num_questions)
