@@ -227,55 +227,133 @@ def getPOSVecs(sentence):
     return nounVec, verbVec, adjVec
 
 
-#####################################################################################################################
-################################################# GOOD MODELS #######################################################
-#####################################################################################################################
-
-# Returns answer word based on random chance, given the answers 
-def randomModel(question, distfunc=cosine, threshold=1):
-    return question.answers[random.randint(0,len(question.answers)) - 1];
-
-# Sentence is an array of words
-# Returns answer word by averaging the sentence passed in.
-# Returns None if an answer doesn't exist in the glove vocab
-# Returns -1 if no answers pass the confidence threshold
-def sentenceModel(question, distfunc=cosine, threshold=1):
-    targetvec = glove.getAverageVec(question.getSentence());
-    return findBestVector(targetvec, question.answers, distfunc, threshold)
-
-def unigramModel(question, distfunc=cosine, threshold=1):
-    return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]))[0];
-
-def bigramModel(question, distfunc=cosine, threshold=1):
-    return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]))[0];
-
-def backOffModel(question, distfunc=cosine, threshold=1):
-    return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]))[0];
-
-
-#####################################################################################################################
-############################################# BAD-PREDICTING MODELS #################################################
-#####################################################################################################################
-
-def badunigramModel(question, distfunc=cosine, threshold=1):
-    return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]))[0];
-
-def badbigramModel(question, distfunc=cosine, threshold=1):
-    return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]))[0];
-
-def badsentenceModel(question, distfunc=cosine, threshold=1):
-    targetvec = glove.getAverageVec(question.getSentence());
-    return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
 
 
 # Main method
 # Global variables: unigrams, bigrams, backoff, glove, tagger
 def main(questions):
+
+    #####################################################################################################################
+    ################################################### MODELS ##########################################################
+    #####################################################################################################################
+
+    # Returns answer word based on random chance, given the answers 
+    def randomModel(question, distfunc=cosine, threshold=1):
+        return question.answers[random.randint(0,len(question.answers)) - 1];
+
+    # Sentence is an array of words
+    # Returns answer word by averaging the sentence passed in.
+    # Returns None if an answer doesn't exist in the glove vocab
+    # Returns -1 if no answers pass the confidence threshold
+    def sentenceModel(question, distfunc=cosine, threshold=1, rev=False):
+        targetvec = glove.getAverageVec(question.getSentence());
+        if(not rev):
+            return findBestVector(targetvec, question.answers, distfunc, threshold);
+        else:
+            return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
+
+
+    def unigramModel(question, distfunc=cosine, threshold=1, rev=False):
+        if(not rev):
+            return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]))[0];
+        else:
+            return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]))[0];
+
+
+    def bigramModel(question, distfunc=cosine, threshold=1, rev=False):
+        if(not rev):
+            return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]))[0];
+        else:
+            return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]))[0];
+
+
+    def backOffModel(question, distfunc=cosine, threshold=1, rev=False):
+        if(not rev):
+            return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]))[0];
+        else:
+            return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]))[0];
+
+
+    def neuralNetModel(question, distfunc=cosine, threshold=1, rev=False):
+
+        targetvec = net.predict(getNetInput(question.getSentence()));
+
+        if(not rev):
+            return findBestVector(targetvec, question.answers, distfunc, threshold);
+        else:
+            return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
+       
+
+    #####################################################################################################################
+    ############################################### MAIN CODEBASE #######################################################
+    #####################################################################################################################
+
+
+    def getNetInput(sentence):
+        # Filtering stop words from the sentence
+        sentence = filter(lambda x: x in stopwords.words('english') and (x in glove or '_' in x), sentence);
+
+        # Add 10 or less non-stop words leading up to blank
+        vsmInput = [];
+        for i in xrange(10):
+            if(i >= len(sentence) or '_' in sentence[i]): break;
+            vsmInput += glove.getVec(sentence[i]).tolist();
+
+        # Append 0's to make uniform input length
+        if(len(vsmInput) < 500): vsmInput += [0]*(500 - len(vsmInput));
+        return vsmInput;
+     
+     savePickle(u.total, "../data/languagemodels/u-total.pickle")
+    def trainNeuralNetwork(questionData):
+        if(len(getRecursiveFiles("../data/neuralnet", filter_fn=lambda a: ".pickle" in a)) > 0 and not save):
+            net.input = loadPickle("../data/neuralnet/input.pickle");
+            net.hidden = loadPickle("../data/neuralnet/hidden.pickle");
+            net.output = loadPickle("../data/neuralnet/output.pickle");
+            net.iweights = loadPickle("../data/neuralnet/iweights.pickle");
+            net.oweights = loadPickle("../data/neuralnet/oweights.pickle");
+            net.oerr = loadPickle("../data/neuralnet/oerr.pickle");
+            net.ierr = loadPickle("../data/neuralnet/ierr.pickle");
+        else:
+            # Creating training data
+            train = [];
+            for q in questionData:
+                if(q.getCorrectWord() in glove):
+                    train.append( (getNetInput(q.getSentence()), glove.getVec(q.getCorrectWord())) );
+
+            if(save):
+                savePickle(net.input, "../data/neuralnet/input.pickle");
+                savePickle(net.hidden, "../data/neuralnet/hidden.pickle");
+                savePickle(net.output, "../data/neuralnet/output.pickle");
+                savePickle(net.iweights, "../data/neuralnet/iweights.pickle");
+                savePickle(net.oweights, "../data/neuralnet/oweights.pickle");
+                savePickle(net.oerr, "../data/neuralnet/oerr.pickle");
+                savePickle(net.ierr, "../data/neuralnet/ierr.pickle");
+
+        net.train(train); 
+
+    # Initializing Shallow Neural Network using 50 length VSMs and 10 words, using sigmoid layers
+    sigmoid = np.vectorize(lambda x: 1.0/(1.0+np.exp(-x)))
+    net = ShallowNeuralNetwork(
+        input_dim=500,
+        hidden_dim=750,
+        output_dim=50,
+        afunc= sigmoid, # Sigmoid Layer
+        d_afunc=np.vectorize(lambda x: sigmoid(x)*(1-sigmoid(x)))
+    )
+
+    trainNeuralNetwork(questions[:len(questions)/2]);
+
+
+    #####################################################################################################################
+    ################################################# EVAL MODELS #######################################################
+    #####################################################################################################################
+
     models = [
         ("Random", randomModel),
         ("Sentence", sentenceModel),
         ("Unigram", unigramModel),
-        ("Bigram", bigramModel)#,
+        ("Bigram", bigramModel),
+        ("Neural Network", neuralNetModel)
         #("BackOff", backOffModel) 
     ];
 
@@ -291,16 +369,8 @@ def main(questions):
     for name, model in models:
             scoring.score_model( [(model(q), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
 
-
-    badModels = [
-        ("Sentence", badsentenceModel),
-        ("Unigram", badunigramModel),
-        ("Bigram", badbigramModel)#,
-        #("BackOff", backOffModel) 
-    ];
-
-    for name, model in badModels:
-            scoring.score_elimination_model( [(model(q), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
+    for name, model in models:
+            scoring.score_elimination_model( [(model(q, rev=True), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
 
 
 # =====================================================================================================================================================

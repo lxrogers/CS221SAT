@@ -21,8 +21,13 @@ class Glove:
             self.vectors[word] = matrix[i]
 
     def __str__(self):
-    	string = "Glove: " + self.filename + "\n    has " + str(len(self.vectors)) + " words.";
+    	return "Glove: " + self.filename + "\n    has " + str(len(self.vectors)) + " words.";
 
+    def __repr__(self):
+        return str(self);
+
+    def __contains__(self, item):
+        return item in self.vectors
 
     def build(self, src_filename, delimiter, header, quoting):    
         reader = csv.reader(file(src_filename), delimiter=delimiter, quoting=quoting)
