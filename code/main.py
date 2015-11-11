@@ -303,7 +303,6 @@ def main(questions):
         if(len(vsmInput) < 500): vsmInput += [0]*(500 - len(vsmInput));
         return vsmInput;
      
-     savePickle(u.total, "../data/languagemodels/u-total.pickle")
     def trainNeuralNetwork(questionData):
         if(len(getRecursiveFiles("../data/neuralnet", filter_fn=lambda a: ".pickle" in a)) > 0 and not save):
             net.input = loadPickle("../data/neuralnet/input.pickle");
@@ -335,7 +334,7 @@ def main(questions):
     sigmoid = np.vectorize(lambda x: 1.0/(1.0+np.exp(-x)))
     net = ShallowNeuralNetwork(
         input_dim=500,
-        hidden_dim=750,
+        hidden_dim=75,
         output_dim=50,
         afunc= sigmoid, # Sigmoid Layer
         d_afunc=np.vectorize(lambda x: sigmoid(x)*(1-sigmoid(x)))
