@@ -238,7 +238,7 @@ def main(questions):
     #####################################################################################################################
 
     # Returns answer word based on random chance, given the answers 
-    def randomModel(question, distfunc=cosine, threshold=1):
+    def randomModel(question, distfunc=cosine, threshold=1, rev=False):
         return question.answers[random.randint(0,len(question.answers)) - 1];
 
     # Sentence is an array of words
