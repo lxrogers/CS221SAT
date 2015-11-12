@@ -42,7 +42,7 @@ def score_model(guess_answer_pairs, verbose=False, modelname="Name Not Given"):
     return score
 
 def score_elimination_model(guess_answer_pairs, verbose=False, modelname="Name Not Given"):
-    print '\033[95m Bad-Answer PredictingModel: ' + modelname + "\033[0m";
+    print '\033[95m Bad-Answer Predicting Model: ' + modelname + "\033[0m";
     num_correct = sum([1 if g == a else 0 for g,a in guess_answer_pairs]);
     num_wrong = sum([1 if g != a else 0 for g,a in guess_answer_pairs]);
 

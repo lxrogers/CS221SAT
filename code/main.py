@@ -187,11 +187,13 @@ def findBestVector(targetvec, answers, distfunc, threshold):
     for i,answer in enumerate(answers):
         vec = None;
         if(len(re.split("[\,\s]", answer)) <= 1):
+            # Single word answer
             vec = glove.getVec(answer);
 
-            # Two word answer, adding the vector
+            # Compound answer, adding the vector
             if(any(x in answer for x in ['\'','-'])): vec = glove.getSumVec(re.split('[\'\-]', answer));
         else:
+            # Double answer question type
             vec = glove.getAverageVec(filter(lambda y: len(y) > 0, map(lambda x: x.strip(), re.split("[\,\s]", answer))));
 
         # Glove does not have the answer in its vocabulary
@@ -246,11 +248,25 @@ def main(questions):
     # Returns None if an answer doesn't exist in the glove vocab
     # Returns -1 if no answers pass the confidence threshold
     def sentenceModel(question, distfunc=cosine, threshold=1, rev=False):
-        targetvec = glove.getAverageVec(question.getSentence());
+        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), question.getSentence()));
         if(not rev):
             return findBestVector(targetvec, question.answers, distfunc, threshold);
         else:
             return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
+
+    def distanceModel(question, distfunc=cosine, threshold=1, rev=False):
+        if(not rev):
+            bestanswer, mindist = "", float('inf');
+
+            for answer, word in itertools.product(question.answers, filter(lambda x: x not in stopwords.words('english'), question.getSentence())):
+                if(answer not in glove or word not in glove): continue;
+                dist = distfunc(glove.getVec(answer), glove.getVec(word));
+                if(dist < mindist):
+                    mindist, bestanswer = dist,answer
+            return bestanswer
+
+        else:
+            return 0;
 
 
     def unigramModel(question, distfunc=cosine, threshold=1, rev=False):
@@ -331,16 +347,16 @@ def main(questions):
         net.train(train); 
 
     # Initializing Shallow Neural Network using 50 length VSMs and 10 words, using sigmoid layers
-    sigmoid = np.vectorize(lambda x: 1.0/(1.0+np.exp(-x)))
-    net = ShallowNeuralNetwork(
-        input_dim=500,
-        hidden_dim=75,
-        output_dim=50,
-        afunc= sigmoid, # Sigmoid Layer
-        d_afunc=np.vectorize(lambda x: sigmoid(x)*(1-sigmoid(x)))
-    )
+    # sigmoid = np.vectorize(lambda x: 1.0/(1.0+np.exp(-x)))
+    # net = ShallowNeuralNetwork(
+    #     input_dim=500,
+    #     hidden_dim=75,
+    #     output_dim=50,
+    #     afunc= sigmoid, # Sigmoid Layer
+    #     d_afunc=np.vectorize(lambda x: sigmoid(x)*(1-sigmoid(x)))
+    # )
 
-    trainNeuralNetwork(questions[:len(questions)/2]);
+    # trainNeuralNetwork(questions[:len(questions)/2]);
 
 
     #####################################################################################################################
@@ -352,7 +368,8 @@ def main(questions):
         ("Sentence", sentenceModel),
         ("Unigram", unigramModel),
         ("Bigram", bigramModel),
-        ("Neural Network", neuralNetModel)
+        ("Distance Model", distanceModel)
+        #("Neural Network", neuralNetModel)
         #("BackOff", backOffModel) 
     ];
 
@@ -427,6 +444,7 @@ if __name__ == "__main__":
 
     # Loading Modules
     import scipy
+    import itertools
     from sklearn import svm
     from nltk.tag.stanford import POSTagger
     from nltk.corpus import wordnet as wn
@@ -519,6 +537,7 @@ Example call of Glove Module
 ======================================================
 glove = Glove(filename);
 print glove.getVec("and"); # <= prints out glove vector for that word, or None if word not in vocab
+if("and" in glove): print glove.getVec("and"); # <= solution to see if word is in the vocab
 print glove.getVocab(); # <= returns an array of all the words the glove vectors have
 """
 

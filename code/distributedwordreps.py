@@ -20,8 +20,6 @@ import numpy as np
 import scipy
 import scipy.spatial.distance
 from numpy.linalg import svd
-# For visualization:
-import matplotlib.pyplot as plt
 # For clustering in the 'Word-sense ambiguities' section:
 from sklearn.cluster import AffinityPropagation
 
