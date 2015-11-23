@@ -81,5 +81,22 @@ class Glove:
         if(count == 0): return None;
         return map(lambda x: x/count, targetvec);
 
+    # Computes the average of the glove vectors of all elements in words. However, weights each word by its inverse unigram probability
+    def getWeightedAverageVec(self, words, unigrams):
+        targetvec = [0]*len(self.vectors.values()[0])
+        count = 0;
+        for word in words:
+            wordvec = self.getVec(word);
+            if(wordvec != None):
+                wordProb = unigrams.getSingleScore(word)
+                count += 1;
+                targetvec = map(lambda i: targetvec[i] + wordvec[i]*(1/wordProb), xrange(len(targetvec)));
+                
+            else:
+                if(self.v): self.error("Glove does not have \"" + word + "\" in its vocabulary");
+
+        if(count == 0): return None;
+        return map(lambda x: x/count, targetvec);
+
     def error(self, msg):
         print '\033[91m' + msg + '\033[0m';

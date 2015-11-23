@@ -254,6 +254,13 @@ def main(questions):
         else:
             return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
 
+    def weightedSentenceModel(question, distfunc=cosine, threshold=1, rev=False):
+        targetvec = glove.getWeightedAverageVec(filter(lambda x: x not in stopwords.words('english'), question.getSentence()), unigrams);
+        if(not rev):
+            return findBestVector(targetvec, question.answers, distfunc, threshold);
+        else:
+            return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
+
     def distanceModel(question, distfunc=cosine, threshold=1, rev=False):
         if(not rev):
             bestanswer, mindist = "", float('inf');
@@ -368,7 +375,8 @@ def main(questions):
         ("Sentence", sentenceModel),
         ("Unigram", unigramModel),
         ("Bigram", bigramModel),
-        ("Distance Model", distanceModel)
+        ("Distance Model", distanceModel),
+        ("Weighted VSM", weightedSentenceModel)
         #("Neural Network", neuralNetModel)
         #("BackOff", backOffModel) 
     ];
