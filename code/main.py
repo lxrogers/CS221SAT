@@ -391,6 +391,14 @@ def main(questions):
 
     for name, model in models:
             scoring.score_elimination_model( [(model(q, rev=True), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
+    
+    # Look at threshold models
+    test_thresholds = [1, .9, .98, .99, .95, .8, .85, .01, .1, .2, .5, .001]
+    for test_t in test_thresholds:
+        name_reg = "Sentence Model - Threshold " + str(test_t)
+        scoring.score_model( [(sentenceModel(q, cosine, test_t, False, None), q.getCorrectWord()) for q in questions], verbose=True, modelname=name_reg)
+        name_weighted = "Weighted VSM - Threshold " + str(test_t)
+        scoring.score_model( [(weightedSentenceModel(q, cosine, test_t, False), q.getCorrectWord()) for q in questions], verbose=True, modelname=name_weighted)
 
 
 # =====================================================================================================================================================
