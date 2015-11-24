@@ -24,6 +24,12 @@ class UnigramModel:
         for key in self.unigramCounts:
             self.unigramProbs[key] = float(self.unigramCounts[key] + 1)/len(self.unigramCounts);
 
+    def getSingleScore(self, word):
+        """ Takes a word and returns the log-probability of that word. If not in the dictionary, uses <UNK>.
+        """
+        if word in self.unigramProbs:
+            return math.log(self.unigramProbs[word])
+        return math.log(self.unigramProbs["<UNK>"])
 
     def score(self, sentence):
         """ Takes a list of strings as argument and returns the log-probability of the 

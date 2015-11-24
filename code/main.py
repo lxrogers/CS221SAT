@@ -247,12 +247,15 @@ def main(questions):
     # Returns answer word by averaging the sentence passed in.
     # Returns None if an answer doesn't exist in the glove vocab
     # Returns -1 if no answers pass the confidence threshold
-    def sentenceModel(question, distfunc=cosine, threshold=1, rev=False):
-        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), question.getSentence()));
+    def sentenceModel(question, distfunc=cosine, threshold=1, rev=False, unigrams=None):
+        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), question.getSentence()), unigrams);
         if(not rev):
             return findBestVector(targetvec, question.answers, distfunc, threshold);
         else:
             return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
+
+    def weightedSentenceModel(question, distfunc=cosine, threshold=1, rev=False):
+        return sentenceModel(question, distfunc, threshold, rev, unigrams)
 
     def distanceModel(question, distfunc=cosine, threshold=1, rev=False):
         if(not rev):
@@ -368,7 +371,8 @@ def main(questions):
         ("Sentence", sentenceModel),
         ("Unigram", unigramModel),
         ("Bigram", bigramModel),
-        ("Distance Model", distanceModel)
+        ("Distance Model", distanceModel),
+        ("Weighted VSM", weightedSentenceModel)
         #("Neural Network", neuralNetModel)
         #("BackOff", backOffModel) 
     ];
@@ -446,7 +450,7 @@ if __name__ == "__main__":
     import scipy
     import itertools
     from sklearn import svm
-    from nltk.tag.stanford import POSTagger
+    #from nltk.tag.stanford import POSTagger
     from nltk.corpus import wordnet as wn
     from nltk.corpus import stopwords
     from nltk.corpus import gutenberg
@@ -491,11 +495,11 @@ if __name__ == "__main__":
     glove = Glove(g, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
 
     if(v): print "\tInitializing Part-Of-Speech Classifier";
-    tagger = POSTagger(
-            'stanford-postagger/models/english-bidirectional-distsim.tagger', 
-            'stanford-postagger/stanford-postagger.jar',
-            'utf-8'
-        );
+    #tagger = POSTagger(
+    #        'stanford-postagger/models/english-bidirectional-distsim.tagger', 
+    #        'stanford-postagger/stanford-postagger.jar',
+    #        'utf-8'
+    #    );
 
     if(v): print "Finished loading all external data in " + str(int(time.time() - start)) + " seconds!"
     if(v): print "Starting program now..."

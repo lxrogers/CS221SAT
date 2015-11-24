@@ -66,14 +66,16 @@ class Glove:
         return targetvec
 
     # Computes the average of the glove vectors of all elements in words
-    def getAverageVec(self, words):
+    # If unigram model is passed in, weights each word by its inverse unigram probability
+    def getAverageVec(self, words, unigrams = None):
         targetvec = [0]*len(self.vectors.values()[0])
         count = 0;
         for word in words:
             wordvec = self.getVec(word);
             if(wordvec != None):
+                wordProb = 1 if unigrams == None else unigrams.getSingleScore(word)
                 count += 1;
-                targetvec = map(lambda i: targetvec[i] + wordvec[i], xrange(len(targetvec)));
+                targetvec = map(lambda i: targetvec[i] + wordvec[i]*(1/wordProb), xrange(len(targetvec)));
                 
             else:
                 if(self.v): self.error("Glove does not have \"" + word + "\" in its vocabulary");
