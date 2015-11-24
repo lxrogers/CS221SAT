@@ -473,8 +473,8 @@ if __name__ == "__main__":
     t = time.time();
 
     if(v): print "\tLoading passages...";
-    questions = loadQuestions() if train else loadQuestions(directory="../data/test/");
-
+    questions = loadQuestions(directory="../data/dev_set/") if train else loadQuestions(directory="../data/test/");
+    
     # Initialize global variables
     global unigrams
     global bigrams
