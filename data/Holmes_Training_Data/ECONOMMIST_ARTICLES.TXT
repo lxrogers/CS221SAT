@@ -18,17 +18,6 @@ Homo sapiens has always been a storytelling animal; so is homo digitalis. The di
 
 MANY young feminists do not know who Gloria Steinem is, which is strange given that she has been at the forefront of women’s rights for nearly half a century. Writer, activist and organiser, Ms Steinem has been a founding member of a number of well-known institutions—the National Women’s Political Caucus, the Ms Foundation and Women Against Pornography, to name just a few. She has written extensively on inequality, from musings on “If Men Could Menstruate” to abortions and the wage gap. Barack Obama acknowledged the importance of her work by awarding her the Presidential Medal of Freedom in 2013.
 
-In this section
-Bridge of sighs
-Mr high-roller
-The road less travelled
-When fun was cruel
-Because it was there
-It’s got that swing
-Reprints
-Related topics
-Social issues
-Women's issues
 Ms Steinem’s memoir, “My Life on the Road”, is her first book in over 20 years. Itinerancy was a characteristic of her early years, and her book focuses on the virtues of travel. Every autumn her father would pack the family into the car and drive across America, funding the trip by bartering and selling antiques on the way. The adventures were disruptive; at first the young Ms Steinem did not go to school, learning to read from road signs and advertising billboards instead. She ate in diners so often that it became her ambition to own one. She concedes that she began to long for a “mythical neat house with conventional parents, a school I could walk to, and friends who lived nearby”.  
 
 But there is a purpose to choosing the road as her theme, and she teases out many links between her formative experiences and her later activism. She wonders aloud whether she would “have dared to challenge rules later in life if [her] father had obeyed them”. She writes powerfully about the “gendering” of travel, and how women are warned against doing it alone. The failed adventures of women both real (Amelia Earhart) and fictional (“Thelma and Louise”) are often held up as proof of its dangers, yet statistically the home is where women are most likely to be beaten or killed; a familiar fact, if still alarming.
@@ -41,16 +30,6 @@ Flaws aside, Ms Steinem’s memoir is a history of the fight for gender equality
 
 “EVERYTHING is always going away,” Luc Sante writes in “The Other Paris”, a moving and discursive portrait of the city’s poor and bohemian past. “Every way of life is continually subject to disappearance.” And so it would seem to be with Paris—for all that it looks, much more than many other great cities, as if it has been carefully protected from the developments of the modern world. With its stringent building regulations and beautiful boulevards, Paris can seem like a living museum. Mr Sante, conjuring a city that has survived many different kinds of violence before the terrorist attacks of November 13th, reminds the reader that this could not be further from the truth.
 
-In this section
-Bridge of sighs
-Mr high-roller
-The road less travelled
-When fun was cruel
-Because it was there
-It’s got that swing
-Reprints
-Related topics
-Paris
 A Belgian writer and critic who was educated in America, Mr Sante has made it his life’s work to walk alongside those who never make it to the top of the heap. “Low Life” (1991) painted a vivid portrait of life in New York’s Lower East Side in the 19th and early 20th centuries; not for nothing was he a historical consultant on Martin Scorsese’s film, “Gangs of New York”. But New York is a city that wears its transformations on its sleeve. Paris does not, although it has been altered again and again by the twin forces of revolution and civic planning, as Mr Sante ably shows.
 
 “The Other Paris” is no ordinary history book, though the reader will learn about Philippe-Auguste’s 12th-century city walls and how Louis XIV replaced fortifications with boulevards in the 17th century. Mr Sante is a flâneur, that uniquely French description that mixes sauntering with observing the world, revealing his subject through themes rather than chronology. “La Canaille” (a haughty word meaning “the masses”) is his chapter on the force of the crowd; “Saint Monday” takes the reader into the old drinking dens of Paris; “Le Business” reveals (is anyone surprised?) where the city’s prostitutes were to be found, and what their lives were like. In Mr Sante’s Paris there is room for everyone.
@@ -103,12 +82,7 @@ HIS supporters celebrated like the fans of a football team that had won an upset
 
 The result is hugely significant, not just for Argentina but for South America. Mr Scioli ran as the heir of the country’s current president, Cristina Fernández de Kirchner, a charismatic but divisive populist. The election of Mr Macri, who campaigned under the banner of a coalition of parties called Cambiemos (“Let’s Change”), represents a repudiation of her legacy. He will be the first president in nearly a century who is neither a Peronist nor a member of the movement’s weaker rival, the Radical Civic Union.
 
-Related topics
-Venezuela
-Daniel Scioli
-Government and politics
-Latin American politics
-World politics
+
 For the past dozen years Ms Fernández and her husband (and predecessor as president), Néstor Kirchner, who died in 2010, have imposed controls on Argentina’s economy, which have crimped production and gradually pushed up inflation. They aligned the country with authoritarian regimes and tried to undermine independent institutions such as the media, the judiciary and the Central Bank. Mr Macri promises a return to economic, democratic and diplomatic norms.
 
 His victory, by a margin of around three percentage points, looked unlikely until a month ago. Despite a sagging economy and allegations, which she denies, of self-enrichment while in power, Ms Fernández remains relatively popular. Mr Scioli thought her endorsement and the backing of the Peronist movement would bring him victory. By comparison, Mr Macri, a former president of the Boca Juniors football team and the son of a tycoon, looked like an outsider. He launched his centre-right party, Republican Proposal, just a decade ago. Until this year it had little presence outside the capital.
@@ -133,17 +107,6 @@ FALCONRY is less fashionable now than it was in days of yore. But, over the past
 
 To carry out their research, Ms Brighton and Dr Taylor turned to the technology of wildlife documentaries. They attached miniature cameras and satellite trackers to harnesses worn by their birds. Then they put the birds through a series of tests. These included attacking a dead pheasant on the ground, chasing a dead chick that was dragged along the ground and through a series of tunnels by a winch and cable, and catching a dead chick dropped at altitude from a radio-controlled model aircraft. They fed the images they had recorded into a computer, which worked out the trajectory taken by the bird to intercept its prey.
 
-In this section
-Enemy at the gates
-Hawker hunters
-Chilled out
-Snake charm
-Reprints
-Related topics
-United States Armed Forces activities
-U.S. Air Force Activities
-Government and politics
-Armed forces
 Their first discovery was that, rather than hunting in the way previous research had suggested—namely, holding the prey at a constant angle while they moved in to intercept it—the birds followed a rule, known as proportional navigation, currently used by many missile-guidance systems. Unlike constant-angle tracking, this requires constant recalculation of speed and bearing, and is considered a hard trick.
 
 What really intrigued the researchers’ air-force paymasters, though, was a peregrine’s responses if a live pheasant or duck turned up during a test. Then, the bird instantly lost interest in the lure and chased its new quarry using a tracking technique, dubbed optimal guidance, that is fitted only to the most advanced sorts of missiles. Optimal guidance employs optimal-control theory, a branch of maths also used in things like inventory control for manufacturing processes. That has led the air force’s experts to hope birds of prey may have other techniques to show off, perhaps including ones that human missile engineers have not yet thought of.   
@@ -152,18 +115,6 @@ FOR so long as there are wars to fight, the contest to have the best weaponry wi
 
 Nor are sniper bullets merely anti-personnel weapons. At the moment, according to GlobalSecurity.org, a think-tank in Virginia, one of the best of them is the Raufoss MK211, made by Nammo, a Norwegian firm. This can penetrate 15mm of steel at a range of more than 500 metres, even when fired at an oblique angle of as little as 30° to the target. Moreover, once it has penetrated, a fuse sets off both an explosive charge (to spray shrapnel) and an incendiary one (to ignite any leaking fuel). According to Vegard Sande, one of Nammo’s engineers, a single MK211 shot can destroy a helicopter.
 
-In this section
-Enemy at the gates
-Hawker hunters
-Chilled out
-Snake charm
-Reprints
-Related topics
-United States
-Military technology
-Science and technology
-Military research groups
-Technology
 For all its sophistication, though, the MK211 is still a dumb round. Once it has left the gun’s muzzle, its destiny is determined. In many ways, it is yesterday’s weapon. In ballistics, as in so many other fields of technology, the fashion is now for introducing “smartness.”
 
 Snipers like to create an aura of lone-wolf mystique around themselves—an image reinforced by their portrayals in books and films. In fact, a sniper almost always relies on a spotter to feed him information about a target’s location. He may also need assistance in dealing with the long list of things that could cause him to miss—from crosswinds to the rotation of the Earth. Coping with them can require complex mathematical calculations. One way to simplify matters would be to make bullets that know where they are going and can change course in mid-flight to get there. And one such has been designed at Sandia National Laboratories, an American government establishment in New Mexico.
@@ -200,24 +151,6 @@ FOR ordinary Chinese investors, painful memories of the summer’s stockmarket m
 
 The idea is to create a “super-regulator”, combining three separate agencies and, possibly, the central bank into a single, powerful entity responsible for monitoring all financial firms: banks, insurers, brokerages, asset managers and so on. Consolidation has been mooted before, only for the system to remain unchanged. But according to people familiar with government discussions, big changes are virtually certain this time because of the stockmarket debacle.
 
-In this section
-Many unhappy returns
-What a carry on
-Takeover bid
-A funny form of conservation
-Swiped
-Impecunity in diversity
-Celtic phoenix
-Class divides
-Data whizz wanted
-Prizes
-Reprints
-Related topics
-Domestic policy
-Politics
-Chinese politics
-Asia-Pacific politics
-Political policy
 China assembled its regulatory framework in piecemeal fashion in the 1990s and early 2000s as the financial system took shape. Different agencies look after banks, brokerages and insurers, whereas the central bank oversees the financial system as a whole. This elaborate division of labour has made for disjointed supervision.
 
 Although the central bank is often described as preeminent, all four agencies have the status of ministries and report to the State Council, or cabinet. But the State Council has lots on its plate. “Things almost need to reach a crisis level for it to notice,” says a banker in Beijing.
@@ -248,17 +181,6 @@ From the start it is clear that “Futurity” is a rather different sort of mus
 
 IT WOULD be difficult to name another historical moment so dominated by teenage virgins,” observes Stacy Schiff, in a masterly new account of the Salem witch trails. In 1692 writhing girls in the Massachusetts village of Salem, steeped in Puritan teachings about the devil and perhaps also bored, began hurling charges of witchcraft at village women. Accusations spread swiftly. By the time the crisis ended less than a year later, 14 women and five men had been hanged, and another was crushed to death by stones.
 
-In this section
-Bopping brilliant
-A grim half-century
-Fresh thoughts
-Madness in Massachusetts
-Prussia goes west
-Human nature
-Reprints
-Related topics
-United States
-Massachusetts
 The tale is alternately absurd and heart-rending. Suspects were subject to bodily searches. Witches’ teats could lurk in marks like warts or insect bites, perhaps a conduit for the devil to enter the body. Several of the accused were found to have “a preternatural excrescence of flesh between the pudendum and anus”. The unfortunates were kept chained in cold and dank prisons, where some died. Even a five-year-old was held for several months.   
 
 Many asserted their innocence, to no avail. “You tax me for a wizard. You may as well tax me for a buzzard,” said George Jacobs, who insisted that he was no witch. Perversely, pleading innocent tended to bring a death sentence, whereas those who confessed were spared. Some who pleaded guilty to survive felt awful remorse for lying.
@@ -273,20 +195,6 @@ The trials ended suddenly, as the community and justices wrestled with whether i
 
 THE hangover from the debt crisis of 2007-08 can still be felt. Developed economies are growing sluggishly and central banks are maintaining a policy of near-zero interest rates. Debt is still a huge burden on the Western economies, and politicians are arguing about how to deal with it.
 
-In this section
-Bopping brilliant
-A grim half-century
-Fresh thoughts
-Madness in Massachusetts
-Prussia goes west
-Human nature
-Reprints
-Related topics
-Labour Party (Britain)
-Recessions and depressions
-Financial markets
-Business
-Economics
 Adair Turner was one of the regulators who had to deal with the fallout from the crisis. A classic technocrat, with spells in management consulting and investment banking and as head of the Confederation of British Industry, a lobby group, he took charge of the Financial Services Authority, Britain’s regulator, on September 20th 2008. Only days before, Lehman Brothers had collapsed. He has now reflected on the causes of a crisis that he freely admits he did not see approaching. The problem, he argues, lies in the nature of credit creation.
 
 Most new credit is created by the commercial banking system. In simple economic models, banks take deposits from consumers and lend them out to businesses. In fact, however, most lending goes to the property sector. In 1928, property lending comprised 30% of all bank loans across 17 advanced economies; by 2007, this proportion was approaching 60%.
@@ -301,20 +209,7 @@ This idea, which is not entirely new, is what lies behind the tentative plans fo
 
 FOR Europe, as Ian Kershaw notes in this magisterial history, which came out in Britain in September and is just being published in America, the 20th century was a game of two halves. The first saw a cataclysm that brought down empires, plunged the continent into a deep slump and culminated in the horrors of the second world war. At least for Western Europe, the second was, in contrast, a triumph of peace and prosperity. That distinction may explain why Mr Kershaw has sensibly divided his original assignment to write the 20th-century volume in the Penguin “History of Europe” series into two books, of which this is the first.
 
-In this section
-Bopping brilliant
-A grim half-century
-Fresh thoughts
-Madness in Massachusetts
-Prussia goes west
-Human nature
-Reprints
-Related topics
-History
-Culture and lifestyle
-World history
-Russian and Soviet history
-Europe
+
 His broad picture of what went wrong in Europe in the 20th century is built around four related points. First was the rise of ethnic nationalism, something that helped to doom the multinational empires of Austria-Hungary, Russia and the Ottomans. Next were demands for territorial revision, between France and Germany, in central and eastern Europe and all over the Balkans. Third was class conflict, as workers and a nascent socialist movement flexed their muscles against bosses and the traditional aristocratic ruling class. And fourth was the crisis of capitalism, which struck home in the early 1930s and contributed hugely to the rise of Nazism.
 
 
@@ -330,24 +225,6 @@ WHILE the euro zone limps along, growing in the third quarter by a disappointing
 
 Welcome as it may be, the vigour of the upswing highlights the troublesome volatility of the small and ultra-open Irish economy. It is bouncing back, after all, from a deep slump that followed an earlier spell of vaulting growth. The notion that the Irish economy might rebound so strongly would have been dismissed as fantasy only a couple of years ago. Irish banks went spectacularly bust during the financial crisis and required a bail-out of €64 billion ($89 billion), close to two-fifths of GDP. Their woes meant that the Irish state had itself to be bailed out by the EU and the IMF in late 2010. Between its pre-crisis peak in late 2007 and its nadir at the end of 2009, the economy contracted by 11.2% (see chart). A recovery in the following two years petered out and the economy lost ground in 2012 and the first half of 2013.
 
-In this section
-Many unhappy returns
-What a carry on
-Takeover bid
-A funny form of conservation
-Swiped
-Impecunity in diversity
-Celtic phoenix
-Class divides
-Data whizz wanted
-Prizes
-Reprints
-Related topics
-Central banking
-Public finance
-Dublin
-Irish politics
-Politics
 
 The severity of the crisis, which was linked to a collapse of the housing market, was such that despite the recent rapid growth, GDP per person remains below its peak in 2007 (although GDP surpassed the pre-crisis high a year ago). The scars of the recession and the banking bail-out on the public finances remain livid. Although public debt should fall below 100% of GDP this year (after peaking at 120% in 2012 and 2013), that is still far higher than in 2007, when it was a mere 24%.
 
@@ -369,22 +246,6 @@ Perhaps the biggest cause for concern is whether Irish politicians have really k
 
 When final-salary pension schemes, which are still prevalent among America’s public-sector employees, decide how much to put aside to pay pensions, they have to make an assumption about what returns they will earn. The higher their estimate, the less employers have to contribute today. Similarly, endowments have to estimate their future returns to determine how much to spend each year: pay out too much and their funds will dwindle away.
 
-In this section
-Many unhappy returns
-What a carry on
-Takeover bid
-A funny form of conservation
-Swiped
-Impecunity in diversity
-Celtic phoenix
-Class divides
-Data whizz wanted
-Prizes
-Reprints
-Related topics
-United States
-Business
-Pensions
 The average American state or local-government pension fund assumes it will earn a nominal (ie, not accounting for inflation) annual return of 7.69% in future, according to the National Association of State Retirement Administrators (NASRA). Based on past performance, that seems reasonable. Over the past five years the median pension fund has earned an annualised return of 9.5%; over the past 25 years, the return has been 8.5%. College endowments use very similar assumptions: they target a return of 7.4%, on average, according to a survey from the National Association of College and University Business Officers (NACUBO) and Commonfund, an asset manager. Again, this jibes with the average annual return in 2005-14, of 7.1%.
 
 But as the saying goes, past performance is no guide to future returns. Investment returns come from two sources: income and capital gains. The income portion is much lower than it used to be. The yield on long-dated Treasury bonds 25 years ago was more than 8%; an investor who held such bonds to maturity could lock in that nominal return. Now the yield on the ten-year Treasury bond is just 2.3%. Yields on corporate bonds, which pay a spread over government debt, have fallen in tandem. For equities, the dividend yield on the S&P 500 index in 1990 was 3.7%; now it is just 2.1%. (In theory share buy-backs make up for some of the fall in dividends, but they are offset by the issuance of new equity for executive bonuses.)
@@ -418,24 +279,6 @@ FIVE years ago the odds of being able to pay with a credit card at a street stal
 
 A private fundraising last year valued Square at roughly $6 billion. The initial public offering (IPO) priced it at $2.9 billion, down by half. The valuation sent a frisson through Silicon Valley, where there are increasing concerns that the optimistic assumptions about the growth and profitability of many “unicorns”—privately held technology firms valued at over $1 billion—are unfounded. Square, the theory runs, may be the first of a series of “down rounds”, capital-raisings that sharply reduce valuations.
 
-In this section
-Many unhappy returns
-What a carry on
-Takeover bid
-A funny form of conservation
-Swiped
-Impecunity in diversity
-Celtic phoenix
-Class divides
-Data whizz wanted
-Prizes
-Reprints
-Related topics
-Industries
-Technology industry
-Stockmarkets
-IPOs
-United States
 Nonetheless, the IPO still leaves Square more valuable than all but the biggest of America’s banks. That is controversial, since the firm has lost $420m since 2012 and has said it intends to lose more. Sceptics dismiss it as a money pit; believers, such as Rick Oglesby of Double Diamond Group, a consultancy, see the losses as investments in growth. He notes that although losses have increased by 80% since 2012, they have shrunk from 44% of revenues to just 16% in the most recent half-year. Project those sorts of trends forward and the future looks bright.
 
 To gratify the optimists, Square will have to prove that it can eventually make money by helping tiny businesses accept credit-card payments. Its chief executive, Jack Dorsey, who also runs Twitter, says he resolved to create Square when he realised that “my second boss (after my mother!) couldn’t accept a credit card for his art.” The banks and companies that link firms to card networks (merchant acquirers, in the payments jargon) had long ignored any vendor likely to generate less than $50,000 a year in transactions, since the expense of recruiting them tended to outweigh the income they generated. The small firms, for their part, tended to find the paperwork, costs and equipment needed to accept card payments offputting.
@@ -447,3 +290,137 @@ There are millions more “micro-merchants” to recruit—one of the reasons fo
 Square seems to have concluded much the same, in that it has been expanding its offerings. It provides a service to slightly bigger firms called “Square register”, which helps them keep accounts and manage inventory as well as take payments. It also recently began offering loans to its customers, which it is well placed to do given its knowledge of their finances. By the same token it has set up a division to offer help with marketing, something for which its vast database of transactions might prove useful.
 
 Most of the profits in the card business flow to the banks that issue them, the merchant acquirers and the payment networks such as Mastercard and Visa. Square and other tech firms that are active in this area rely on the existing card network. The extra transactions they bring into the system provide additional profits for the industry’s giants. But the innovators’ knack for design and data-crunching still rattles the incumbents, which worry about losing their connection with customers and seeing their end of the business commoditised. Square’s lacklustre IPO suggests that many investors doubt it is the firm to reshape the payments industry. But there are lots of other would-be disruptors waiting in the wings.
+
+FOR a Dutchman driving his caravan to the Costa del Sol, the only thing to remind him that he had crossed borders used to be the successive text messages welcoming him to Belgium, France and Spain. That was before this summer’s migrant crisis—and last weekend’s terrorist attacks in Paris. Now the liberty to roam the 26 countries in the border-free Schengen zone, which Jean-Claude Juncker, the president of the European Commission, calls a “unique symbol of European integration”, is under greater threat than at any point since its inception.
+
+Calls to curb borderless travel were already growing louder in August after Ayoub El Khazzani, a Moroccan national, carried an assault rifle across two borders on a Thalys train before attacking fellow passengers. In September Angela Merkel, Germany’s chancellor, warned that without agreement on how to handle refugees they would grow louder still. The overwhelming scale of migrant arrivals led several countries, including Hungary, Slovenia, and ultimately Germany and Austria, temporarily to reintroduce border controls. Sweden, then getting 10,000 new arrivals each week, joined them on November 12th. The Netherlands has doubled its spot checks in the border area since September. And Denmark’s announcement that it will introduce electronic number-plate scanners at border crossings strains the limits of the Schengen framework.
+
+The attacks in Paris have changed the debate. Ever since it became clear that the terrorists had strong links to Belgium, Peugeots coming over the border from Brussels have seemed just as great a threat to France as planes flying in from Damascus. As investigators retrace the movements of the terrorists and their weapons, more intra-European links will surely be uncovered, and more of Schengen’s weaknesses.
+
+After last week’s attacks, France swiftly reinstated border checks at major crossings. The Schengen framework allows such temporary measures for national security; the French had been planning the move anyway for a UN climate conference in Paris later this month. Now they are pushing for more. At a meeting of justice and home-affairs ministers in Brussels on November 20th, France will ask that Europe start to collect passenger name records from those travelling within the region—which it has pressed for since the Charlie Hebdo attacks—and for further exchange of data through the Schengen Information System, a security database. France will also demand a true Europe-wide agency to police Schengen’s external borders. François Hollande, its president, said he wanted a Europe of open borders, not a continent of “walls and barbed wire”.
+
+But others disagree, especially in the east. Hungary has already built a 100-mile fence along its Serbian border. Austria is planning one on its border with Slovenia. Slovakia’s prime minister, Robert Fico, says he too is ready to build fences (the security of Slovak citizens “is a higher priority than the rights of migrants”). After the Paris attacks Poland’s minister of European affairs declared that the EU’s deal to redistribute asylum-seekers was off. Slovakia’s election campaign has become an anti-migrant shouting match. Hungary’s prime minister, Viktor Orban, blamed migration for the killings in Paris. (He also said it increased rape and threatened Europe’s culture.)
+
+In western Europe, right-wing populists are playing on the public’s fears. Nothing helped their cause more than the (unconfirmed) report that one of the Paris gunmen entered Europe through Greece, posing as a Syrian refugee. Marine Le Pen, who has warned for months that jihadists are posing as refugees, claimed vindication. Matteo Salvini of Italy’s right-wing Northern League repeated his call for the suspension of Schengen. In polls taken since the bombings, 70% of Dutch people say the borders should close.
+
+Fear and loathing are not the sole response. On November 15th Germany’s interior minister, Thomas de Maizière, urged the press and society not to link the attacks to the refugee debate. The dominant line in talk shows in Germany and much of western Europe is that the refugees are victims of Islamic State’s terror, not perpetrators. Recep Tayyip Erdogan, Turkey’s president, an unlikely but necessary ally of Mrs Merkel’s, said at last week’s G20 summit that treating refugees as terrorists would be “evading humanitarian responsibility”. One important meeting was Mr Erdogan’s with Alexis Tsipras, Greece’s prime minister, on November 18th; their shared border is among the most porous on Schengen’s periphery. Until the zone’s external borders are secured, freedom of movement inside it will be in danger.
+
+IN THE 19th century, when a Hindu merchant could not pay his debts, he would announce his insolvency by burning a lamp of ghee (clarified butter) at his doorstep. Unable to face the ignominy of default, he would flee by night, never to return. The morning after, villagers would mourn the loss of a friend and watch creditors swoop in to confiscate his house. India’s modern-day bankruptcy procedures are not as brutal and certainly not as swift.
+
+The World Bank estimates that it takes about 4.3 years, on average, to resolve a bankruptcy case in India, more than twice as long as in China. The recovery of debts is just 25.7 cents on the dollar, one of the worst rates among developing countries. Take Kingfisher, once India’s second-biggest airline, which was grounded in 2012 with debts of more than $1.5 billion. Only this year did its creditor banks manage to seize its former headquarters in Mumbai. Unlike most other countries, India has no unified bankruptcy code, and its courts have to interpret a variety of sometimes conflicting laws that touch on insolvency.
+
+
+Earlier this month the finance ministry floated proposals for a bankruptcy law that would set a hard deadline of 180 days to decide the fate of a sick firm, plus a 90-day extension if creditors agree. Bahram Vakil of AZB & Partners, a law firm, who sits on a committee advising the ministry on the reforms, says there is a “crying need” for them. At the moment, creditors cannot take any legal action against a defaulter until a restructuring plan is in place, which usually takes between three and ten years. In the mean time, the owners of sick firms retain day-to-day management control; and while they drag out court proceedings, creditors see their assets dwindle. In many cases, says a lawyer who works on such cases, the owners start up a fresh company in the name of a relative, and siphon off business from the old one.
+
+The reform bill proposes to replace the current legal mess with a clear and rapid resolution process, designed to reduce conflicts among creditors. Now, it can take up to two years just to get a dozen or more banks to agree a common approach, says Abizer Diwanji of EY, an accounting firm. Unusually, the new law would put even unsecured creditors in front of official ones in the queue for repayment, with the intention of encouraging the development of a market in unsecured loans.
+
+Though some current laws work in their favour, the owners of failing firms do not have it all easy. To be declared sick, and qualify for court protection, firms have to apply to the Board for Industrial and Financial Reconstruction, a government agency, which will not act until the firm has frittered away half of its net worth in losses. By then it may be too late to save it. Some creditor-friendly laws result in firms being liquidated when they could have been restructured. And some labour and land laws stop firms selling property or trimming their workforce to stay in business.
+
+If the law is passed, more sickly firms would be revived instead of being left to die slowly; and India’s banks—whose portfolio of troubled loans has quintupled to $133 billion since 2011—should get more of their money back, sooner. However, the governing Bharatiya Janata Party may struggle to get much done in the next few months, following the walloping it has just received in state-assembly elections in populous Bihar. The law should bring benefits to both business owners and their lenders. But as ever, politics may get in the way of sensible reform.
+
+IN THE past, when flying home from a distant country, it was always my practice to bring back a litre of the local spirit from the duty-free shop. The names of these have now long escaped me: a sugary liqueur from Brazil that had a tree growing inside the bottle, something undrinkable made out of tree sap from India, a Greek concoction in a plastic container that may have been distantly related to ouzo. These delights, with exactly one shot’s-worth missing from the bottle, would, over the course of several years, shuffle their way to the back of my drinks cupboard. Then one day, when I needed the space, I would reach to the depths of my shelf looking for a likely bottle to discard, and wonder what on earth had made me think buying it was a good idea.
+
+Nowadays I just buy gin.
+
+Travellers spend $9 billion a year on duty-free spirits according to IWSR, a wine-and-spirits data collector. Yet flyers across the world show a singular lack of ambition for trying anything new. Using IWSR data, Vinepair, a drinks website, has put together a map of who buys what, where. Of the 13 regions it examined, Scotch was the most popular purchase in all but four. In Asia, over half of duty-free spirit sales were for whisky; in South America it accounted for 41%. Only in Central Europe and Eastern Europe (both vodka), Mexico (tequila) and the Caribbean (rum) did another spirit prevail. Apparently, Johnnie Walker alone accounts for 24% of all duty-free whisky sales. Among all spirits, Absolut vodka is a distant second, followed by Jack Daniel’s and Chivas Regal.
+
+
+Duty-free is hugely important for retailers—so much so that Pernod Ricard, a French drinksmaker, refers to airports as the “sixth continent”. Perhaps one reason we are so conformist in our choices is that big brands expend so much energy enticing us during the “golden hour” between clearing security and boarding a plane that there is little chance for the local stuff to make itself seen. 
+
+That is a shame. And foisting something local and undrinkable on travellers might also help with another problem: people who buy duty-free so that they can surreptitiously imbibe it on the plane, and who then cause a fuss. This is now apparently such a problem that one British carrier, Jet2, is considering making passengers store their booze in tamper-proof bags that can only be opened using a sharp implement (and so should be impenetrable on a plane). Alternatively, let them try to get drunk on my Indian tree-sap. I suspect a single shot will put them off.
+
+WHEN not organising protests at the gates of Basra’s giant oilfields, jobless graduates spend their days playing dominoes on the banks of the Shatt al-Arab river. By night, giant gas flares light the sky and their game, partly compensating for the blackouts. “We provide the oil that powers the world, but live in darkness,” says a sometime protester.
+
+
+The authorities dispersed the demonstrators, violently, after Lukoil, a Russian oil firm, threatened to halt production. But few predict quiet. Bereft of hope, the players debate abandoning peaceful protest and summoning the Hashad al-Shabi, the Iranian-backed militias the ayatollahs raised to beat back Islamic State (IS), to intervene on their behalf. While the world has looked north to the war on IS, local politicians argue that the south poses no less a threat. “Basra is financing Iraq,” says Ali Shaddad al-Fares, who heads the local council’s oil committee. “Iraq’s stability depends on Basra’s stability.”
+
+
+Basra should be Iraq’s most successful province. It lies furthest from IS’s front lines and has a tradition as the country’s most cosmopolitan city. It remains the country’s dynamo. It has Iraq’s only ports, and oil production that generates around 95% of the government’s oil revenues. But four decades of war, sanctions, occupation, neglect and Shia infighting have rendered it decrepit and dysfunctional. Its utilities are worse than those of Mosul, Iraq’s second city, which is controlled by IS. Power cuts last most of the day. The water is stickily saline. The air is acrid from oil plumes and from sewage that dribbles into collapsed canals which once saw Basra called “the Venice of the East”. Cholera is back. “Our health was better under sanctions and Saddam Hussein,” says a local councillor.
+
+With nothing to do, the city’s youth turn to militias for jobs. They are probably the province’s largest employer. 70% of the Hashad come from Basra, its commanders say. International oil companies might have kick-started the economy, but chose to locate all but essential operations abroad. Though local hire is cheaper, under their oil contracts, whoever they hire the Iraqi government pays. Such are the inflated costs that producing a barrel of Iraqi oil costs twice as much as in Saudi Arabia.
+
+The oil companies argue that foreign labour is more reliable. But had the security environment been better and had Iraq paid its dues, they might have established training centres and universities in Iraq just as they did in Saudi Arabia. By sealing themselves off from Iraq, they are creating a vicious circle. As the gap between them and the locals widen, grievances mount. Worried about the prospects, Occidental Petroleum Corp, America’s fourth-largest producer, asked the government to buy back its stake in Zubair, a large southern oilfield, last month.
+
+Iraqi politics compounds the lack of opportunity. The ruling parties in Baghdad divvy up the oil revenues before they trickle south. Their local representatives immobilise the rest. Basra’s governor, council head and mayor all belong to rival religious Shia parties. Each vetoes the others’ decisions and projects. Their militiamen jostle for control on the streets. In October 2014 Badr, the most powerful militia group, took over Saddam’s palace, from where the British ran their occupation in 2003, and pinned portraits of Iran’s supreme leader, Ali Khamenei, and Shia Iraq’s own religious leader, Ali al-Sistani, on its walls. Posters of their martyrs line Basra’s highways. The limited political freedoms gained since Saddam’s fall are receding.
+
+“We’re fooling them that they’ll have prospects,” says Rashwan Sharif, a speaker at a recent gathering of 50 computer programmers spending the weekend under the banner “No talk, all action, launch a startup in 54 hours”. “Basra is like the Titanic. It’s very rich, but on course for an iceberg.” The oil companies invited all cried off, citing prohibitive security costs. “The middle class are selling what assets they still have and are fleeing the country,” says a local journalist, who is toying with following them. Flights bound for Istanbul leave full and return half empty. But the numbers in Basra are quickly replenished. Land clearance for oilfields has triggered a rural flight, ringing the city in shantytowns. More arrive from poorer neighbouring provinces with no oil. As an urban middle class is replaced by more conservative, poorer people from the countryside, Basra’s character is changing.
+
+“We never had tribal feuds,” says a rare local female film-maker, Kholoud Jabbar. “We were a port city. We were open to outside cultures.” Sheikh Zayed bin Nahyan, the first emir of the Emirates, is said to have so enjoyed Basra’s bars and restaurants that he used it as his model for Dubai. Its art scene was the region’s liveliest. But its open-air cinemas have long since closed under a religious ban. Basra’s old lattice balconies droop into the canals. Carved Ottoman doors fall from their hinges and clog the alleys. Restoration of the city’s grand old Jewish and Greek palaces stopped when Saddam was overthrown.  
+
+An hour’s drive north of Basra, the city of Amara shows what could be possible. There, the Shia religious parties co-operate, holding each other to account rather than blocking each others’ projects. The province has revamped its roads and sewage system and sports flashy government buildings. Chinese contractors shop in the markets without their security escorts. Two new gas-powered plants are set to fire up next year. But much worse can happen, too. In 2013 Iraqis in the disenfranchised north-west staged months of protests, which the authorities ignored and then fiercely repressed. Islamic State took their place, offering another way.
+
+ON THE western edge of Lake Victoria in Uganda, a hundred miles south of Kampala and an hour or so’s drive up a progressively narrower dirt track, is the site of what was meant to be one of the biggest Chinese commercial investments in Africa. A rust-flecked sign marks the entrance to “Sseesamirembe City”, part of the “Lake Victoria Free Trade Zone”. It does not mark much. Teenage boys wheel bicycles laden with water containers past mud huts and scrubby matoke (banana) fields. A few smarter houses and half-built breezeblock structures are the only evidence that there has been any development at all.
+
+In 2008 the Lake Victoria Free Trade Zone was announced to the world as a transformative investment. Footage from CCTV, the Chinese state broadcaster, shows a meeting between Ugandan officials and Chinese ones in Beijing to confirm the deal. The investment, a partnership between a large Chinese firm and Ugandan investors, was to cover 500 square kilometres (200 square miles) of land. They proposed building a “solar-powered” airport, manufacturing facilities and a distribution hub, as well as homes and agribusiness, all adding up to a new “eco-city”. Some $1.5 billion would be invested in one of the least developed parts of Uganda. It was suggested that thousands of Chinese farmers might settle the land and grow crops for export to China.
+
+
+Of all these bold promises, none came to fruition. As China’s involvement in Africa deepens, and Western policymakers worry about whether they can compete with a flood of Chinese cash, the failed project is evidence of the mixed success of China’s scramble for Africa. It is true that new railways and roads funded by China’s Export-Import Bank, and its investment in copper mines and oil rigs in places such as Zambia and Angola, are changing the face of the continent. Airports in Kinshasa, Luanda and Addis Ababa buzz with Mandarin. But there is growing evidence that some Chinese firms that leap into Africa are struggling with the same problems Africa has long given Western investors.
+
+Reliable figures on the levels of Chinese investment in Africa are hard to come by. But those published by the Chinese Ministry of Commerce suggest the net annual flow of Chinese direct investment into Africa increased eight-fold between 2005 and 2014, to $3.2 billion. The total stock of Chinese investments grew twenty-fold, to $32 billion. Direct comparisons to Western figures are harder still, but that makes China one of Africa’s biggest investors. In addition, Chinese aid has increased, as have development loans made through the Export-Import Bank, which finances infrastructure projects built by Chinese firms.
+
+
+However, according to Deborah Brautigam, a professor at the School of Advanced International Studies in Washington, DC, much of the hype about Chinese firms buying up vast amounts of industry in Africa is overblown. Chinese FDI to Africa constitutes less than 3% of all Chinese foreign investment: vastly more goes to other regions, especially Asia. Growth has slowed in recent years. And, as Ms Brautigam shows in a new book investigating agricultural projects, “Will Africa Feed China?”, many heavily-reported Chinese projects do not amount to much.
+
+There was, for example, a widely touted Chinese investment of over $1 billion in a 3m hectare palm-oil plantation (an area roughly the size of Hawaii) in the Democratic Republic of Congo. But when work started the Chinese found that there were no roads, the river was barely navigable and villagers were hostile. When a small amount of land was planted the crop was immediately stolen. The project soon disappeared.
+
+The same applies to many mineral extraction projects. In Congo, a deal struck in 2007 to swap $6 billion of Chinese infrastructure funding for profits from copper mining has produced less than $1 billion of investment so far. Production of the copper has been perpetually delayed by bureaucracy and a lack of electricity; observers in Kinshasa say that they are not expecting more Chinese money soon. Private Chinese miners have not had much more luck.
+
+A common problem is that Chinese firms “sort of assume that it works the way it does in China”, says Ms Brautigam. “In China, a company comes in, makes an arrangement with local government, and the government delivers.” In Africa, they then discover that government promises to build infrastructure, provide power or supply land are not as credible as they thought. Public land turns out to be occupied by squatters, who may have farmed it for generations; private land may not be owned by the people selling it. Local politicians do not accept deals struck by national ones.
+
+Increasingly, Chinese firms are adapting to these conditions. Huang Hongxiang, who runs China House, an organisation in Nairobi that helps Chinese firms understand how to do business in Kenya, says that there was a gold-rush mentality for a while: “If you told banks you’re going to Africa, it was easy to get a loan.” But now investors are aware that projects in Africa can take a long time and cost a lot more money than they expected. Mr Huang says they are now doing the sorts of things Western firms have long done: investing in corporate social responsibility programmes, hiring African managers and doing scrupulous due diligence.
+
+Western politicians have long worried that China is conducting a new form of imperialism in Africa: getting a jump by dealing with unscrupulous governments and breaking the rules. This is based on a grain of truth: the Chinese are far more willing to work with the Angolan government, for example, one of the world’s most oppressive. But the evidence is increasingly that the Chinese are following a well-trodden path. They do not have a unique ability to make their projects in Africa work where Western firms cannot. For Western policymakers that may come as a relief. For African leaders, desperate for development but unwilling or unable to fix problems that deter all but the hardiest of investors, it may come as a disappointment.
+
+THE fer-de-lance (spearhead) pit viper is not an animal you would want to meet unexpectedly. It is aggressive, unpredictable and fond of getting the drop on its prey: literally, from the branches of trees. Its bite, which turns blood into something with the consistency of jam, is fatal if not treated immediately. Terrible as its venom is, though, it may have a use. Jeffrey Hartgerink, a chemist at Rice University, in Houston, Texas, thinks it could be just the thing to stop post-operative bleeding.
+
+Loss of blood is an inevitable consequence of surgery. At the moment it is dealt with by a combination of the body’s natural clotting mechanisms and a variety of physical barriers designed to stanch blood flow and give those clotting mechanisms time to act. These barriers include the simple application of pressure to a wound, various foams and adhesives that create a more permanent seal, and experimental treatments using substances called hydrogels which consist of fragments of protein laced together to trap water molecules, and which are reckoned particularly effective at blocking wounds up.
+
+
+For many people, these are enough. But some—especially those on anti-clotting drugs like warfarin, which are prescribed to prevent heart attacks, strokes and pulmonary thromboses—are at particular risk. If such a patient needs surgery in a hurry, and cannot be taken off his medication sufficiently in advance of going under the knife, then he may be in danger of bleeding to death.
+
+On the face of things, and particularly for these people, a substance that triggers clotting should be better than mere physical barriers. The problem has always been to keep the clotting agent only where it is needed, and prevent it spreading through the rest of the body, where it could do serious and possibly lethal harm. Dr Hartgerink thinks, as he describes in a study just published in Biomaterials Science and Engineering, that he may have worked out how to do this.
+
+He started with a hydrogel. If such a substance traps water, he reasoned, it should also trap batroxobin, fer-de-lance venom’s active ingredient. So it proved. He then had to determine whether, if the gel were applied to a wound, the batroxobin would leak out of it at the appropriate rate—ie, fast enough to seal the wound, but not so fast as to escape into the bloodstream and cause systemic problems.
+
+Experiments on rats suggest it does. Dr Hartgerink and his colleagues tested their batroxobin-laced hydrogel on a group of the rodents. Half of these had been given heparin, a powerful anticoagulant; the other half had not. The researchers then operated on the rats’ livers, making incisions in those organs and thus inducing bleeding, after which they applied various haemorrhage-stanching methods.
+
+Batroxobin-laden hydrogel stopped the flow in 5-6 seconds, regardless of whether a rat had been given heparin. The hydrogel by itself was also quite effective in heparin-free rats (it stanched bleeding in 11 seconds), but took two minutes if a rat had been heparinised. GelFoam, a commercially available wound-barrier made from purified pig skin, also struggled when used on heparinised animals. It failed to stop blood flow within two minutes. Puramatrix, a proprietary hydrogel being tested for clinical use, did better—but still took 19 seconds. Batroxobin-impregnated hydrogel thus looks as if it might make a useful addition to the surgeon’s armoury. The spearhead of a new approach, as it were.
+
+IF YOU want to build an atom bomb, land men on the Moon or work out the exact order of the 3 billion chemical “letters” in the DNA of the human genome, then Big Science, a large-scale project backed by a budget in the billions, will do it for you. But will it also do it for the brain, the understanding of which is, perhaps, the biggest scientific challenge of all? That is a question with particular salience now, as the Brain Research through Advancing Innovative Neurotechnologies (BRAIN) initiative gets going in earnest.
+
+At the moment this endeavour, announced by Barack Obama in April 2013, is definitely small science—despite its proposed budget of $4.8 billion over the next decade. According to Rafael Yuste of Columbia University, who was one of its instigators, some 125 laboratories around America have signed up to dip their bread in the gravy, so that gravy is very thinly spread. This reflects the way neuroscience has been done until now, but Dr Yuste would like the future to be different. Genetics was similarly fragmented before the Human Genome Project began, but the bargain imposed on researchers by that project was that the process of sequencing would be centralised into a few laboratories, where it could be industrialised. This, as Dr Yuste and several of his co-sponsors of the original idea of BRAIN write this month in Neuron, is the model they think neuroscience should now adopt.
+
+
+BRAIN’s specific remit, they point out, is to develop new technological approaches for the study of brains. For that purpose, they propose creating a handful of “brain observatories” which would design and build the equipment, and then make it available to teams of outside researchers, much as academic astronomers book (and pay for) time on large telescopes. In this way, the observatories could concentrate on the engineering: refining the equipment by experience and arriving at designs that might then be commercialised.  
+
+Manhattan-project transfer
+Dr Yuste and his colleagues identify four types of technology that BRAIN needs. Three are improvements of existing methods. The fourth is largely terra incognita.
+
+The first of the improvements is better computing power. Even the task of mapping a mouse brain will require 500 petabytes of data storage. A petabyte is 1m gigabytes. For comparison, finding the Higgs boson required about 200 petabytes. A human brain is vastly more complex than a mouse’s. It has around 86 billion neurons, compared with 71m in a mouse. And the wiring that links these neurons (cell protrusions called axons) is reckoned to be about 100,000km long.
+
+The second improvement that is required of existing technology involves brain-scanning. At the moment, this has a resolution measured at best in millimetres, which is fine for its original purpose—clinical diagnosis—but useless for understanding how brains work at anything more than a superficial level. Higher-resolution scanners would permit researchers to look at small, functional groups of neurons, such as the neuronal columns of which brain cortexes are composed.
+
+The third improvement Dr Yuste desires is to instruments that can study the connections between individual neurons, a field known as connectomics. At the moment, this can be done only to dead brains, and the tools usually employed are electron microscopes. As with many other fields, the more closely you want to look, the bigger the machines you need to do it. Dr Yuste and his colleagues would also like to overlay on the three-dimensional electron-micrographs of connectomics information from other machines, such as high-resolution fluorescent microscopes, which can detect the molecules present in particular parts of neurons.
+
+That leads to the unknown land. This is the designing of nanoscale devices (ie, instruments whose dimensions are measured in billionths of a metre) which can do something approaching connectomics on living brains, by studying the activities of hundreds or thousands of interconnected neurons simultaneously. Only in this way can the true nature of the brain’s circuitry be understood.
+
+Asking what these nanoscale devices will look like tends to generate a lot of handwaving involving words like “quantum dots” and “nanodiamonds”—both types of tiny crystal that might act as neuron-scale probes—but with little clear idea of how these crystal probes would be controlled and listened to. In their case, then, there is an argument for letting a thousand flowers bloom in laboratories large and small. But for the other devices on Dr Yuste’s shopping list, observatories do seem a good idea. And, as luck would have it, America has a network of institutions that might be pressed into service as such.
+
+Critical mass
+The National Laboratories, are, in many ways, Big Science personified. A lot of them started life as atomic-weapons establishments, so they know how to run large projects that go on for years. They also house five of the world’s ten fastest supercomputers. One, indeed, is ready and eager to go. Argonne, near Chicago, has been hiring out one of its instruments, an X-ray generator called the Advanced Photon Source, to biologists for several years. Last year, 2,000 of the 5,000 experiments conducted using it were biological, and Argonne has recently hired a neuroscientist specifically to run a project that will employ the photon source to X-ray mouse brains, with a view to mapping them at high resolution. It is also buying a top-of-the-range electron microscope, with which researchers will be able to zoom in on areas of the brain the photon source suggests are particularly interesting, and a flashy, new computer that will help analyse the results of all this. Argonne’s director, Peter Littlewood, thus hopes to create a model which other national laboratories thinking of developing brain observatories might follow.
+
+Whether they do will depend a lot on the say-so of Ernest Moniz, America’s energy secretary, who is the labs’ collective supremo. He and Francis Collins, head of the country’s National Institutes of Health (and thus, in effect, BRAIN’s treasurer), have met several times to chew the matter over. Some in Congress think the energy department should be minding its own business. Dr Moniz, an astute politician, understands this. But he is also a scientist to his fingertips, for he was once head of the physics department at the Massachusetts Institute of Technology. That he will turn down the chance to be part of what may become the scientific adventure of the 21st century seems unlikely.
+
+FEW vaccines have been so successful, so quickly, as MenAfriVac. It was introduced into Africa in 2010, to immunise people against meningitis A—a bacterial infection of the membranes surrounding the brain and the spinal cord, which can cause death or brain damage within hours of the onset of its flu-like symptoms. Since then, the caseload of the illness has plummeted to zero in 16 countries that used MenAfriVac in mass vaccination campaigns. Before the vaccine’s introduction epidemics in the “meningitis belt”, which stretches from coast to coast south of the Sahara desert (see map), used to kill thousands a year and disable many more, nearly all of them children and young adults. In 1996, for example, an outbreak killed 25,000 people and sickened 250,000 in six months.
+
+Out of sight is, however, all too frequently out of mind, and health experts now worry that this one-off success will not, at least in some countries, be followed by the introduction of MenAfriVac into routine schedules of infant vaccination. A study just published in Clinical Infectious Diseases by Andromachi Karachaliou of Cambridge University and her colleagues shows what this could lead to. Ms Karachaliou’s computer model predicts that the epidemics will return with a vengeance in about 15 years if MenAfriVac does not become a routine childhood jab, as the World Health Organisation (WHO) recommends it should. That, the model suggests, is the moment when waning immunity among those already vaccinated, and no immunity at all among a rising generation of the unvaccinated, could combine with seasonal factors (epidemics usually start in the dry season) to create a crisis.
+
+In principle, universal vaccination could eradicate the disease, for the bacterium that causes it can survive only in humans and vaccination clears it from its hosts. The current goal, however, is less ambitious: to stop the epidemics in all 26 countries of the belt, including the ten which have yet to roll out the one-time mass-vaccination campaigns that have done so much good elsewhere. These campaigns cover only those aged between one and 29. That is, nevertheless, about 70% of Africa’s population—and this, combined with the fact that older people are much less infectious and rarely succumb to the disease, is enough to create “herd” protection, according to Marie-Pierre Preziosi, a meningitis expert at the WHO. Herd protection is the point at which, even though vaccine coverage is not 100%, there are insufficient infectible people around for the disease to sustain itself.
+
+To keep a proper lid on meningitis A, though, the next step should be to make vaccination routine for infants and remain vigilant for outbreaks. Gavi, an international vaccine fund for poor countries, has already promised its backing for this plan. Besides saving lives, such an approach would save money. A second paper in Clinical Infectious Diseases, describing a study led by Anaïs Colombini of the WHO, looked at how routine vaccination might play out in Burkina Faso. Ms Colombini concluded that such a pre-emptive approach would cost less than the alternative of waiting for an outbreak and then vaccinating en masse. This would probably be the case in other countries of the belt, too.
+
+Moreover, MenAfriVac brings benefits beyond curbing meningitis, as two further studies published in the same journal show. These looked at its effect on tetanus. The MenAfriVac uses tetanus toxoid as the protein to which the immunity-generating antigen is attached. Other vaccines that employ a similar trick are known to boost immunity to tetanus. In one of the studies, Nicole Basta of the University of Minnesota and her colleagues have shown that this process works for MenAfriVac, too. Their research, carried out in Mali, found that the mass campaign increased the share of people with long-term tetanus immunity from 20% to 59%. This makes MenAfriVac a formidable tetanus booster, even though it is not strong enough to stand alone against tetanus, says Dr Preziosi.
+
+What this means for neonatal tetanus, which kills nearly 50,000 newborns a year in sub-Saharan Africa, is shown by the second study, led by Ray Borrow of Manchester Royal Infirmary, in Britain. Poor countries now tackle it by giving pregnant women tetanus boosters, which ensure they pass antibodies on to their unborn babies. Dr Borrow’s team found that rates of neonatal tetanus fell by 25% in countries that had had a MenAfriVac campaign. Although some of this drop may have happened for other reasons, the evidence points mostly in the direction of the vaccine’s hefty double-duty.
+
+All of this makes MenAfriVac one of the brightest public-health stars around. For, if countries in the meningitis belt follow the prescription these studies suggest, they should be able, quickly, to put the lid on two scourges for the price of one.
