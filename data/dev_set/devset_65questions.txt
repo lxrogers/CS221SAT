@@ -103,7 +103,7 @@ gracious
 fervent
 1
 
-The estranged friends attempted ____, but their dep-seated made the resumption of cordial relations impossible.
+The estranged friends attempted ____, but their deep-seated ____ made the resumption of cordial relations impossible.
 a mollification,credulity
 a reallocation, reciprocity
 a reconciliation,enmity
@@ -223,13 +223,13 @@ despaired
 hesitated
 0
 
-Some scientists speculate that children who wash frequently are more likely to become asthmatic than those who was infrequently: that ____, not the lack of it, is the problem.
+Some scientists speculate that children who wash frequently are more likely to become asthmatic than those who wash infrequently: that ____, not the lack of it, is the problem.
 pollution
 negligence
 nutrition
 misbehavior
 cleanliness
-0
+4
 
 Newspaper advertisers feel their messages are more believable and ____ when they are printed next to new reports; hence, advertising charges are higher for such ____.
 dominant,investigation
@@ -237,7 +237,7 @@ irrelevant,proximity
 precise,delivery
 persuasive,positioning
 vague,thoroughness
-4
+3
 
 Despite accusations to the contrary, it is unlikely that he intended to ____ the articles, since he cited them in his bibliography
 analyze
@@ -245,15 +245,15 @@ illuminate
 plagiarize
 acknowledge
 contradict
-3
+2
 
 Ralph Ellison learned the hard way about the ____ of a written manuscript: he suffered the ____of the only draft of a work in progress in a household fire.
 magnitude, isolation
 fragility, preservation
-illegibility,readication
+illegibility,eradication
 vulnerability,destruction
 proliferation,division
-2
+3
 
 the new human resources director is both ____and ____ about being able to improve employment opportunities for women at the executive level: she has great resolve but harbors no illusions
 practical,deceptive
@@ -261,7 +261,7 @@ cynical,irrational
 excited,approachable
 uncooperative,naive
 determined,realistic
-3
+4
 
 Years of neglect had left the inside of the building in ____ condition; workstations were filthy and furnishing were dilapidated.
 a squalid
@@ -269,7 +269,7 @@ a volatile
 and undaunted
 a rudimentary
 a cataclysmic
-4
+0
 
 The Wild Parrots of Telegraph Hill is only ____ about birds; despite its title, the documentary actually examines human relationships.
 ostensibly
@@ -498,7 +498,7 @@ Elephants have a sense of smell that is remarkably ____: they can reportedly sme
 tacit
 acute
 aromatic
-sonorou
+sonorous
 ubiquitous
 1
 

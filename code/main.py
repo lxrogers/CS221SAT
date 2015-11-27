@@ -186,15 +186,16 @@ def findBestVector(targetvec, answers, distfunc, threshold):
     ind, mindist = -1, 10e100;
     for i,answer in enumerate(answers):
         vec = None;
-        if(len(re.split("[\,\s]", answer)) <= 1):
+        answer_words = getStrippedAnswerWords(answer)
+        if(len(answer_words) == 1):
             # Single word answer
-            vec = glove.getVec(answer);
+            vec = glove.getVec(answer_words[0]);
 
             # Compound answer, adding the vector
-            if(any(x in answer for x in ['\'','-'])): vec = glove.getSumVec(re.split('[\'\-]', answer));
+            if(any(x in answer_words[0] for x in ['\'','-'])): vec = glove.getSumVec(re.split('[\'\-]', answer_words[0]));
         else:
             # Double answer question type
-            vec = glove.getAverageVec(filter(lambda y: len(y) > 0, map(lambda x: x.strip(), re.split("[\,\s]", answer))));
+            vec = glove.getAverageVec(filter(lambda y: len(y) > 0, map(lambda x: x.strip(), answer_words[0])));
 
         # Glove does not have the answer in its vocabulary
         if(vec == None):
@@ -203,8 +204,85 @@ def findBestVector(targetvec, answers, distfunc, threshold):
 
         if( distfunc(vec, targetvec) < mindist and distfunc(vec, targetvec) < threshold ):
             ind, mindist = i, distfunc(vec, targetvec);
-
+    if (ind == -1):
+        return -1
     return answers[ind];
+
+#return a list of words stripped of irrelevant words
+#cleaving to -> [cleaving]
+#cleaving to, ineffable -> [cleaving, ineffable]
+def getStrippedAnswerWords(answer):
+    comma_split = re.split("[\,]", answer)
+    if len(comma_split) == 2: #double blank
+        return [stripTinyWords(comma_split[0]), stripTinyWords(comma_split[1])]
+    elif len(comma_split) == 1: #single blank
+        return [stripTinyWords(answer)]
+    else:
+        raise Exception("answer formatting error")
+
+def stripTinyWords(answer):
+    space_split = re.split("[\s]", answer)
+    if len(space_split) == 2:
+        return space_split[0] if len(space_split[0]) > len(space_split[1]) else space_split[1]
+    elif len(space_split) == 1:
+        return answer
+    else:
+        raise Exception("answer formatting error")
+
+
+# Get Clue Words Between Blanks in Double Blank Questions
+# if more support words, return "support", if more contrast words, return "contrast"
+def getDoubleBlankEliminationMode(question):
+    #between_text_words = re.compile('____(.*?)___').search(question.text)
+    between_text_words = re.findall ( '____(.*?)____', question.text, re.DOTALL)[0]
+    support_words = ["moreover", "besides", "additionally", "furthermore", "in fact", "and", "therefore"]
+    contrast_words = ["although", "however", "rather than", "nevertheless", "whereas", "on the other hand", "but"]
+    
+    support, contrast = 0, 0
+    for support_word in support_words:
+        if support_word in between_text_words: support += 1
+    for contrast_word in contrast_words:
+        if contrast_word in between_text_words: contrast += 1
+    if support > contrast: return "support"
+    if contrast > support: return "contrast"
+    else: return "neutral"
+
+#given mode = "support", answers that are too disimilar will be eliminated and vice-versa for "contrast"
+#threshold ex.: threshold = .3
+#support mode: answers with distance > .7 will be eliminated; contrast mode: answers with distance < .3 will be eliminated
+def getRemainingAnswers(mode, question, distfunc=cosine, threshold=.6):
+    if mode == "neutral":
+        return question
+
+    remaining_answers = []
+    for answer in question.answers:
+        answer_list = getStrippedAnswerWords(answer)
+        vec1, vec2 = glove.getVec(answer_list[0]), glove.getVec(answer_list[1])
+        if vec1 is None or vec2 is None:
+            remaining_answers.append(answer)
+            continue
+        dist = distfunc(vec1, vec2)
+        if (mode == "support" and dist > (1-threshold)) or (mode == "contrast" and dist < threshold):
+            continue
+        else:
+            remaining_answers.append(answer)
+    question2 = copy.copy(question)
+    question2.answers = remaining_answers
+    return question2
+
+def answerWordDistance(answer, distfunc=cosine):
+    answer_list = getStrippedAnswerWords(answer)
+    vec1, vec2 = glove.getVec(answer_list[0]), glove.getVec(answer_list[1])
+    if vec1 is None or vec2 is None:
+        return .5
+    return distfunc(vec1, vec2)
+
+def getMaxDoubleBlankAnswer(mode, question, distfunc=cosine):
+    distances = [(answer, answerWordDistance(answer)) for answer in question.answers]
+    if mode == "support":
+        return min(distances, key=lambda x: x[1])[0]
+    else:
+        return max(distances, key=lambda x: x[1])[0]
 
 # Gets Synonyms
 def getSynonyms(word):
@@ -256,6 +334,31 @@ def main(questions):
 
     def weightedSentenceModel(question, distfunc=cosine, threshold=1, rev=False):
         return sentenceModel(question, distfunc, threshold, rev, unigrams)
+
+    def doubleSentenceModel(question, distfunc=cosine, threshold=1, rev=False):
+        answer_words = getStrippedAnswerWords(question.answers[0])
+        if(len(answer_words) == 1):
+            #single blank answer
+            return sentenceModel(question, distfunc, threshold, rev)
+        elif(len(answer_words) == 2):    
+            #double blank answer
+            elimination_mode = getDoubleBlankEliminationMode(question) #step 1: use clue words to determine which answers to eliminate (similar or different)
+            question2 = getRemainingAnswers(elimination_mode, question) #step 2: eliminate those words
+            return sentenceModel(question2, distfunc, threshold, rev) #step 3: find best answer out of un-eliminated words
+
+    def doubleSentenceMaxModel(question, distfunc=cosine, threshold=1, rev=False):
+        answer_words = getStrippedAnswerWords(question.answers[0])
+        if(len(answer_words) == 1):
+            #single blank answer
+            return sentenceModel(question, distfunc, threshold, rev)
+        elif(len(answer_words) == 2):    
+            #double blank answer
+            elimination_mode = getDoubleBlankEliminationMode(question) #step 1: use clue words to determine which answers to eliminate (similar or different)
+            if elimination_mode == "neutral":
+                return sentenceModel(question, distfunc, threshold, rev)
+            else:
+                return getMaxDoubleBlankAnswer(elimination_mode, question)
+            
 
     def distanceModel(question, distfunc=cosine, threshold=1, rev=False):
         if(not rev):
@@ -367,12 +470,15 @@ def main(questions):
     #####################################################################################################################
 
     models = [
-        ("Random", randomModel),
+        #("Random", randomModel),
         ("Sentence", sentenceModel),
-        ("Unigram", unigramModel),
-        ("Bigram", bigramModel),
-        ("Distance Model", distanceModel),
-        ("Weighted VSM", weightedSentenceModel)
+        #("Unigram", unigramModel),
+        #("Bigram", bigramModel),
+        #("Distance Model", distanceModel),
+        #("Weighted VSM", weightedSentenceModel),
+        ("Double Blank Combo VSM", doubleSentenceModel),
+        ("Double Blank Max VSM", doubleSentenceMaxModel)
+
         #("Neural Network", neuralNetModel)
         #("BackOff", backOffModel) 
     ];
