@@ -70,10 +70,15 @@ class Glove:
     def getAverageVec(self, words, unigrams = None):
         targetvec = [0]*len(self.vectors.values()[0])
         count = 0;
+        total_sum = 0
+        if unigrams != None:
+            for word in words:
+                wProb = 1 if unigrams == None else unigrams.getSingleNonLogScore(word)
+                total_sum += float(wProb)
         for word in words:
             wordvec = self.getVec(word);
             if(wordvec != None):
-                wordProb = 1 if unigrams == None else unigrams.getSingleScore(word)
+                wordProb = 1 if unigrams == None else unigrams.getSingleNonLogScore(word)/total_sum
                 count += 1;
                 targetvec = map(lambda i: targetvec[i] + wordvec[i]*(1/wordProb), xrange(len(targetvec)));
                 
