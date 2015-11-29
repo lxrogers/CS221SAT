@@ -4,6 +4,7 @@
 # file: py
 
 import numpy as np
+from numpy.linalg import svd
 import csv
 
 global glove;
@@ -14,11 +15,11 @@ class Glove:
         self.v = v;
         self.filename = filename;
 
-        matrix, rows, self.cols = self.build(filename, delimiter, header, quoting)
+        self.matrix, self.rows, self.cols = self._build(filename, delimiter, header, quoting)
 
         self.vectors = {};
-        for i, word in enumerate(rows):
-            self.vectors[word] = matrix[i]
+        for i, word in enumerate(self.rows):
+            self.vectors[word] = self.matrix[i]
 
     def __str__(self):
     	return "Glove: " + self.filename + "\n    has " + str(len(self.vectors)) + " words.";
@@ -29,7 +30,16 @@ class Glove:
     def __contains__(self, item):
         return item in self.vectors
 
-    def build(self, src_filename, delimiter, header, quoting):    
+    def lsa(self, k=100):
+        rowmat, singvals, colmat = svd(self.matrix, full_matrices=False)
+        singvals = np.diag(singvals)
+        trunc = np.dot(rowmat[:, 0:k], singvals[0:k, 0:k])
+
+        self.vectors = {};
+        for i, word in enumerate(self.rows):
+            self.vectors[word] = trunc[i]
+
+    def _build(self, src_filename, delimiter, header, quoting):    
         reader = csv.reader(file(src_filename), delimiter=delimiter, quoting=quoting)
         colnames = None
         if header:
