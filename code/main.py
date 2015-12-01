@@ -462,19 +462,6 @@ def main(questions, glove_file):
     ################################################# EVAL MODELS #######################################################
     #####################################################################################################################
 
-    models = [
-        ("Random", randomModel, "R"), # R represents Random Model
-        ("Sentence", sentenceModel, "D"), # D represents distance based model
-        ("Unigram", unigramModel, "G"), # G represents gram based model
-        ("Bigram", bigramModel, "G"),
-        ("Distance Model", distanceModel, "D"),
-        ("Weighted VSM", weightedSentenceModel, "D"),
-        ("Double Blank Combo VSM", doubleSentenceModel, "D"),
-        ("Double Blank Max VSM", doubleSentenceMaxModel, "D")
-        #("Neural Network", neuralNetModel)
-        #("BackOff", backOffModel) 
-    ];
-
     distances = [
         (kldist, "kldist"),
         (jsd, "jsd"),
