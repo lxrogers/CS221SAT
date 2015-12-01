@@ -11,12 +11,53 @@ global glove;
 
 class Glove:
     
-    def __init__(self, filename, delimiter = ",", header=True, quoting=csv.QUOTE_MINIMAL, v=True):
+    def __init__(self, filename, delimiter = ",", header=True, quoting=csv.QUOTE_MINIMAL, weighting="None", v=True):
         self.v = v;
         self.filename = filename;
 
         self.matrix, self.rows, self.cols = self._build(filename, delimiter, header, quoting)
 
+
+        def _tfidf_row_func(row, colsums, doccount):
+            df = float(len([x for x in row if x > 0]))
+            idf = 0.0
+            # This ensures a defined IDF value >= 0.0:
+            if df > 0.0 and df != doccount:
+                idf = np.log(doccount / df)
+            tfs = row/colsums
+            return tfs * idf
+
+        def tfidf():
+            """TF-IDF on mat. rownames is unused; it's an argument only 
+            for consistency with other methods used here"""
+            colsums = np.sum(self.matrix, axis=0)
+            doccount = self.matrix.shape[1]
+            self.matrix = np.array([_tfidf_row_func(row, colsums, doccount) for row in self.matrix])
+
+        def _pmi_log(x, positive=True):
+            """Maps 0 and negative values to 0.0, otherwise to log.
+            With positive=True, maps negative values to 0."""
+            val = 0.0
+            if x > 0.0:
+                val = np.log(x)
+            if positive:
+                val = max([val,0.0])
+            return val
+
+        def pmi(positive=True):
+            """PMI on mat; positive=True does PPMI. rownames is not used; it's 
+            an argument only for consistency with other methods used here"""
+            # Joint probability table:
+            p = self.matrix / np.sum(self.matrix, axis=None)
+            # Pre-compute column sums:
+            colprobs = np.sum(p, axis=0)
+            # Vectorize this function so that it can be applied rowwise:
+            np_pmi_log = np.vectorize((lambda x : _pmi_log(x, positive=positive)))
+            self.matrix = np.array([np_pmi_log(row / (np.sum(row)*colprobs)) for row in p])   
+
+        if(weighting.lower() == "pmi"): pmi(positive=False);
+        if(weighting.lower() == "ppmi"): pmi(positive=True);
+        if(weighting.lower() == "tfidf"): tfidf();
         self.vectors = {};
         for i, word in enumerate(self.rows):
             self.vectors[word] = self.matrix[i]
