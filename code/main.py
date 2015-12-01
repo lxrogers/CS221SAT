@@ -125,13 +125,6 @@ def L2(u,v):
 def cosine(u, v):
     return scipy.spatial.distance.cosine(u, v)
 
-def L1(u,v):
-    return distributedwordreps.L1(u,v)
-
-def jaccard(u,v):
-    return distributedwordreps.jaccard(u,v);
-
-
 # =====================================================================================================================================================
 # =====================================================================================================================================================
 # ================================================================== MAIN CODE BASE ===================================================================
@@ -311,7 +304,7 @@ def getPOSVecs(sentence):
 
 # Main method
 # Global variables: unigrams, bigrams, backoff, glove, tagger
-def main(questions):
+def main(questions, glove_file):
 
     #####################################################################################################################
     ################################################### MODELS ##########################################################
@@ -469,42 +462,60 @@ def main(questions):
     ################################################# EVAL MODELS #######################################################
     #####################################################################################################################
 
-    models = [
-        #("Random", randomModel),
-        ("Sentence", sentenceModel),
-        #("Unigram", unigramModel),
-        #("Bigram", bigramModel),
-        #("Distance Model", distanceModel),
-        #("Weighted VSM", weightedSentenceModel),
-        ("Double Blank Combo VSM", doubleSentenceModel),
-        ("Double Blank Max VSM", doubleSentenceMaxModel)
-
-        #("Neural Network", neuralNetModel)
-        #("BackOff", backOffModel) 
-    ];
-
     distances = [
         (kldist, "kldist"),
         (jsd, "jsd"),
         (cosine, "cosine"),
         (L2, "L2"),
-        (L1, "L1"),
         (jaccard, "jaccard")
     ];
 
-    for name, model in models:
-            scoring.score_model( [(model(q), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
+    low_ranks = [None, "pmi", "ppmi", "tfidf"];
 
-    for name, model in models:
-            scoring.score_elimination_model( [(model(q, rev=True), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
+    lsa_nums = [250, 200, 150, 100, 50, None]
+
+    threshold_nums = [1, .99, .98, .96, .95, .9, .85, .8, .5]
     
-    # Look at threshold models
-    test_thresholds = [1, .9, .98, .99, .95, .8, .85, .01, .1, .2, .5, .001]
-    for test_t in test_thresholds:
-        name_reg = "Sentence Model - Threshold " + str(test_t)
-        scoring.score_model( [(sentenceModel(q, cosine, test_t, False, None), q.getCorrectWord()) for q in questions], verbose=True, modelname=name_reg)
-        name_weighted = "Weighted VSM - Threshold " + str(test_t)
-        scoring.score_model( [(weightedSentenceModel(q, cosine, test_t, False), q.getCorrectWord()) for q in questions], verbose=True, modelname=name_weighted)
+    # Run Random and Gram models first to conserve time
+    non_parametized_models = [
+        ("Random", randomModel),
+        ("Unigram", unigramModel),
+        ("Bigram", bigramModel)
+    ];
+
+    for name, model in non_parametized_models:
+        scoring.score_model( [(model(q), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
+        #scoring.score_elimination_model( [(model(q, rev=True), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
+    
+    param_models = [
+        ("Sentence", sentenceModel),
+        ("Distance Model", distanceModel),
+        ("Weighted VSM", weightedSentenceModel),
+        ("Double Blank Combo VSM", doubleSentenceModel),
+        ("Double Blank Max VSM", doubleSentenceMaxModel)
+    ];
+    global glove
+    # Try all possible combinations
+    for lr_type in low_ranks: # Assumes first is None so we don't have to reload again
+        if lr_type == None:
+            lr_type = "None"
+            print "Analyzing without low rank methods"
+        else:
+            print "Loading Glove with " + lr_type
+            glove = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, weighting=lr_type, v=False);
+            print "Finished loading Glove with " + lr_type
+        for lsa_num in lsa_nums:
+            if lsa_num == None:
+                lsa_num = "None"
+            else:
+                glove.lsa(lsa_num)
+            for d_method, d_name in distances:
+                for threshold in threshold_nums:
+                    for name, model in param_models:
+                        model_name = name + " " + "Low Rank Type = " + lr_type + " LSA Num = " + str(lsa_num) + " Distance Method = " + d_name + " Threshold = " + str(threshold)
+                        scoring.score_model( [(model(q, d_method, threshold, False), q.getCorrectWord()) for q in questions], verbose=True, modelname=model_name)
+                        #scoring.score_elimination_model( [(model(q, d_method, threshold, False), q.getCorrectWord()) for q in questions], verbose=True, modelname=model_name)
+
 
 
 # =====================================================================================================================================================
@@ -619,7 +630,7 @@ if __name__ == "__main__":
     if(v): print "Starting program now..."
 
     # Main Method
-    main(questions);
+    main(questions, g);
 
     # Finished main execution
     if(v): printSuccess("Program successfully finished and exited in " + str(int(time.time() - start)) +  " seconds!");
