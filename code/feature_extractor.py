@@ -20,34 +20,20 @@ from CustomLanguageModel import *
 import numpy as np
 import cPickle
 
-# Reads a file and returns the text contents
-def readFile(filename):
-    with open(filename) as f: return f.read();
+def kldist(p,q):
+    return reduce(lambda soFar,i: soFar + p[i]*np.log(p[i]/q[i]), xrange(len(p)), 0);
 
+def jsd(p,q):
+    p = map(lambda u: u/sum(p), p);
+    q = map(lambda v: v/sum(q), q);
+    m = .5*np.add(p,q);
+    return np.sqrt(.5*kldist(p,m) + .5*kldist(q,m))
 
-# Returns a list of all filenames that are recursively found down a path.
-#   First param: String of initial directory to start searching
-#   Second param (optional): A filter function that filters the files found. Default returns all files.
-def getRecursiveFiles(path, filter_fn=lambda x: True):
-    paths = [path]
-    files = [];
-    try:
-        while(len(paths) > 0):
-            path = paths[0] if paths[0][-1] != "/" else paths[0][:-1];
-            children = [f for f in listdir(paths[0])];
-            for child in children:
-                if not isfile(join(path,child)) and "." not in f: paths.append(join(path,child));
-                elif isfile(join(path,child)): files.append(join(path,child));
-            paths = paths[1:]; #remove te path we just looked at
-        return filter(filter_fn, files);
-    except:
-        error(path + " is not a directory. Exiting...", True);
+def L2(u,v):
+    return reduce(lambda soFar,i: soFar + (u[i]-v[i])*(u[i]-v[i]), range(len(u)), 0);
 
-
-def loadQuestions(directory="../data/train/"):
-    files = getRecursiveFiles(directory, lambda x: x[x.rfind("/") + 1] != "." and ".txt" in x and x[-1] != '~' and "norvig" not in x.lower());
-    return [Question(text) for filename in files for text in readFile(filename).split("\n\n") ];
-
+def cosine(u, v):
+    return scipy.spatial.distance.cosine(u, v)
 
 # Model Code/Evaluation
 def unigramModel(unigrams, question, target, distfunc=cosine, threshold=1, rev=False):
@@ -74,10 +60,10 @@ def sentenceModel(glove, question, target, distfunc=cosine, threshold=1, rev=Fal
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), question.getSentence()), unigrams);
     return distfunc(glove.getVec(target), targetvec)
 
-def weightedSentenceModel(glove, question, target, distfunc=cosine, threshold=1, rev=False, unigrams):
+def weightedSentenceModel(glove, question, target, unigrams, distfunc=cosine, threshold=1, rev=False):
     return sentenceModel(glove, question, target, distfunc, threshold, rev, unigrams)
 
-def distanceModel(glove, question, distfunc=cosine, threshold=1, rev=False, answer):
+def distanceModel(glove, question, answer, distfunc=cosine, threshold=1, rev=False):
     if(not rev):
         bestanswer, mindist = "", float('inf');
         return min(distfunc(glove.getVec(word), glove.getVec(answer)) for word in  filter(lambda x: x not in stopwords.words('english'), question.getSentence()))
@@ -102,31 +88,31 @@ def getPOSVecs(sentence):
 
 
 def adjectiveModel(glove, question, word, distfunc=cosine, threshold=1, rev=False):
-        nouns, verbs, adjectives = getPOSVecs(question.getSentence());
-        if(len(adjectives) == 0): return -1
-        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), adjectives))
-        if(not rev):
-            return distfunc(glove.getVec(word), targetvec)
-        else:
-            return -1*distfunc(glove.getVec(word), targetvec)
+    nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+    if(len(adjectives) == 0): return -1
+    targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), adjectives))
+    if(not rev):
+        return distfunc(glove.getVec(word), targetvec)
+    else:
+        return -1*distfunc(glove.getVec(word), targetvec)
 
-    def verbModel(glove, question, word, distfunc=cosine, threshold=1, rev=False):
-        nouns, verbs, adjectives = getPOSVecs(question.getSentence());
-        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), verbs))
-        if(len(verbs) == 0): return -1
-        if(not rev):
-            return distfunc(glove.getVec(word), targetvec)
-        else:
-            return -1*distfunc(glove.getVec(word), targetvec)
+def verbModel(glove, question, word, distfunc=cosine, threshold=1, rev=False):
+    nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+    targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), verbs))
+    if(len(verbs) == 0): return -1
+    if(not rev):
+        return distfunc(glove.getVec(word), targetvec)
+    else:
+        return -1*distfunc(glove.getVec(word), targetvec)
 
-    def nounModel(glove, question, word, distfunc=cosine, threshold=1, rev=False):
-        nouns, verbs, adjectives = getPOSVecs(question.getSentence());
-        if(len(nouns) == 0): return -1
-        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), nouns))
-        if(not rev):
-            return distfunc(glove.getVec(word), targetvec)
-        else:
-            return -1*distfunc(glove.getVec(word), targetvec)
+def nounModel(glove, question, word, distfunc=cosine, threshold=1, rev=False):
+    nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+    if(len(nouns) == 0): return -1
+    targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), nouns))
+    if(not rev):
+        return distfunc(glove.getVec(word), targetvec)
+    else:
+        return -1*distfunc(glove.getVec(word), targetvec)
 
 # Create Feature Extractor for a Given Sentence
 # Assumes ((Sentence, Word), Indicator) is given
@@ -173,19 +159,19 @@ def createSingleExtractor(example, unigrams, bigrams, glove_none, glove_tdidf, g
     for name, model in param_models:
         for d_method, d_name in distances:
             if name == "Distance Model":
-                dis_none = model(glove_none, q, d_method, 1, False, word)
-                dis_tdidf = model(glove_tdidf, q, d_method, 1, False, word)
-                dis_pmi = model(glove_pmi, q, d_method, 1, False, word)
-                dis_pmmi = model(glove_pmmi, q, d_method, 1, False, word)
+                dis_none = model(glove_none, q, word, d_method, 1, False)
+                dis_tdidf = model(glove_tdidf, q, word, d_method, 1, False)
+                dis_pmi = model(glove_pmi, q, word, d_method, 1, False)
+                dis_pmmi = model(glove_pmmi, q, word, d_method, 1, False)
                 features.append(dis_none)
                 features.append(dis_tdidf)
                 features.append(dis_pmi)
                 features.append(dis_pmmi)
             elif name == "Weighted VSM":
-                dis_none = model(glove_none, q, word, d_method, 1, False, unigrams)
-                dis_tdidf = model(glove_tdidf, q, word, d_method, 1, False, unigrams)
-                dis_pmi = model(glove_pmi, q, word, d_method, 1, False, unigrams)
-                dis_pmmi = model(glove_pmmi, q, word, d_method, 1, False, unigrams)
+                dis_none = model(glove_none, q, word, unigrams, d_method, 1, False)
+                dis_tdidf = model(glove_tdidf, q, word, unigrams, d_method, 1, False)
+                dis_pmi = model(glove_pmi, q, word, unigrams, d_method, 1, False)
+                dis_pmmi = model(glove_pmmi, q, word, unigrams, d_method, 1, False)
                 features.append(dis_none)
                 features.append(dis_tdidf)
                 features.append(dis_pmi)
@@ -209,19 +195,17 @@ def createSingleExtractor(example, unigrams, bigrams, glove_none, glove_tdidf, g
     
     return features
 
-def createFeatureExtractorForAll(examples_file, unigrams, bigrams, glove_none, glove_tdidf, glove_pmi, glove_pmmi):
-    examples = loadQuestions(directory=examples_file)
-    
-    glove_tdidf.lsa(250)
-    glove_pmi.lsa(250)
-    glove_pmmi.lsa(250)
-    glove_none.lsa(250)
+def createFeatureExtractorForAll(examples, unigrams, bigrams, glove_none, glove_tdidf, glove_pmi, glove_pmmi):
+    glove_tdidf.lsa(25)
+    glove_pmi.lsa(25)
+    glove_pmmi.lsa(25)
+    glove_none.lsa(25)
     
     all_features = []
     all_ys = []
     for example in examples:
         for a in example.answers:
-            if(a in glove_none): continue;
+            if(a not in glove_none): continue;
             answer = 1 if a == example.correctAnswer else 0
             data = (example, a)
             all_ys.append(answer)
