@@ -37,10 +37,10 @@ def cosine(u, v):
 
 # Model Code/Evaluation
 def unigramModel(unigrams, question, target, distfunc=cosine, threshold=1, rev=False):
-    return unigrams.unigramProbs(target);
+    return unigrams.unigramProbs[target];
 
 def bigramModel(bigrams, question, target, distfunc=cosine, threshold=1, rev=False):
-    sentence = question.getsentence()
+    sentence = question.getSentence()
     i = sentence.find('____')
     com1 = (sentence[i-1], sentence[i])
     com2 = (sentence[i], sentence[i+1])
