@@ -147,14 +147,41 @@ def getTestingTrainingData():
     
     print "Loading Test Questions"
     test_qs = loadQuestions(directory="../data/test/")
+    
+    com_features = None
+    com_labels = None
 
     com_questions = training_questions + dev_qs + test_qs
-
-    print "Getting AlL Features"
-    com_features_responses = feature_extractor.createFeatureExtractorForAll(com_questions, unigrams, bigrams, glove_file)
     
-    print "Seperating Features"
-    # TODO
-    return com_features_responses
+    # Check if testing data is already create
+    if len(getRecursiveFiles("../data/ml_data/distance_test", filter_fn=lambda a: ".pickle" in a)) > 0:
+        print "Found Saved Test Features"
+        com_features = loadPickle("../data/ml_data/distance_test/com_traindevtest_features.pickle")
+        com_labels = loadPickle("../data/ml_data/distance_test/com_traindevtest_labels.pickle")
+    elif len(getRecursiveFiles("../data/ml_data/distance_train", filter_fn=lambda a: ".pickle" in a)) > 0:
+        print "Found Saved Training/Dev Features"
+        train_features = loadPickle("../data/ml_data/distance_train/com_traindev_features.pickle")
+        train_labels = loadPickle("../data/ml_data/distance_train/com_traindev_labels.pickle")
+        print "Calculating All Test Features"
+        test_features, test_labels = feature_extractor.createFeatureExtractorForAll(test_qs, unigrams, bigrams, glove_file)
+        com_features = train_features + test_features
+        com_labels = train_labels + test_labels
+        print "Saving Combined Features for later use"
+        savePickle(com_features, "../data/ml_data/distance_test/com_traindevtest_features.pickle")
+        savePickle(com_labels, "../data/ml_data/distance_test/com_traindevtest_labels.pickle")
+        # Return Data
+        training_data = (train_features, train_labels)
+        testing_data = (test_features, test_labels)
+        return (training_data, testing_data)
+    else:
+        print "No saved features found. Need to Calculate All"
+        com_features, com_labels = feature_extractor.createFeatureExtractorForAll(com_questions, unigrams, bigrams, glove_file)
+        print "Saving Combined Features for later use"
+        savePickle(com_features, "../data/ml_data/distance_test/com_traindevtest_features.pickle")
+        savePickle(com_labels, "../data/ml_data/distance_test/com_traindevtest_labels.pickle")
     
-
+    # Separate Data + Return
+    break_point = (len(training_questions) + len(dev_qs))*5
+    training_data = (com_features[:break_point], com_labels[:break_point])
+    test_data = (com_features[break_point:], com_labels[break_point:])
+    return (training_data, test_data)
