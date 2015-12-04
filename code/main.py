@@ -123,7 +123,7 @@ def L2(u,v):
     return reduce(lambda soFar,i: soFar + (u[i]-v[i])*(u[i]-v[i]), range(len(u)), 0);
 
 def cosine(u, v):
-    return scipy.spatial.distance.cosine(u, v)
+    return scipy.spatial.distance.cosine(u, v);
 
 # =====================================================================================================================================================
 # =====================================================================================================================================================
@@ -149,9 +149,9 @@ def getGrams(path="../data/Holmes_Training_Data/"):
         u.unigramCounts = unigramcounts;
         b.bigramCounts = loadPickle("../data/languagemodels/b-bigramCounts.pickle")
         b.unigramCounts = unigramcounts
-        #c.ngramCounts = loadPickle("../data/languagemodels/c-ngramCounts.pickle")
-        #c.continuationProb = loadPickle("../data/languagemodels/c-continuationProb.pickle")
-        #c.total = loadPickle("../data/languagemodels/c-total.pickle")
+        # c.ngramCounts = loadPickle("../data/languagemodels/c-ngramCounts.pickle")
+        # c.continuationProb = loadPickle("../data/languagemodels/c-continuationProb.pickle")
+        # c.total = loadPickle("../data/languagemodels/c-total.pickle")
     else:
         files = getRecursiveFiles(path) if not isfile(path) else [path];
         for filename in files:
@@ -167,9 +167,9 @@ def getGrams(path="../data/Holmes_Training_Data/"):
             savePickle(u.unigramProbs, "../data/languagemodels/u-unigramProbs.pickle")
             savePickle(u.unigramCounts, "../data/languagemodels/unigramCounts.pickle")
             savePickle(b.bigramCounts, "../data/languagemodels/b-bigramCounts.pickle")
-            #savePickle(c.ngramCounts, "../data/languagemodels/c-ngramCounts.pickle")
-            #savePickle(c.continuationProb, "../data/languagemodels/c-continuationProb.pickle")
-            #savePickle(c.total, "../data/languagemodels/c-total.pickle")
+            # savePickle(c.ngramCounts, "../data/languagemodels/c-ngramCounts.pickle")
+            # savePickle(c.continuationProb, "../data/languagemodels/c-continuationProb.pickle")
+            # savePickle(c.total, "../data/languagemodels/c-total.pickle")
     return u, b, c
 
 # Finds the best answer given a target vector, answers, a distance function and a threshold
@@ -194,7 +194,6 @@ def findBestVector(targetvec, answers, distfunc, threshold):
         if(vec == None):
             if(v): error("Glove does not have the means to evaluate \"" + answer + "\" in its vocabulary", False);
             return None;
-
         if( distfunc(vec, targetvec) < mindist and distfunc(vec, targetvec) < threshold ):
             ind, mindist = i, distfunc(vec, targetvec);
     if (ind == -1):
@@ -311,24 +310,51 @@ def main(questions, glove_file):
     #####################################################################################################################
 
     # Returns answer word based on random chance, given the answers 
-    def randomModel(question, distfunc=cosine, threshold=1, rev=False):
+    def randomModel(question, distfunc=cosine, threshold=2, rev=False):
         return question.answers[random.randint(0,len(question.answers)) - 1];
+
+    def adjectiveModel(question, distfunc=cosine, threshold=2, rev=False):
+        nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+        if(len(adjectives) == 0): return -1
+        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), adjectives))
+        if(not rev):
+            return findBestVector(targetvec, question.answers, distfunc, threshold);
+        else:
+            return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
+
+    def verbModel(question, distfunc=cosine, threshold=2, rev=False):
+        nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), verbs))
+        if(len(verbs) == 0): return -1
+        if(not rev):
+            return findBestVector(targetvec, question.answers, distfunc, threshold);
+        else:
+            return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
+
+    def nounModel(question, distfunc=cosine, threshold=2, rev=False):
+        nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+        if(len(nouns) == 0): return -1
+        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), nouns))
+        if(not rev):
+            return findBestVector(targetvec, question.answers, distfunc, threshold);
+        else:
+            return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
 
     # Sentence is an array of words
     # Returns answer word by averaging the sentence passed in.
     # Returns None if an answer doesn't exist in the glove vocab
     # Returns -1 if no answers pass the confidence threshold
-    def sentenceModel(question, distfunc=cosine, threshold=1, rev=False, unigrams=None):
+    def sentenceModel(question, distfunc=cosine, threshold=2, rev=False, unigrams=None):
         targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), question.getSentence()), unigrams);
         if(not rev):
             return findBestVector(targetvec, question.answers, distfunc, threshold);
         else:
             return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
 
-    def weightedSentenceModel(question, distfunc=cosine, threshold=1, rev=False):
+    def weightedSentenceModel(question, distfunc=cosine, threshold=2, rev=False):
         return sentenceModel(question, distfunc, threshold, rev, unigrams)
 
-    def doubleSentenceModel(question, distfunc=cosine, threshold=1, rev=False):
+    def doubleSentenceModel(question, distfunc=cosine, threshold=2, rev=False):
         answer_words = getStrippedAnswerWords(question.answers[0])
         if(len(answer_words) == 1):
             #single blank answer
@@ -339,7 +365,7 @@ def main(questions, glove_file):
             question2 = getRemainingAnswers(elimination_mode, question) #step 2: eliminate those words
             return sentenceModel(question2, distfunc, threshold, rev) #step 3: find best answer out of un-eliminated words
 
-    def doubleSentenceMaxModel(question, distfunc=cosine, threshold=1, rev=False):
+    def doubleSentenceMaxModel(question, distfunc=cosine, threshold=2, rev=False):
         answer_words = getStrippedAnswerWords(question.answers[0])
         if(len(answer_words) == 1):
             #single blank answer
@@ -353,7 +379,7 @@ def main(questions, glove_file):
                 return getMaxDoubleBlankAnswer(elimination_mode, question)
             
 
-    def distanceModel(question, distfunc=cosine, threshold=1, rev=False):
+    def distanceModel(question, distfunc=cosine, threshold=2, rev=False):
         if(not rev):
             bestanswer, mindist = "", float('inf');
 
@@ -368,94 +394,25 @@ def main(questions, glove_file):
             return 0;
 
 
-    def unigramModel(question, distfunc=cosine, threshold=1, rev=False):
+    def unigramModel(question, distfunc=cosine, threshold=2, rev=False):
         if(not rev):
             return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]))[0];
         else:
             return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]))[0];
 
 
-    def bigramModel(question, distfunc=cosine, threshold=1, rev=False):
+    def bigramModel(question, distfunc=cosine, threshold=2, rev=False):
         if(not rev):
             return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]))[0];
         else:
             return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]))[0];
 
 
-    def backOffModel(question, distfunc=cosine, threshold=1, rev=False):
+    def backOffModel(question, distfunc=cosine, threshold=2, rev=False):
         if(not rev):
             return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]))[0];
         else:
             return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]))[0];
-
-
-    def neuralNetModel(question, distfunc=cosine, threshold=1, rev=False):
-
-        targetvec = net.predict(getNetInput(question.getSentence()));
-
-        if(not rev):
-            return findBestVector(targetvec, question.answers, distfunc, threshold);
-        else:
-            return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
-       
-
-    #####################################################################################################################
-    ############################################### MAIN CODEBASE #######################################################
-    #####################################################################################################################
-
-
-    def getNetInput(sentence):
-        # Filtering stop words from the sentence
-        sentence = filter(lambda x: x in stopwords.words('english') and (x in glove or '_' in x), sentence);
-
-        # Add 10 or less non-stop words leading up to blank
-        vsmInput = [];
-        for i in xrange(10):
-            if(i >= len(sentence) or '_' in sentence[i]): break;
-            vsmInput += glove.getVec(sentence[i]).tolist();
-
-        # Append 0's to make uniform input length
-        if(len(vsmInput) < 500): vsmInput += [0]*(500 - len(vsmInput));
-        return vsmInput;
-     
-    def trainNeuralNetwork(questionData):
-        if(len(getRecursiveFiles("../data/neuralnet", filter_fn=lambda a: ".pickle" in a)) > 0 and not save):
-            net.input = loadPickle("../data/neuralnet/input.pickle");
-            net.hidden = loadPickle("../data/neuralnet/hidden.pickle");
-            net.output = loadPickle("../data/neuralnet/output.pickle");
-            net.iweights = loadPickle("../data/neuralnet/iweights.pickle");
-            net.oweights = loadPickle("../data/neuralnet/oweights.pickle");
-            net.oerr = loadPickle("../data/neuralnet/oerr.pickle");
-            net.ierr = loadPickle("../data/neuralnet/ierr.pickle");
-        else:
-            # Creating training data
-            train = [];
-            for q in questionData:
-                if(q.getCorrectWord() in glove):
-                    train.append( (getNetInput(q.getSentence()), glove.getVec(q.getCorrectWord())) );
-
-            if(save):
-                savePickle(net.input, "../data/neuralnet/input.pickle");
-                savePickle(net.hidden, "../data/neuralnet/hidden.pickle");
-                savePickle(net.output, "../data/neuralnet/output.pickle");
-                savePickle(net.iweights, "../data/neuralnet/iweights.pickle");
-                savePickle(net.oweights, "../data/neuralnet/oweights.pickle");
-                savePickle(net.oerr, "../data/neuralnet/oerr.pickle");
-                savePickle(net.ierr, "../data/neuralnet/ierr.pickle");
-
-        net.train(train); 
-
-    # Initializing Shallow Neural Network using 50 length VSMs and 10 words, using sigmoid layers
-    # sigmoid = np.vectorize(lambda x: 1.0/(1.0+np.exp(-x)))
-    # net = ShallowNeuralNetwork(
-    #     input_dim=500,
-    #     hidden_dim=75,
-    #     output_dim=50,
-    #     afunc= sigmoid, # Sigmoid Layer
-    #     d_afunc=np.vectorize(lambda x: sigmoid(x)*(1-sigmoid(x)))
-    # )
-
-    # trainNeuralNetwork(questions[:len(questions)/2]);
 
 
     #####################################################################################################################
@@ -470,53 +427,21 @@ def main(questions, glove_file):
         (jaccard, "jaccard")
     ];
 
-    low_ranks = [None, "pmi", "ppmi", "tfidf"];
-
-    lsa_nums = [250, 200, 150, 100, 50, None]
-
-    threshold_nums = [1, .99, .98, .96, .95, .9, .85, .8, .5]
-    
-    # Run Random and Gram models first to conserve time
-    non_parametized_models = [
-        ("Random", randomModel),
-        ("Unigram", unigramModel),
-        ("Bigram", bigramModel)
-    ];
-
-    for name, model in non_parametized_models:
-        scoring.score_model( [(model(q), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
-        #scoring.score_elimination_model( [(model(q, rev=True), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
-    
     param_models = [
         ("Sentence", sentenceModel),
         ("Distance Model", distanceModel),
         ("Weighted VSM", weightedSentenceModel),
         ("Double Blank Combo VSM", doubleSentenceModel),
-        ("Double Blank Max VSM", doubleSentenceMaxModel)
+        ("Double Blank Max VSM", doubleSentenceMaxModel),
+        ("Adjective Model", adjectiveModel),
+        ("Noun Model", nounModel),
+        ("Verb Model", verbModel)
     ];
-    global glove
-    # Try all possible combinations
-    for lr_type in low_ranks: # Assumes first is None so we don't have to reload again
-        if lr_type == None:
-            lr_type = "None"
-            print "Analyzing without low rank methods"
-        else:
-            print "Loading Glove with " + lr_type
-            glove = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, weighting=lr_type, v=False);
-            print "Finished loading Glove with " + lr_type
-        for lsa_num in lsa_nums:
-            if lsa_num == None:
-                lsa_num = "None"
-            else:
-                glove.lsa(lsa_num)
-            for d_method, d_name in distances:
-                for threshold in threshold_nums:
-                    for name, model in param_models:
-                        model_name = name + " " + "Low Rank Type = " + lr_type + " LSA Num = " + str(lsa_num) + " Distance Method = " + d_name + " Threshold = " + str(threshold)
-                        scoring.score_model( [(model(q, d_method, threshold, False), q.getCorrectWord()) for q in questions], verbose=True, modelname=model_name)
-                        #scoring.score_elimination_model( [(model(q, d_method, threshold, False), q.getCorrectWord()) for q in questions], verbose=True, modelname=model_name)
 
+    for name, model in param_models:
+        scoring.score_model( [(model(q, threshold=.9), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
 
+    os.system("say Finished");
 
 # =====================================================================================================================================================
 # =====================================================================================================================================================

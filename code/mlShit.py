@@ -10,6 +10,7 @@ from sklearn.neural_network import BernoulliRBM
 from sklearn.pipeline import Pipeline
 import get_distance_ml_training
 import numpy
+import scoring
 
 models = [(RandomForestClassifier(max_depth=5, n_jobs=-1, n_estimators=10, max_features=10), "Random Forest"),
           (GaussianNB(), "Gaussian Naive Bayes"),
@@ -45,6 +46,7 @@ def trainDataDev():
     for model, name in models:
         num_right = 0
         num_not_answer = 0
+        num_wrong = 0;
         for i in range(num_dev):
             vals = model.predict(dev[i*5:i*5+5])
             if 1 in vals:
@@ -52,13 +54,13 @@ def trainDataDev():
                 answer_index = dev_labels[i*5:i*5+5].index(1)
                 if pred_index == answer_index:
                     num_right += 1
+                else:
+                	num_wrong += 1
             else:
                 num_not_answer += 1
         print "\nML Algorithm Dev: ", name;
-        print "Answered Correctly: %d Did Not Answered: %d" %(num_right, num_not_answer)
-         
-    for model, name in models:
-	    print "\nML Algorithm Dev: ", name;
-	    print "Scored: ", model.score(dev, dev_labels);
+        print "Answered Correctly: %d Did Not Answer: %d" %(num_right, num_not_answer)
+	    print "Percent Right: ", model.score(dev, dev_labels);
+	    print "SAT Score: ", scoring.score_model([(1,1)]*num_right + [(None,1)]*num_not_answer + [(0,1)]*num_wrong);
 
 trainDataDev()
