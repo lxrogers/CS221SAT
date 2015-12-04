@@ -91,29 +91,70 @@ def getGrams(path="../data/Holmes_Training_Data/"):
             #savePickle(c.total, "../data/languagemodels/c-total.pickle")
     return u, b, c
 
+# Training on training questions + then evaluating on Dev questions
+def getEvaluatingTrainingData(dev=True):
+    global save
+    save = True
+    ngram_path = "../data/Holmes_Training_Data/norvig.txt"
+    glove_file = "../data/glove_vectors/glove.6B.300d.txt"
+    
+    print "Training N-Gram Models"
+    unigrams, bigrams, backoff = getGrams(path=ngram_path);
+    
+    print "Loading Training Questions"
+    training_questions = loadQuestions(directory="../data/train/")
+    
+    print "Loading Evlauation Questions"
+    dev_qs = []
+    if dev:
+        print "Loading Dev Questions"
+        dev_qs = loadQuestions(directory="../data/dev_set/")
+    
+    com_questions = training_questions + dev_qs
+    com_features = None
+    com_labels = None
+    # Check if saved
+    if len(getRecursiveFiles("../data/ml_data/distance_train", filter_fn=lambda a: ".pickle" in a)) > 0:
+        print "Found Saved Features"
+        com_features = loadPickle("../data/ml_data/distance_train/com_traindev_features.pickle")
+        com_labels = loadPickle("../data/ml_data/distance_train/com_traindev_labels.pickle")
+    else:
+        print "Getting AlL Features"
+        com_features, com_labels = feature_extractor.createFeatureExtractorForAll(com_questions, unigrams, bigrams, glove_file)
+        savePickle(com_features, "../data/ml_data/distance_train/com_traindev_features.pickle")
+        savePickle(com_labels, "../data/ml_data/distance_train/com_traindev_labels.pickle")
+    
+    break_point = len(training_questions)*5
+    training_data = (com_features[:break_point], com_labels[:break_point])
+    dev_data = (com_features[break_point:], com_labels[break_point:])
+    return (training_data, dev_data)
 
-
-def getTrainingData():
-
-    # Parameters
+# Training on training questions and dev questions + then evaluating on Test questions
+def getTestingTrainingData():
     global save
     save = True
     ngram_path = "../data/Holmes_Training_Data/norvig.txt"
     glove_file = "../data/glove_vectors/glove.6B.50d.txt"
     
-    # Get data needed
-    print "Getting Glove Vectors"
-    glove_none = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
-    glove_tfidf = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, weighting="tfidf", v=False);
-    glove_pmi = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, weighting="pmi", v=False);
-    glove_ppmi = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, weighting="ppmi", v=False);
-    
     print "Training N-Gram Models"
     unigrams, bigrams, backoff = getGrams(path=ngram_path);
     
-    print "Loading Questions"
+    print "Loading Training Questions"
     training_questions = loadQuestions(directory="../data/train/")
-    print "Getting All Features"
-    features_responses = feature_extractor.createFeatureExtractorForAll(training_questions, unigrams, bigrams, glove_none, glove_tfidf, glove_pmi, glove_ppmi)
-    return features_responses
+    
+    print "Loading Dev Questions"
+    dev_qs = loadQuestions(directory="../data/dev_set/")
+    
+    print "Loading Test Questions"
+    test_qs = loadQuestions(directory="../data/test/")
+
+    com_questions = training_questions + dev_qs + test_qs
+
+    print "Getting AlL Features"
+    com_features_responses = feature_extractor.createFeatureExtractorForAll(com_questions, unigrams, bigrams, glove_file)
+    
+    print "Seperating Features"
+    # TODO
+    return com_features_responses
+    
 
