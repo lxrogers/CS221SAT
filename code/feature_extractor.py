@@ -19,45 +19,32 @@ from UnigramModel import *
 from CustomLanguageModel import *
 import numpy as np
 import cPickle
+import math
 
-# Reads a file and returns the text contents
-def readFile(filename):
-    with open(filename) as f: return f.read();
+def kldist(p,q):
+    return reduce(lambda soFar,i: soFar + p[i]*np.log(p[i]/q[i]), xrange(len(p)), 0);
 
+def jsd(p,q):
+    p = map(lambda u: u/sum(p), p);
+    q = map(lambda v: v/sum(q), q);
+    m = .5*np.add(p,q);
+    return np.sqrt(.5*kldist(p,m) + .5*kldist(q,m))
 
-# Returns a list of all filenames that are recursively found down a path.
-#   First param: String of initial directory to start searching
-#   Second param (optional): A filter function that filters the files found. Default returns all files.
-def getRecursiveFiles(path, filter_fn=lambda x: True):
-    paths = [path]
-    files = [];
-    try:
-        while(len(paths) > 0):
-            path = paths[0] if paths[0][-1] != "/" else paths[0][:-1];
-            children = [f for f in listdir(paths[0])];
-            for child in children:
-                if not isfile(join(path,child)) and "." not in f: paths.append(join(path,child));
-                elif isfile(join(path,child)): files.append(join(path,child));
-            paths = paths[1:]; #remove te path we just looked at
-        return filter(filter_fn, files);
-    except:
-        error(path + " is not a directory. Exiting...", True);
+def L2(u,v):
+    return reduce(lambda soFar,i: soFar + (u[i]-v[i])*(u[i]-v[i]), range(len(u)), 0);
 
-
-def loadQuestions(directory="../data/train/"):
-    files = getRecursiveFiles(directory, lambda x: x[x.rfind("/") + 1] != "." and ".txt" in x and x[-1] != '~' and "norvig" not in x.lower());
-    return [Question(text) for filename in files for text in readFile(filename).split("\n\n") ];
-
+def cosine(u, v):
+    return scipy.spatial.distance.cosine(u, v)
 
 # Model Code/Evaluation
 def unigramModel(unigrams, question, target, distfunc=cosine, threshold=1, rev=False):
-    return unigrams.unigramProbs(target);
+    return unigrams.unigramProbs[target];
 
 def bigramModel(bigrams, question, target, distfunc=cosine, threshold=1, rev=False):
-    sentence = question.getsentence()
-    i = sentence.find('____')
+    sentence = question.getSentence()
+    i = sentence.index("____")
     com1 = (sentence[i-1], sentence[i])
-    com2 = (sentence[i], sentence[i+1])
+    com2 =  0 if i == len(sentence)-1 else (sentence[i], sentence[i+1])
     return bigrams.bigramCounts[com1] + bigrams.bigramCounts[com2]
 
 def backOffModel(backoff, question, target, distfunc=cosine, threshold=1, rev=False):
@@ -70,17 +57,55 @@ def backOffModel(backoff, question, target, distfunc=cosine, threshold=1, rev=Fa
 # Returns answer word by averaging the sentence passed in.
 # Returns None if an answer doesn't exist in the glove vocab
 # Returns -1 if no answers pass the confidence threshold
+
+def getStrippedAnswerWords(answer):
+    comma_split = re.split("[\,]", answer)
+    if len(comma_split) == 2: #double blank
+        return [stripTinyWords(comma_split[0]), stripTinyWords(comma_split[1])]
+    elif len(comma_split) == 1: #single blank
+        return [stripTinyWords(answer)]
+    else:
+        raise Exception("answer formatting error")
+
+def stripTinyWords(answer):
+    space_split = re.split("[\s]", answer)
+    if len(space_split) == 2:
+        return space_split[0] if len(space_split[0]) > len(space_split[1]) else space_split[1]
+    elif len(space_split) == 1:
+        return answer
+    else:
+        raise Exception("answer formatting error")
+
+def calcVecDistance(glove, targetvec, distfunc, answer):
+    vec = None;
+    answer_words = getStrippedAnswerWords(answer)
+    if(len(answer_words) == 1):
+        # Single word answer
+        vec = glove.getVec(answer_words[0]);
+
+        # Compound answer, adding the vector
+        if(any(x in answer_words[0] for x in ['\'','-'])): vec = glove.getSumVec(re.split('[\'\-]', answer_words[0]));
+    else:
+        # Double answer question type
+        vec = glove.getAverageVec(filter(lambda y: len(y) > 0, map(lambda x: x.strip(), answer_words[0])));
+
+    # Glove does not have the answer in its vocabulary
+    if(vec == None):
+        return None;
+    return distfunc(vec, targetvec)
+
+
+
 def sentenceModel(glove, question, target, distfunc=cosine, threshold=1, rev=False, unigrams=None):
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), question.getSentence()), unigrams);
-    return distfunc(glove.getVec(target), targetvec)
+    return calcVecDistance(glove, targetvec, distfunc, target)
 
-def weightedSentenceModel(glove, question, target, distfunc=cosine, threshold=1, rev=False, unigrams):
+def weightedSentenceModel(glove, question, target, unigrams, distfunc=cosine, threshold=1, rev=False):
     return sentenceModel(glove, question, target, distfunc, threshold, rev, unigrams)
 
-def distanceModel(glove, question, distfunc=cosine, threshold=1, rev=False, answer):
+def distanceModel(glove, question, answer, distfunc=cosine, threshold=1, rev=False):
     if(not rev):
-        bestanswer, mindist = "", float('inf');
-        return min(distfunc(glove.getVec(word), glove.getVec(answer)) for word in  filter(lambda x: x not in stopwords.words('english'), question.getSentence()))
+        return min(calcVecDistance(glove, glove.getVec(word), distfunc, answer) for word in filter(lambda x: x not in stopwords.words('english') and x in glove, question.getSentence()))
     else:
         return 0;
 
@@ -102,31 +127,22 @@ def getPOSVecs(sentence):
 
 
 def adjectiveModel(glove, question, word, distfunc=cosine, threshold=1, rev=False):
-        nouns, verbs, adjectives = getPOSVecs(question.getSentence());
-        if(len(adjectives) == 0): return -1
-        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), adjectives))
-        if(not rev):
-            return distfunc(glove.getVec(word), targetvec)
-        else:
-            return -1*distfunc(glove.getVec(word), targetvec)
+    nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+    if(len(adjectives) == 0): return -1
+    targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), adjectives))
+    return calcVecDistance(glove, targetvec, distfunc, word)
 
-    def verbModel(glove, question, word, distfunc=cosine, threshold=1, rev=False):
-        nouns, verbs, adjectives = getPOSVecs(question.getSentence());
-        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), verbs))
-        if(len(verbs) == 0): return -1
-        if(not rev):
-            return distfunc(glove.getVec(word), targetvec)
-        else:
-            return -1*distfunc(glove.getVec(word), targetvec)
+def verbModel(glove, question, word, distfunc=cosine, threshold=1, rev=False):
+    nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+    targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), verbs))
+    if(len(verbs) == 0): return -1
+    return calcVecDistance(glove, targetvec, distfunc, word)
 
-    def nounModel(glove, question, word, distfunc=cosine, threshold=1, rev=False):
-        nouns, verbs, adjectives = getPOSVecs(question.getSentence());
-        if(len(nouns) == 0): return -1
-        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), nouns))
-        if(not rev):
-            return distfunc(glove.getVec(word), targetvec)
-        else:
-            return -1*distfunc(glove.getVec(word), targetvec)
+def nounModel(glove, question, word, distfunc=cosine, threshold=1, rev=False):
+    nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+    if(len(nouns) == 0): return -1
+    targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), nouns))
+    return calcVecDistance(glove, targetvec, distfunc, word)
 
 # Create Feature Extractor for a Given Sentence
 # Assumes ((Sentence, Word), Indicator) is given
@@ -141,11 +157,6 @@ distances = [
     (jaccard, "jaccard")
 ];
 
-ngram_models = [
-    ("Unigram", unigramModel),
-    ("Bigram", bigramModel)
-];
-
 param_models = [
     ("Sentence", sentenceModel),
     ("Distance Model", distanceModel),
@@ -155,77 +166,77 @@ param_models = [
     ("Weighted VSM", weightedSentenceModel)
 ];
 
-# TODO: add interaction variables
-
-def createSingleExtractor(example, unigrams, bigrams, glove_none, glove_tdidf, glove_pmi, glove_pmmi):
+def createSingleExtractorVSM(example, glove, unigrams):
     q = example[0]
     word = example[1]
     features = []
 
-    # First start off with the n-gram models
-    unigram_d = unigramModel(unigrams, q, word)
-    bigram_d = bigramModel(bigrams, q, word)
-    
-    features.append(unigram_d)
-    features.append(bigram_d)
-
     # Look at VSM models now
     for name, model in param_models:
         for d_method, d_name in distances:
+            dis = None
+            
             if name == "Distance Model":
-                dis_none = model(glove_none, q, d_method, 1, False, word)
-                dis_tdidf = model(glove_tdidf, q, d_method, 1, False, word)
-                dis_pmi = model(glove_pmi, q, d_method, 1, False, word)
-                dis_pmmi = model(glove_pmmi, q, d_method, 1, False, word)
-                features.append(dis_none)
-                features.append(dis_tdidf)
-                features.append(dis_pmi)
-                features.append(dis_pmmi)
+                dis = model(glove, q, word, d_method, 1, False)
             elif name == "Weighted VSM":
-                dis_none = model(glove_none, q, word, d_method, 1, False, unigrams)
-                dis_tdidf = model(glove_tdidf, q, word, d_method, 1, False, unigrams)
-                dis_pmi = model(glove_pmi, q, word, d_method, 1, False, unigrams)
-                dis_pmmi = model(glove_pmmi, q, word, d_method, 1, False, unigrams)
-                features.append(dis_none)
-                features.append(dis_tdidf)
-                features.append(dis_pmi)
-                features.append(dis_pmmi)
+                dis = model(glove, q, word, unigrams, d_method, 1, False)
             else:
-                dis_none = model(glove_none, q, word, d_method, 1, False)
-                dis_tdidf = model(glove_tdidf, q, word, d_method, 1, False)
-                dis_pmi = model(glove_pmi, q, word, d_method, 1, False)
-                dis_pmmi = model(glove_pmmi, q, word, d_method, 1, False)
-                features.append(dis_none)
-                features.append(dis_tdidf)
-                features.append(dis_pmi)
-                features.append(dis_pmmi)
-    
-    # Add in interactions
-    for i in range(len(features)-1):
-        for j in range(i, len(features)-1):
-            features.append(features[i]*features[j])
-               
-    features.append(1)
-    
+                dis = model(glove, q, word, d_method, 1, False)
+
+            if dis == None or math.isnan(dis):
+                dis = 2
+            features.append(dis)
     return features
 
-def createFeatureExtractorForAll(examples_file, unigrams, bigrams, glove_none, glove_tdidf, glove_pmi, glove_pmmi):
-    examples = loadQuestions(directory=examples_file)
-    
-    glove_tdidf.lsa(250)
-    glove_pmi.lsa(250)
-    glove_pmmi.lsa(250)
-    glove_none.lsa(250)
-    
-    all_features = []
-    all_ys = []
-    for example in examples:
-        for a in example.answers:
-            if(a in glove_none): continue;
-            answer = 1 if a == example.correctAnswer else 0
-            data = (example, a)
-            all_ys.append(answer)
-            features = createSingleExtractor(data, unigrams, bigrams, glove_none, glove_tdidf, glove_pmi, glove_pmmi)
-            all_features.append(features)
 
+def createFeatureExtractorForAll(examples, unigrams, bigrams, glove_file):
+    print "Loading Glove None"
+    glove = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
+    all_features = []
+    for i in range(len(examples)*5):
+        all_features.append([])
+    all_ys = []
+    low_ranks = [None, "pmi", "ppmi", "tfidf"];
+    #low_ranks = [None]
+    print "Calculating VSM Methods"
+    # Get Glove Based Models
+    for lr in low_ranks:
+        if lr != None:
+            print "Loading Glove %s" %(lr)
+            glove = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, weighting=lr, v=False);
+        glove.lsa(250)
+        count = 0
+        for example in examples:
+            for a in example.answers:
+                data = (example, a)
+                features = createSingleExtractorVSM(data, glove, unigrams)
+                all_features[count] += features
+                count += 1
+    print "Calculating N-Grams + Interactions"
+    
+    # Get answers + Unigram/Bigram + Add in interactions
+    index = 0
+    for example in examples:
+        for i,word in enumerate(example.answers):
+            if i == example.correctAnswer:
+                all_ys.append(1)
+            else:
+                all_ys.append(0)
+
+            unigram_d = unigramModel(unigrams, example, word)
+            bigram_d = bigramModel(bigrams, example, word)
+    
+            all_features[index].append(unigram_d)
+            all_features[index].append(bigram_d)
+            
+            # Bias Term
+            all_features[index].append(1)
+            
+            #Interaction Terms
+            num_feats = len(all_features[index])
+            for i in range(num_feats-1):
+                for j in range(i+1, num_feats-1):
+                    all_features[index].append(all_features[index][i]*all_features[index][j])
+            index += 1
+    print "Done"
     return (all_features, all_ys)
