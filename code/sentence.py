@@ -62,42 +62,40 @@ BLANK_PERCENT_INDEX = 12 #positin of blank as percentage of total words
 
 def extractSentenceFeatures(sentence):
 	features = [0 for i in range(NUM_FEATURES)]
-	POSvecs = getPOSVecs(re.split("[\s]", sentence))
+	POSvecs = getPOSVecs(sentence)
 	#print "NOUNS:", POSvecs[0]
 	#print "VERBS:", POSvecs[1]
 	#print "ADJ:", POSvecs[2]
-	features[NOUNS_INDEX] = len(POSvecs[0])
-	features[VERBS_INDEX] = len(POSvecs[1])
-	features[ADJECTIVES_INDEX] = len(POSvecs[2])
-	for char in sentence:
-		if char is ';':
-			features[SEMICOLON_INDEX] = features[SEMICOLON_INDEX] + 1
-		elif char is ':':
-			features[COLON_INDEX] = features[COLON_INDEX] + 1
-		elif char is ',':
-			features[COMMAS_INDEX] = features[COMMAS_INDEX] + 1
+	#features[NOUNS_INDEX] = len(POSvecs[0])
+	#features[VERBS_INDEX] = len(POSvecs[1])
+	#features[ADJECTIVES_INDEX] = len(POSvecs[2])
+	#for char in sentence:
+	#	if char is ';':
+	#		features[SEMICOLON_INDEX] = features[SEMICOLON_INDEX] + 1
+	#	elif char is ':':
+	#		features[COLON_INDEX] = features[COLON_INDEX] + 1
+	#	elif char is ',':
+	#		features[COMMAS_INDEX] = features[COMMAS_INDEX] + 1
 
-	for word in re.split("[^A-Za-z0-9_\']", sentence):
-		features[TOTAL_WORDS_INDEX] = features[TOTAL_WORDS_INDEX] + 1
-		if not word: continue
-		if word[0].isupper():
-			features[CAPITAL_WORDS_INDEX] = features[CAPITAL_WORDS_INDEX] + 1
-		if word in SUPPORT_WORDS:
-			features[SUPPORT_INDEX] = features[SUPPORT_INDEX] + 1
-		elif word in CONTRAST_WORDS:
-			features[CONTRAST_INDEX] = features[CONTRAST_INDEX] + 1
+	#for word in re.split("[^A-Za-z0-9_\']", sentence):
+	#	features[TOTAL_WORDS_INDEX] = features[TOTAL_WORDS_INDEX] + 1
+	#	if not word: continue
+	#	if word[0].isupper():
+	#		features[CAPITAL_WORDS_INDEX] = features[CAPITAL_WORDS_INDEX] + 1
+	#	if word in SUPPORT_WORDS:
+	#		features[SUPPORT_INDEX] = features[SUPPORT_INDEX] + 1
+	#	elif word in CONTRAST_WORDS:
+	#		features[CONTRAST_INDEX] = features[CONTRAST_INDEX] + 1
 
-	features[BLANK_POSITION_INDEX] = sentence.find('____')
-	features[BLANK_PERCENT_INDEX] = features[BLANK_POSITION_INDEX] * 1.0/ features[TOTAL_WORDS_INDEX]
+	#features[BLANK_POSITION_INDEX] = sentence.find('____')
+	#features[BLANK_PERCENT_INDEX] = features[BLANK_POSITION_INDEX] * 1.0/ features[TOTAL_WORDS_INDEX]
 
 	return features
 
 def extractAllSentenceFeatures(questions):
     features = []
     for i, q in enumerate(questions):
-        #print q.text
-        features.append([1, 2, 4, i])
-        #features.append(extractSentenceFeatures(q.text))
+        features.append(extractSentenceFeatures(q.getSentence()))
     return features
 
 def featuresUnitTest():
@@ -110,8 +108,6 @@ def featuresUnitTest():
 	assert testFeatures[COMMAS_INDEX] is 1
 	assert testFeatures[SUPPORT_INDEX] is 1
 	assert testFeatures[CAPITAL_WORDS_INDEX] is 2
-
-featuresUnitTest()
 
 #################################################################################
 #######             MODEL EVALUATION THINGS
