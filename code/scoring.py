@@ -18,7 +18,7 @@ SCORE_CONVERSION_TABLE = dict([(67, 800), (31, 500), (66, 800), (30, 500),
                                (33, 520), (32, 510)])
 
 def score_model(guess_answer_pairs, verbose=False, modelname="Name Not Given"):
-    print '\033[95mModel: ' + modelname + "\033[0m";
+    if(verbose): print '\033[95mModel: ' + modelname + "\033[0m";
 
     num_correct = 0
     unscaled_score = 0.0
