@@ -65,10 +65,11 @@ def getStrippedAnswerWords(answer):
     elif len(comma_split) == 1: #single blank
         return [stripTinyWords(answer)]
     else:
-        raise Exception("answer formatting error")
+        print "there was an error parsing answer: ", answer
+        return [comma_split[0]]
 
 def stripTinyWords(answer):
-    space_split = re.split("[\s]", answer)
+    space_split = re.split("[\s]", answer.lstrip())
     if len(space_split) == 2:
         return space_split[0] if len(space_split[0]) > len(space_split[1]) else space_split[1]
     elif len(space_split) == 1:
@@ -128,20 +129,23 @@ def getPOSVecs(sentence):
 
 def adjectiveModel(glove, question, word, distfunc=cosine, threshold=1, rev=False):
     nouns, verbs, adjectives = getPOSVecs(question.getSentence());
-    if(len(adjectives) == 0): return -1
+    if(len(adjectives) == 0): return 2
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), adjectives))
+    if targetvec is None: return 2
     return calcVecDistance(glove, targetvec, distfunc, word)
 
 def verbModel(glove, question, word, distfunc=cosine, threshold=1, rev=False):
     nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+    if(len(verbs) == 0): return 2
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), verbs))
-    if(len(verbs) == 0): return -1
+    if targetvec is None: return 2
     return calcVecDistance(glove, targetvec, distfunc, word)
 
 def nounModel(glove, question, word, distfunc=cosine, threshold=1, rev=False):
     nouns, verbs, adjectives = getPOSVecs(question.getSentence());
-    if(len(nouns) == 0): return -1
+    if(len(nouns) == 0): return 2
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), nouns))
+    if targetvec is None: return 2
     return calcVecDistance(glove, targetvec, distfunc, word)
 
 # Create Feature Extractor for a Given Sentence
