@@ -64,7 +64,7 @@ def trainDataDevTest(dev=True):
                 num_not_answer += 1
         print "\nML Algorithm Dev: ", name;
         print "Answered Correctly: %d Did Not Answer: %d" %(num_right, num_not_answer)
-	    print "Percent Right: ", model.score(evals, eval_labels);
-	    print "SAT Score: ", scoring.score_model([(1,1)]*num_right + [(None,1)]*num_not_answer + [(0,1)]*num_wrong);
+        print "Percent Right: %d" %(model.score(evals, eval_labels))
+        print "SAT Score: ", scoring.score_model([(1,1)]*num_right + [(None,1)]*num_not_answer + [(0,1)]*num_wrong);
 
 trainDataDevTest()
