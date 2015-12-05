@@ -218,7 +218,7 @@ def findBestVector(glove, targetvec, answers, distfunc, threshold):
         if(vec == None):
             #if(v): error("Glove does not have the means to evaluate \"" + answer + "\" in its vocabulary", False);
             return None;
-        if( distfunc(vec, targetvec) < mindist and distfunc(vec, targetvec) < threshold ):
+        if( distfunc(vec, targetvec) < min(mindist, threshold) ):
             ind, mindist = i, distfunc(vec, targetvec);
     if (ind == -1):
         return -1
@@ -329,6 +329,7 @@ def adjectiveModel(glove, question, distfunc=cosine, threshold=2, rev=False):
     nouns, verbs, adjectives = getPOSVecs(question.getSentence());
     if(len(adjectives) == 0): return -1
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), adjectives))
+    if(targetvec == None): return -1;
     if(not rev):
         return findBestVector(glove, targetvec, question.answers, distfunc, threshold);
     else:
@@ -338,6 +339,9 @@ def verbModel(glove, question, distfunc=cosine, threshold=2, rev=False):
     nouns, verbs, adjectives = getPOSVecs(question.getSentence());
     if(len(verbs) == 0): return -1
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), verbs))
+    if(targetvec == None): return -1
+    if(len(targetvec) == 1):
+        print question, verbs
     if(not rev):
         return findBestVector(glove, targetvec, question.answers, distfunc, threshold);
     else:
@@ -347,6 +351,7 @@ def nounModel(glove, question, distfunc=cosine, threshold=2, rev=False):
     nouns, verbs, adjectives = getPOSVecs(question.getSentence());
     if(len(nouns) == 0): return -1
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), nouns))
+    if(targetvec == None): return -1;
     if(not rev):
         return findBestVector(glove, targetvec, question.answers, distfunc, threshold);
     else:
