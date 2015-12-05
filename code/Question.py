@@ -12,6 +12,8 @@ class Question:
         arr = filter(lambda x: len(x) > 0, string.split("\n"));
         self.text = arr[0].strip();
         self.answers = map(lambda x: x.strip(), arr[1:-1]);
+        for answer in self.answers:
+            assert(len(re.split("[ ,]", answer)) <= 4)
         self.correctAnswer = int(arr[-1]);
 
     def __str__(self):

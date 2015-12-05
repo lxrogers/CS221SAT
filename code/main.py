@@ -228,14 +228,11 @@ def findBestVector(glove, targetvec, answers, distfunc, threshold):
 #cleaving to -> [cleaving]
 #cleaving to, ineffable -> [cleaving, ineffable]
 def getStrippedAnswerWords(answer):
-    comma_split = re.split("[\,]", answer)
-    if len(comma_split) == 2: #double blank
-        return [stripTinyWords(comma_split[0]), stripTinyWords(comma_split[1])]
-    elif len(comma_split) == 1: #single blank
-        return [stripTinyWords(answer)]
-    else:
-        print "there was an error parsing answer: ", answer
-        return answer
+    answers = filter(lambda x: len(x) > 0 and x not in stopwords.words('english') + ["upon", "toward"], re.split("[ ,]", answer));
+    if(len(answers) > 2):
+        print answer, answers
+    assert(len(answers) <= 2) # checking to make sure correct split
+    return answers if len(answers) > 0 else answer.strip(); # if answer is a stop word
 
 def stripTinyWords(answer):
     space_split = re.split("[\s]", answer.lstrip())
@@ -244,7 +241,7 @@ def stripTinyWords(answer):
     elif len(space_split) == 1:
         return answer
     else:
-        print "there was an error parsing answer: ", answer
+        print "there was an error parsing answer in tiny words: ", answer
         return answer
 
 # Get Clue Words Between Blanks in Double Blank Questions

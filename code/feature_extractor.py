@@ -59,14 +59,14 @@ def backOffModel(backoff, question, target, distfunc=cosine, threshold=1, rev=Fa
 # Returns -1 if no answers pass the confidence threshold
 
 def getStrippedAnswerWords(answer):
-    comma_split = re.split("[\,]", answer)
-    if len(comma_split) == 2: #double blank
-        return [stripTinyWords(comma_split[0]), stripTinyWords(comma_split[1])]
-    elif len(comma_split) == 1: #single blank
-        return [stripTinyWords(answer)]
-    else:
+    answers = filter(lambda x: len(x) > 0 and x not in stopwords.words('english'), re.split("[ ,]", answer));
+    if len(answers) > 2: #double blank
+        print "PROBLEM", answer, answers
+    return answers
+    """else:
+        print "\n"
         print "there was an error parsing answer: ", answer
-        return answer
+        return answer"""
 
 def stripTinyWords(answer):
     space_split = re.split("[\s]", answer.lstrip())
@@ -75,7 +75,7 @@ def stripTinyWords(answer):
     elif len(space_split) == 1:
         return answer
     else:
-        print "there was an error parsing answer: ", answer
+        print "there was an error parsing answer in tiny words: ", answer
         return answer
 
 def calcVecDistance(glove, targetvec, distfunc, answer):

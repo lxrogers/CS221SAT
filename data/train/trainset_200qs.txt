@@ -1061,6 +1061,7 @@ harmonic
 collaborative
 mellifluous
 0
+
 Due to the ____ of architect Benjamin Banneker, the remarkable street plan for Washington, D.C. that had nearly been abandoned was ____ and carried out.
 artistry,rejected
 persistence,revived
@@ -1261,8 +1262,7 @@ replicate
 elaborate
 2
 
-While the movie employs stock characterizations,
-admirers argue that it is ____ even if its depictions are ____
+While the movie employs stock characterizations, admirers argue that it is ____ even if its depictions are ____
 maladroit,proficient
 stimulating,controversial
 soporific,abstruse
@@ -1324,7 +1324,6 @@ economical,innovative
 suspect,efficient
 worthwhile,disturbing
 2
-
 
 As health care and nutrition continue to improve, Americans on average are enjoying increased ____, living to a more advanced age than ever before.
 equanimity
@@ -1413,7 +1412,7 @@ ignored
 confused 
 promised 
 1
- 
+
 The artist, often so ____ as to seem unapproachable, tended to be more relaxed and easygoing when among friends. 
 Generous 
 creative 

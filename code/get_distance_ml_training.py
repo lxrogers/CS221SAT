@@ -216,6 +216,7 @@ def getEvaluatingTrainingSentence():
     dev_qs = loadQuestions(directory="../data/dev_set/")
     
     com_questions = training_questions + dev_qs
+
     # Check if saved
     com_mappings = None
     if len(getRecursiveFiles("../data/ml_data/sentence_train", filter_fn=lambda a: ".pickle" in a)) > 0:
