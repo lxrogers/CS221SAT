@@ -4,6 +4,7 @@
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
 import re
+from Question import *
 
 def getPOSVecs(sentence):
     nounVec = []
@@ -22,7 +23,7 @@ def getPOSVecs(sentence):
     return nounVec, verbVec, adjVec
 
 #feature extractor for sentences
-#return tuple with the following features:
+#return list with the following features:
 SUPPORT_WORDS = ["moreover", "besides", "additionally", "furthermore", "in fact", "and", "therefore"]
 CONTRAST_WORDS = ["although", "however", "rather than", "nevertheless", "whereas", "on the other hand", "but"]
 
@@ -71,7 +72,13 @@ def extractSentenceFeatures(sentence):
 	features[BLANK_POSITION_INDEX] = sentence.find('____')
 	features[BLANK_PERCENT_INDEX] = features[BLANK_POSITION_INDEX] * 1.0/ features[TOTAL_WORDS_INDEX]
 
-	return tuple(features)
+	return features
+
+def extractAllSentenceFeatures(questions):
+    features = []
+    for q in questions:
+        features.append(extractSentenceFeatures(q.getSentence()))
+    return features
 
 def featuresUnitTest():
 	testSentence = "I want to go the Linkin park; furthermore, my ____ is quite cold; my big butt is tired"
@@ -83,4 +90,72 @@ def featuresUnitTest():
 	assert testFeatures[COMMAS_INDEX] is 1
 	assert testFeatures[SUPPORT_INDEX] is 1
 	assert testFeatures[CAPITAL_WORDS_INDEX] is 2
+
+distances = [
+    (kldist, "kldist"),
+    (jsd, "jsd"),
+    (cosine, "cosine"),
+    (L2, "L2"),
+    (jaccard, "jaccard")
+];
+
+param_models = [
+    ("Sentence", sentenceModel),
+    ("Distance Model", distanceModel),
+    ("Adjective", adjectiveModel),
+    ("Noun", nounModel),
+    ("Verb", verbModel),
+    ("Weighted VSM", weightedSentenceModel)
+];
+
+
+def getModelClassifications():
+    model_classification = {
+        "None" : 0, 
+        "Sentence kldist" : 1,
+        "Sentence jsd": 2, 
+        "Sentence cosine":3, 
+        "Sentence L2":4,
+        "Sentence jaccard":5,
+        "Distance Model kldist" : 6,
+        "Distance Model jsd":7, 
+        "Distance Model cosine":8, 
+        "Distance Model L2":9,
+        "Distance Model jaccard":10,
+        "Adjective kldist" : 11,
+        "Adjective jsd":12, 
+        "Adjective cosine":13, 
+        "Adjective L2":14,
+        "Adjective jaccard":15,
+        "Noun kldist" : 16,
+        "Noun jsd":17, 
+        "Noun cosine":18, 
+        "Noun L2":19,
+        "Noun jaccard":20,
+        "Verb kldist" : 21,
+        "Verb jsd":22, 
+        "Verb cosine":23, 
+        "Verb L2":24,
+        "Verb jaccard":25,
+        "Weighted VSM kldist" : 26,
+        "Weighted VSM jsd":27, 
+        "Weighted VSM cosine":28, 
+        "Weighted VSM L2":29,
+        "Weighted VSM jaccard":30,
+        "Unigram":31,
+        "Bigram":32
+    }
+    return model_classification
+
+def getQuestionClassifications(questions, unigrams, bigrams, glove_file):
+    prelim_mapping = {} # Map of question to a list of tuples corresponding to models that correctly predicted the answer and their associated distances
+    
+    # Do unigram + bigram first
+
+
+    # Do glove based now
+
+
+
+    # Classify each question now + return
 
