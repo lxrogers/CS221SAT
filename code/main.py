@@ -4,6 +4,30 @@
 # CS221, Created: 10 October 2015
 # file: main.py
 
+import scipy
+import itertools
+from sklearn import svm
+#from nltk.tag.stanford import POSTagger
+from nltk.corpus import wordnet as wn
+from nltk.corpus import stopwords
+from nltk.corpus import gutenberg
+from distributedwordreps import *
+from os import listdir
+from os.path import isfile, join
+import random
+import collections
+import operator
+import re
+import scoring
+from Question import *
+from Glove import *
+from BigramModel import *
+from UnigramModel import *
+from CustomLanguageModel import *
+import numpy as np
+import cPickle
+
+
 
 # =====================================================================================================================================================
 # =====================================================================================================================================================
@@ -175,7 +199,7 @@ def getGrams(path="../data/Holmes_Training_Data/"):
 # Finds the best answer given a target vector, answers, a distance function and a threshold
 # Returns -1 if none of the answers fall within the threshold
 # Returns None if an answer has a word we don't understand (the question is illegible);
-def findBestVector(targetvec, answers, distfunc, threshold):
+def findBestVector(glove, targetvec, answers, distfunc, threshold):
     ind, mindist = -1, 10e100;
     for i,answer in enumerate(answers):
         vec = None;
@@ -192,7 +216,7 @@ def findBestVector(targetvec, answers, distfunc, threshold):
 
         # Glove does not have the answer in its vocabulary
         if(vec == None):
-            if(v): error("Glove does not have the means to evaluate \"" + answer + "\" in its vocabulary", False);
+            #if(v): error("Glove does not have the means to evaluate \"" + answer + "\" in its vocabulary", False);
             return None;
         if( distfunc(vec, targetvec) < mindist and distfunc(vec, targetvec) < threshold ):
             ind, mindist = i, distfunc(vec, targetvec);
@@ -210,17 +234,18 @@ def getStrippedAnswerWords(answer):
     elif len(comma_split) == 1: #single blank
         return [stripTinyWords(answer)]
     else:
-        raise Exception("answer formatting error")
+        print "there was an error parsing answer: ", answer
+        return answer
 
 def stripTinyWords(answer):
-    space_split = re.split("[\s]", answer)
+    space_split = re.split("[\s]", answer.lstrip())
     if len(space_split) == 2:
         return space_split[0] if len(space_split[0]) > len(space_split[1]) else space_split[1]
     elif len(space_split) == 1:
         return answer
     else:
-        raise Exception("answer formatting error")
-
+        print "there was an error parsing answer: ", answer
+        return answer
 
 # Get Clue Words Between Blanks in Double Blank Questions
 # if more support words, return "support", if more contrast words, return "contrast"
@@ -242,7 +267,7 @@ def getDoubleBlankEliminationMode(question):
 #given mode = "support", answers that are too disimilar will be eliminated and vice-versa for "contrast"
 #threshold ex.: threshold = .3
 #support mode: answers with distance > .7 will be eliminated; contrast mode: answers with distance < .3 will be eliminated
-def getRemainingAnswers(mode, question, distfunc=cosine, threshold=.6):
+def getRemainingAnswers(glove, mode, question, distfunc=cosine, threshold=.6):
     if mode == "neutral":
         return question
 
@@ -262,15 +287,15 @@ def getRemainingAnswers(mode, question, distfunc=cosine, threshold=.6):
     question2.answers = remaining_answers
     return question2
 
-def answerWordDistance(answer, distfunc=cosine):
+def answerWordDistance(glove, answer, distfunc=cosine):
     answer_list = getStrippedAnswerWords(answer)
     vec1, vec2 = glove.getVec(answer_list[0]), glove.getVec(answer_list[1])
     if vec1 is None or vec2 is None:
         return .5
     return distfunc(vec1, vec2)
 
-def getMaxDoubleBlankAnswer(mode, question, distfunc=cosine):
-    distances = [(answer, answerWordDistance(answer)) for answer in question.answers]
+def getMaxDoubleBlankAnswer(glove, mode, question, distfunc=cosine):
+    distances = [(answer, answerWordDistance(glove, answer)) for answer in question.answers]
     if mode == "support":
         return min(distances, key=lambda x: x[1])[0]
     else:
@@ -298,12 +323,116 @@ def getPOSVecs(sentence):
             adjVec.append(word)
     return nounVec, verbVec, adjVec
 
+#####################################################################################################################
+################################################### MODELS ##########################################################
+#####################################################################################################################
+
+
+def adjectiveModel(glove, question, distfunc=cosine, threshold=2, rev=False):
+    nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+    if(len(adjectives) == 0): return -1
+    targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), adjectives))
+    if(not rev):
+        return findBestVector(glove, targetvec, question.answers, distfunc, threshold);
+    else:
+        return findBestVector(glove, targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
+
+def verbModel(glove, question, distfunc=cosine, threshold=2, rev=False):
+    nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+    if(len(verbs) == 0): return -1
+    targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), verbs))
+    if(not rev):
+        return findBestVector(glove, targetvec, question.answers, distfunc, threshold);
+    else:
+        return findBestVector(glove, targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
+
+def nounModel(glove, question, distfunc=cosine, threshold=2, rev=False):
+    nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+    if(len(nouns) == 0): return -1
+    targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), nouns))
+    if(not rev):
+        return findBestVector(glove, targetvec, question.answers, distfunc, threshold);
+    else:
+        return findBestVector(glove, targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
+
+    # Sentence is an array of words
+    # Returns answer word by averaging the sentence passed in.
+    # Returns None if an answer doesn't exist in the glove vocab
+    # Returns -1 if no answers pass the confidence threshold
+def sentenceModel(glove, question, distfunc=cosine, threshold=2, rev=False, unigrams=None):
+    targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), question.getSentence()), unigrams);
+    if(not rev):
+        return findBestVector(glove, targetvec, question.answers, distfunc, threshold);
+    else:
+        return findBestVector(glove, targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
+
+def weightedSentenceModel(glove, unigrams, question, distfunc=cosine, threshold=2, rev=False):
+    return sentenceModel(glove, question, distfunc, threshold, rev, unigrams)
+
+def doubleSentenceModel(glove, question, distfunc=cosine, threshold=2, rev=False):
+    answer_words = getStrippedAnswerWords(question.answers[0])
+    if(len(answer_words) == 1):
+        #single blank answer
+        return sentenceModel(glove, question, distfunc, threshold, rev)
+    elif(len(answer_words) == 2):    
+        #double blank answer
+        elimination_mode = getDoubleBlankEliminationMode(question) #step 1: use clue words to determine which answers to eliminate (similar or different)
+        question2 = getRemainingAnswers(glove, elimination_mode, question) #step 2: eliminate those words
+        return sentenceModel(glove, question2, distfunc, threshold, rev) #step 3: find best answer out of un-eliminated words
+
+def doubleSentenceMaxModel(glove, question, distfunc=cosine, threshold=2, rev=False):
+    answer_words = getStrippedAnswerWords(question.answers[0])
+    if(len(answer_words) == 1):
+        #single blank answer
+        return sentenceModel(glove, question, distfunc, threshold, rev)
+    elif(len(answer_words) == 2):    
+        #double blank answer
+        elimination_mode = getDoubleBlankEliminationMode(question) #step 1: use clue words to determine which answers to eliminate (similar or different)
+        if elimination_mode == "neutral":
+            return sentenceModel(glove, question, distfunc, threshold, rev)
+        else:
+            return getMaxDoubleBlankAnswer(glove, elimination_mode, question)
+            
+
+def distanceModel(glove, question, distfunc=cosine, threshold=2, rev=False):
+    if(not rev):
+        bestanswer, mindist = "", float('inf');
+
+        for answer, word in itertools.product(question.answers, filter(lambda x: x not in stopwords.words('english'), question.getSentence())):
+            if(answer not in glove or word not in glove): continue;
+            dist = distfunc(glove.getVec(answer), glove.getVec(word));
+            if(dist < mindist):
+                mindist, bestanswer = dist,answer
+        return bestanswer
+
+    else:
+        return 0;
+
+def unigramModel(unigrams, question, distfunc=cosine, threshold=2, rev=False):
+    if(not rev):
+        return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]))[0];
+    else:
+        return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]))[0];
+
+
+def bigramModel(bigrams, question, distfunc=cosine, threshold=2, rev=False):
+    if(not rev):
+        return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]))[0];
+    else:
+        return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]))[0];
+
+
+def backOffModel(question, distfunc=cosine, threshold=2, rev=False):
+    if(not rev):
+        return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]))[0];
+    else:
+        return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]))[0];
 
 
 
 # Main method
 # Global variables: unigrams, bigrams, backoff, glove, tagger
-def main(questions, glove_file):
+def main(questions, glove):
 
     #####################################################################################################################
     ################################################### MODELS ##########################################################
@@ -312,108 +441,6 @@ def main(questions, glove_file):
     # Returns answer word based on random chance, given the answers 
     def randomModel(question, distfunc=cosine, threshold=2, rev=False):
         return question.answers[random.randint(0,len(question.answers)) - 1];
-
-    def adjectiveModel(question, distfunc=cosine, threshold=2, rev=False):
-        nouns, verbs, adjectives = getPOSVecs(question.getSentence());
-        if(len(adjectives) == 0): return -1
-        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), adjectives))
-        if(not rev):
-            return findBestVector(targetvec, question.answers, distfunc, threshold);
-        else:
-            return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
-
-    def verbModel(question, distfunc=cosine, threshold=2, rev=False):
-        nouns, verbs, adjectives = getPOSVecs(question.getSentence());
-        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), verbs))
-        if(len(verbs) == 0): return -1
-        if(not rev):
-            return findBestVector(targetvec, question.answers, distfunc, threshold);
-        else:
-            return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
-
-    def nounModel(question, distfunc=cosine, threshold=2, rev=False):
-        nouns, verbs, adjectives = getPOSVecs(question.getSentence());
-        if(len(nouns) == 0): return -1
-        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), nouns))
-        if(not rev):
-            return findBestVector(targetvec, question.answers, distfunc, threshold);
-        else:
-            return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
-
-    # Sentence is an array of words
-    # Returns answer word by averaging the sentence passed in.
-    # Returns None if an answer doesn't exist in the glove vocab
-    # Returns -1 if no answers pass the confidence threshold
-    def sentenceModel(question, distfunc=cosine, threshold=2, rev=False, unigrams=None):
-        targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), question.getSentence()), unigrams);
-        if(not rev):
-            return findBestVector(targetvec, question.answers, distfunc, threshold);
-        else:
-            return findBestVector(targetvec, question.answers, lambda x,y: -1*distfunc(x,y), threshold)
-
-    def weightedSentenceModel(question, distfunc=cosine, threshold=2, rev=False):
-        return sentenceModel(question, distfunc, threshold, rev, unigrams)
-
-    def doubleSentenceModel(question, distfunc=cosine, threshold=2, rev=False):
-        answer_words = getStrippedAnswerWords(question.answers[0])
-        if(len(answer_words) == 1):
-            #single blank answer
-            return sentenceModel(question, distfunc, threshold, rev)
-        elif(len(answer_words) == 2):    
-            #double blank answer
-            elimination_mode = getDoubleBlankEliminationMode(question) #step 1: use clue words to determine which answers to eliminate (similar or different)
-            question2 = getRemainingAnswers(elimination_mode, question) #step 2: eliminate those words
-            return sentenceModel(question2, distfunc, threshold, rev) #step 3: find best answer out of un-eliminated words
-
-    def doubleSentenceMaxModel(question, distfunc=cosine, threshold=2, rev=False):
-        answer_words = getStrippedAnswerWords(question.answers[0])
-        if(len(answer_words) == 1):
-            #single blank answer
-            return sentenceModel(question, distfunc, threshold, rev)
-        elif(len(answer_words) == 2):    
-            #double blank answer
-            elimination_mode = getDoubleBlankEliminationMode(question) #step 1: use clue words to determine which answers to eliminate (similar or different)
-            if elimination_mode == "neutral":
-                return sentenceModel(question, distfunc, threshold, rev)
-            else:
-                return getMaxDoubleBlankAnswer(elimination_mode, question)
-            
-
-    def distanceModel(question, distfunc=cosine, threshold=2, rev=False):
-        if(not rev):
-            bestanswer, mindist = "", float('inf');
-
-            for answer, word in itertools.product(question.answers, filter(lambda x: x not in stopwords.words('english'), question.getSentence())):
-                if(answer not in glove or word not in glove): continue;
-                dist = distfunc(glove.getVec(answer), glove.getVec(word));
-                if(dist < mindist):
-                    mindist, bestanswer = dist,answer
-            return bestanswer
-
-        else:
-            return 0;
-
-
-    def unigramModel(question, distfunc=cosine, threshold=2, rev=False):
-        if(not rev):
-            return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]))[0];
-        else:
-            return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]))[0];
-
-
-    def bigramModel(question, distfunc=cosine, threshold=2, rev=False):
-        if(not rev):
-            return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]))[0];
-        else:
-            return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]))[0];
-
-
-    def backOffModel(question, distfunc=cosine, threshold=2, rev=False):
-        if(not rev):
-            return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]))[0];
-        else:
-            return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]))[0];
-
 
     #####################################################################################################################
     ################################################# EVAL MODELS #######################################################
@@ -439,7 +466,10 @@ def main(questions, glove_file):
     ];
 
     for name, model in param_models:
-        scoring.score_model( [(model(q, threshold=.9), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
+        if name == "Weighted VSM":
+            scoring.score_model( [(model(glove, unigrams, q, threshold=.9), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
+        else:
+            scoring.score_model( [(model(glove, q, threshold=.9), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
 
     os.system("say Finished");
 
@@ -530,10 +560,7 @@ if __name__ == "__main__":
     questions = loadQuestions(directory="../data/dev_set/") if train else loadQuestions(directory="../data/test/");
     
     # Initialize global variables
-    global unigrams
-    global bigrams
     global backoff
-    global glove
     global tagger
 
     if(v):
@@ -555,7 +582,7 @@ if __name__ == "__main__":
     if(v): print "Starting program now..."
 
     # Main Method
-    main(questions, g);
+    main(questions, glove);
 
     # Finished main execution
     if(v): printSuccess("Program successfully finished and exited in " + str(int(time.time() - start)) +  " seconds!");

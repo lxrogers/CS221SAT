@@ -12,7 +12,7 @@ import get_distance_ml_training
 import numpy
 import scoring
 
-models = [(RandomForestClassifier(max_depth=5, n_jobs=-1, n_estimators=10, max_features=10), "Random Forest"),
+distance_models = [(RandomForestClassifier(max_depth=5, n_jobs=-1, n_estimators=10, max_features=10), "Random Forest"),
           (GaussianNB(), "Gaussian Naive Bayes"),
           (LogisticRegression(), "Logistic Regression"),
           (LinearSVC(), "Support Vector Machine"),
@@ -22,7 +22,7 @@ models = [(RandomForestClassifier(max_depth=5, n_jobs=-1, n_estimators=10, max_f
           (Pipeline(steps=[('rbm', BernoulliRBM()), ('logistic', LogisticRegression())]), "Bernoulli Neural Network Combo Logit")
          ]
 
-def trainDataDevTest(dev=True):
+def distanceTrainDataDevTest(dev=True):
     train_data = None
     eval_data = None
     if dev:
@@ -38,16 +38,16 @@ def trainDataDevTest(dev=True):
 
     print "Training the models...";
 
-    for model, name in models:
+    for model, name in distance_models:
 	    model.fit(train, train_labels);
 
-    print "Get Training Error..."
-    for model, name in models:
+    print "Get Training Error..." # TODO: need to actually evlauate + get a SAT score + number correct + not correct for reporting purposes. Do same thing as below
+    for model, name in distance_models:
         print "\nML Algorithm Training: ", name;
         print "Scored: ", model.score(train, train_labels);
 
     print "Evaluating Models On Dev..."
-    for model, name in models:
+    for model, name in distance_models:
         num_right = 0
         num_not_answer = 0
         num_wrong = 0;
@@ -64,7 +64,34 @@ def trainDataDevTest(dev=True):
                 num_not_answer += 1
         print "\nML Algorithm Dev: ", name;
         print "Answered Correctly: %d Did Not Answer: %d" %(num_right, num_not_answer)
-        print "Percent Right: %d" %(model.score(evals, eval_labels))
+        print "Percent Right: ", model.score(evals, eval_labels);
         print "SAT Score: ", scoring.score_model([(1,1)]*num_right + [(None,1)]*num_not_answer + [(0,1)]*num_wrong);
 
-trainDataDevTest()
+
+def sentenceTrainDataDevTest(dev=True):
+    train_data = None
+    eval_data = None
+    if dev:
+        train_data, eval_data = get_distance_ml_training.getEvaluatingTrainingSentence();
+    else:
+        train_data, eval_data = get_distance_ml_training.getTestingTrainingSentence();
+    train_qs = train_data[0]
+    train_features = train_data[1]
+    train_labels = train_data[2]
+    eval_qs = eval_data[0]
+    eval_features = eval_data[1]
+    eval_labels = eval_data[2]
+    
+    print "Training the models...";
+
+    for model, name in class_models:
+	    model.fit(train_features, train_labels);
+
+    print "Get Training Error..."
+    for model, name in class_models:
+        print "\nML Algorithm Training: ", name;
+        print "Scored: ", model.score(train_features, train_labels);
+
+    # TODO: create evluation metric + apply to training set + eval set
+
+distanceTrainDataDevTest()
