@@ -1,10 +1,28 @@
 # Returns lists of nouns, verbs, and adjectives of sentence
 # copied from Main.py
-
+from Glove import *
+import scoring
+from Question import *
+import scipy
+import itertools
+from sklearn import svm
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
+from nltk.corpus import gutenberg
+from distributedwordreps import *
+from os import listdir
+from os.path import isfile, join
+import random
+import collections
+import operator
 import re
-from Question import *
+from BigramModel import *
+from UnigramModel import *
+from CustomLanguageModel import *
+import numpy as np
+import cPickle
+import math
+from main import *
 
 def getPOSVecs(sentence):
     nounVec = []
@@ -45,9 +63,9 @@ BLANK_PERCENT_INDEX = 12 #positin of blank as percentage of total words
 def extractSentenceFeatures(sentence):
 	features = [0 for i in range(NUM_FEATURES)]
 	POSvecs = getPOSVecs(re.split("[\s]", sentence))
-	print "NOUNS:", POSvecs[0]
-	print "VERBS:", POSvecs[1]
-	print "ADJ:", POSvecs[2]
+	#print "NOUNS:", POSvecs[0]
+	#print "VERBS:", POSvecs[1]
+	#print "ADJ:", POSvecs[2]
 	features[NOUNS_INDEX] = len(POSvecs[0])
 	features[VERBS_INDEX] = len(POSvecs[1])
 	features[ADJECTIVES_INDEX] = len(POSvecs[2])
@@ -76,8 +94,10 @@ def extractSentenceFeatures(sentence):
 
 def extractAllSentenceFeatures(questions):
     features = []
-    for q in questions:
-        features.append(extractSentenceFeatures(q.getSentence()))
+    for i, q in enumerate(questions):
+        #print q.text
+        features.append([1, 2, 4, i])
+        #features.append(extractSentenceFeatures(q.text))
     return features
 
 def featuresUnitTest():
@@ -90,6 +110,10 @@ def featuresUnitTest():
 	assert testFeatures[COMMAS_INDEX] is 1
 	assert testFeatures[SUPPORT_INDEX] is 1
 	assert testFeatures[CAPITAL_WORDS_INDEX] is 2
+
+#################################################################################
+#######             MODEL EVALUATION THINGS
+
 
 distances = [
     (kldist, "kldist"),
@@ -105,57 +129,91 @@ param_models = [
     ("Adjective", adjectiveModel),
     ("Noun", nounModel),
     ("Verb", verbModel),
-    ("Weighted VSM", weightedSentenceModel)
+    ("Weighted VSM", weightedSentenceModel),
+    ("Double Blank Combo VSM", doubleSentenceModel),
+    ("Double Blank Max VSM", doubleSentenceMaxModel)
 ];
 
+#low_ranks = [None, "pmi", "ppmi", "tfidf"];
+low_ranks = [None]
 
 def getModelClassifications():
-    model_classification = {
-        "None" : 0, 
-        "Sentence kldist" : 1,
-        "Sentence jsd": 2, 
-        "Sentence cosine":3, 
-        "Sentence L2":4,
-        "Sentence jaccard":5,
-        "Distance Model kldist" : 6,
-        "Distance Model jsd":7, 
-        "Distance Model cosine":8, 
-        "Distance Model L2":9,
-        "Distance Model jaccard":10,
-        "Adjective kldist" : 11,
-        "Adjective jsd":12, 
-        "Adjective cosine":13, 
-        "Adjective L2":14,
-        "Adjective jaccard":15,
-        "Noun kldist" : 16,
-        "Noun jsd":17, 
-        "Noun cosine":18, 
-        "Noun L2":19,
-        "Noun jaccard":20,
-        "Verb kldist" : 21,
-        "Verb jsd":22, 
-        "Verb cosine":23, 
-        "Verb L2":24,
-        "Verb jaccard":25,
-        "Weighted VSM kldist" : 26,
-        "Weighted VSM jsd":27, 
-        "Weighted VSM cosine":28, 
-        "Weighted VSM L2":29,
-        "Weighted VSM jaccard":30,
-        "Unigram":31,
-        "Bigram":32
-    }
-    return model_classification
+    model_classes = {}
+    model_classes["None"] = 0
+    prev = 0
+    for lr in low_ranks:
+        if lr == None:
+            lr = "None"
+        for m_n, m_m in param_models:
+            for d_m, d_n in distances:
+                whole_name = lr + m_n + d_n
+                model_classes[whole_name] = prev + 1
+                prev += 1
+    model_classes["Unigram"] = prev + 1
+    model_classes["Bigram"] = prev + 2
+    return model_classes
 
 def getQuestionClassifications(questions, unigrams, bigrams, glove_file):
-    prelim_mapping = {} # Map of question to a list of tuples corresponding to models that correctly predicted the answer and their associated distances
-    
-    # Do unigram + bigram first
+    model_classes = getModelClassifications()
+    prelim_mapping = {} # Map of question to a list of corresponding to models that correctly predicted the answer
+    # First Check if the prelim mapping is in a pickle
 
+    if len(getRecursiveFiles("../data/ml_data/sentence_train_prelim", filter_fn=lambda a: ".pickle" in a)) > 0:
+        print "found Saved Prelimninary Mappings"
+        prelim_mapping = loadPickle("../data/ml_data/sentence_train_prelim/com_triandev_prelimmap.pickle")
+    else:
+        print "Finding Preliminary Mapping"
+        # Do unigram + bigram first
+        for i,question in enumerate(questions):
+            u_answer = unigramModel(unigrams, question)
+            b_answer = bigramModel(bigrams, question)
+            if u_answer == question.getCorrectWord():
+                if i in prelim_mapping:
+                    prelim_mapping[i].append("Unigram")
+                else:
+                    prelim_mapping[i] = ["Unigram"]
+            if b_answer == question.getCorrectWord():
+                if i in prelim_mapping:
+                    prelim_mapping[i].append("Bigram")
+                else:
+                    prelim_mapping[i] = ["Bigram"]
 
-    # Do glove based now
-
-
+        # Do glove based now
+        for lr in low_ranks:
+            glove = None
+            if lr == None:
+                print "Loading GLove None"
+                glove = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
+                lr = "None"
+            else:
+                print "Loading Glove %s" %(lr)
+                glove = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, weighting=lr, v=False);
+            glove.lsa(25) # TODO: change to 250
+            for model_name, model_form in param_models:
+                for d_form, d_name in distances:
+                    whole_name = lr + model_name + d_name
+                    for i,q in enumerate(questions):
+                        answer = None
+                        if model_name == "Weighted VSM":
+                            answer = model_form(glove, unigrams, q, threshold=.95)
+                        else:
+                            answer = model_form(glove, q, threshold=.95)
+                        if answer != None and answer != -1 and answer == q.getCorrectWord():
+                            if i in prelim_mapping:
+                                prelim_mapping[i].append(whole_name)
+                            else:
+                                prelim_mapping[i] = [whole_name]
+        print "saving preliminary mapping"
+        savePickle(prelim_mapping, "../data/ml_data/sentence_train_prelim/com_triandev_prelimmap.pickle")
+    print prelim_mapping
 
     # Classify each question now + return
-
+    # For now, randomly picks out of the right ones
+    real_mapping = {}
+    for i,q in enumerate(questions):
+        if i in prelim_mapping:
+            best_model = random.choice(prelim_mapping[i])
+            real_mapping[i] = model_classes[best_model]
+        else:
+            real_mapping[i] = model_classes["None"]
+    return real_mapping

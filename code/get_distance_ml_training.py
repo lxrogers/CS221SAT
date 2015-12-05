@@ -13,6 +13,15 @@ from BigramModel import *
 from UnigramModel import *
 from CustomLanguageModel import *
 import sentence
+import scipy
+import itertools
+from nltk.corpus import wordnet as wn
+from nltk.corpus import stopwords
+from nltk.corpus import gutenberg
+from distributedwordreps import *
+import numpy as np
+import cPickle
+
 
 
 # Reads a json file and returns the object
@@ -93,7 +102,7 @@ def getGrams(path="../data/Holmes_Training_Data/"):
     return u, b, c
 
 # Training on training questions + then evaluating on Dev questions for the distance ML algorithm
-def getEvaluatingTrainingData(dev=True):
+def getEvaluatingTrainingData():
     global save
     save = True
     ngram_path = "../data/Holmes_Training_Data/norvig.txt"
@@ -105,11 +114,9 @@ def getEvaluatingTrainingData(dev=True):
     print "Loading Training Questions"
     training_questions = loadQuestions(directory="../data/train/")
     
-    print "Loading Evlauation Questions"
     dev_qs = []
-    if dev:
-        print "Loading Dev Questions"
-        dev_qs = loadQuestions(directory="../data/dev_set/")
+    print "Loading Dev Questions"
+    dev_qs = loadQuestions(directory="../data/dev_set/")
     
     com_questions = training_questions + dev_qs
     com_features = None
@@ -192,7 +199,7 @@ def getEvaluatingTrainingSentence():
     global save
     save = True
     ngram_path = "../data/Holmes_Training_Data/norvig.txt"
-    glove_file = "../data/glove_vectors/glove.6B.300d.txt"
+    glove_file = "../data/glove_vectors/glove.6B.50d.txt" # TODO: change to 300
     
     print "Training N-Gram Models"
     unigrams, bigrams, backoff = getGrams(path=ngram_path);
@@ -202,31 +209,45 @@ def getEvaluatingTrainingSentence():
     
     print "Loading Evlauation Questions"
     dev_qs = []
-    if dev:
-        print "Loading Dev Questions"
-        dev_qs = loadQuestions(directory="../data/dev_set/")
+    dev_qs = loadQuestions(directory="../data/dev_set/")
     
     com_questions = training_questions + dev_qs
     # Check if saved
+    com_mappings = None
     if len(getRecursiveFiles("../data/ml_data/sentence_train", filter_fn=lambda a: ".pickle" in a)) > 0:
         print "Found Saved Mappings"
         com_mappings = loadPickle("../data/ml_data/sentence_train/com_traindev_mappings.pickle")
     else:
         print "Getting AlL Model-Question Mappings"
         # Get the correct classification for each model
-        com_mapping = sentence.getQuestionClassifications(com_questions, unigrams, bigrams, glove_file)
-        savePickle(com_mapping, "../data/ml_data/sentence_train/com_traindev_mappings.pickle")
-    
+        com_mappings = sentence.getQuestionClassifications(com_questions, unigrams, bigrams, glove_file)
+        savePickle(com_mappings, "../data/ml_data/sentence_train/com_traindev_mappings.pickle")
+    print com_mappings
     print "Getting Question Features"
     # Get Features for all Questions
     com_features = sentence.extractAllSentenceFeatures(com_questions)
-
+    print com_features
+    
+    print len(com_questions)
+    print len(com_mappings)
     print "Separating the Data"
-    training_data = []
-    dev_data = []
+    training_data = ([], [], [])
+    dev_data = ([], [], [])
     for i,q in enumerate(com_questions):
         if q in training_questions:
-            training_data.append((q, com_features[i], com_mappings[q])) # Tuple of (Question, Features, Classification)
+            training_data[0].append(q)
+            training_data[1].append(com_features[i])
+            training_data[2].append(com_mappings[i])
         else:
-            dev_data.append((q, com_features[i], com_mappings[q]))
+            dev_data[0].append(q)
+            dev_data[1].append(com_features[i])
+            dev_data[2].append(com_mappings[i])
+    print training_data
+    print "HEYYYYYYYYYYYY"
+    print dev_data
     return (training_data, dev_data)
+
+def getTestingTrainingSentence():
+    return True
+
+getEvaluatingTrainingSentence()

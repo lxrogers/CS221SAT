@@ -41,7 +41,7 @@ def distanceTrainDataDevTest(dev=True):
     for model, name in distance_models:
 	    model.fit(train, train_labels);
 
-    print "Get Training Error..."
+    print "Get Training Error..." # TODO: need to actually evlauate + get a SAT score + number correct + not correct for reporting purposes. Do same thing as below
     for model, name in distance_models:
         print "\nML Algorithm Training: ", name;
         print "Scored: ", model.score(train, train_labels);
@@ -64,54 +64,35 @@ def distanceTrainDataDevTest(dev=True):
                 num_not_answer += 1
         print "\nML Algorithm Dev: ", name;
         print "Answered Correctly: %d Did Not Answer: %d" %(num_right, num_not_answer)
-	    print "Percent Right: ", model.score(evals, eval_labels);
-	    print "SAT Score: ", scoring.score_model([(1,1)]*num_right + [(None,1)]*num_not_answer + [(0,1)]*num_wrong);
+        print "Percent Right: ", model.score(evals, eval_labels);
+        print "SAT Score: ", scoring.score_model([(1,1)]*num_right + [(None,1)]*num_not_answer + [(0,1)]*num_wrong);
 
 
-def distanceTrainDataDevTest(dev=True):
+def sentenceTrainDataDevTest(dev=True):
     train_data = None
     eval_data = None
     if dev:
-        train_data, eval_data = get_distance_ml_training.getEvaluatingTrainingData();
+        train_data, eval_data = get_distance_ml_training.getEvaluatingTrainingSentence();
     else:
-        train_data, eval_data = get_distance_ml_training.getTestingTrainingData();
-    train = train_data[0]
-    train_labels = train_data[1]
-    evals = eval_data[0]
-    eval_labels = eval_data[1]
+        train_data, eval_data = get_distance_ml_training.getTestingTrainingSentence();
+    train_qs = train_data[0]
+    train_features = train_data[1]
+    train_labels = train_data[2]
+    eval_qs = eval_data[0]
+    eval_features = eval_data[1]
+    eval_labels = eval_data[2]
     
-    num_dev = len(evals)/5
-
     print "Training the models...";
 
-    for model, name in distance_models:
-	    model.fit(train, train_labels);
+    for model, name in class_models:
+	    model.fit(train_features, train_labels);
 
     print "Get Training Error..."
-    for model, name in distance_models:
+    for model, name in class_models:
         print "\nML Algorithm Training: ", name;
-        print "Scored: ", model.score(train, train_labels);
+        print "Scored: ", model.score(train_features, train_labels);
 
-    print "Evaluating Models On Dev..."
-    for model, name in distance_models:
-        #num_right = 0
-        #num_not_answer = 0
-        #num_wrong = 0;
-        #for i in range(num_dev):
-        #    vals = model.predict(evals[i*5:i*5+5])
-        #    if 1 in vals:
-        #        pred_index = numpy.where(vals==1)[0][0]
-        #        answer_index = eval_labels[i*5:i*5+5].index(1)
-        #        if pred_index == answer_index:
-        #            num_right += 1
-        #        else:
-        #        	num_wrong += 1
-        #    else:
-        #        num_not_answer += 1
-        print "\nML Algorithm Dev: ", name;
-        #print "Answered Correctly: %d Did Not Answer: %d" %(num_right, num_not_answer)
-	    print "Percent Right: ", model.score(evals, eval_labels);
-	    #print "SAT Score: ", scoring.score_model([(1,1)]*num_right + [(None,1)]*num_not_answer + [(0,1)]*num_wrong);
+    # TODO: create evluation metric + apply to training set + eval set
 
 distanceTrainDataDevTest()
 
