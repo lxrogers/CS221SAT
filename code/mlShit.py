@@ -95,5 +95,3 @@ def sentenceTrainDataDevTest(dev=True):
     # TODO: create evluation metric + apply to training set + eval set
 
 distanceTrainDataDevTest()
-
-
