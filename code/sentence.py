@@ -111,8 +111,6 @@ def featuresUnitTest():
 	assert testFeatures[SUPPORT_INDEX] is 1
 	assert testFeatures[CAPITAL_WORDS_INDEX] is 2
 
-featuresUnitTest()
-
 #################################################################################
 #######             MODEL EVALUATION THINGS
 
@@ -136,16 +134,14 @@ param_models = [
     ("Double Blank Max VSM", doubleSentenceMaxModel)
 ];
 
-#low_ranks = [None, "pmi", "ppmi", "tfidf"];
-low_ranks = [None]
+#low_ranks = ["None", "pmi", "ppmi", "tfidf"];
+low_ranks = ["None"]
 
 def getModelClassifications():
     model_classes = {}
     model_classes["None"] = 0
     prev = 0
     for lr in low_ranks:
-        if lr == None:
-            lr = "None"
         for m_n, m_m in param_models:
             for d_m, d_n in distances:
                 whole_name = lr + m_n + d_n
@@ -156,7 +152,7 @@ def getModelClassifications():
     return model_classes
 
 def getQuestionClassifications(questions, unigrams, bigrams, glove_file):
-    model_classes = getModelClassifications()
+    model_classes = getModelClassifications(); # Mapping of types of models/parameters to integer
     prelim_mapping = {} # Map of question to a list of corresponding to models that correctly predicted the answer
     # First Check if the prelim mapping is in a pickle
 
@@ -182,14 +178,8 @@ def getQuestionClassifications(questions, unigrams, bigrams, glove_file):
 
         # Do glove based now
         for lr in low_ranks:
-            glove = None
-            if lr == None:
-                print "Loading GLove None"
-                glove = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
-                lr = "None"
-            else:
-                print "Loading Glove %s" %(lr)
-                glove = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, weighting=lr, v=False);
+            print "Loading Glove %s" %(lr)
+            glove = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, weighting=lr, v=False);
             glove.lsa(25) # TODO: change to 250
             for model_name, model_form in param_models:
                 for d_form, d_name in distances:

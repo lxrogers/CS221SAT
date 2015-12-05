@@ -28,6 +28,10 @@ import cPickle
 def readJson(filename):
     return json.loads(readFile(filename));
 
+def error(msg, shouldExit):
+    print '\033[91m' + msg + '\033[0m';
+    if(shouldExit): sys.exit();
+
 # Loads a pickle file
 def loadPickle(filename):
     return cPickle.load(file(filename));
@@ -144,13 +148,13 @@ def getTestingTrainingData():
     ngram_path = "../data/Holmes_Training_Data/norvig.txt"
     glove_file = "../data/glove_vectors/glove.6B.50d.txt"
     
-    print "Training N-Gram Models"
+    print "Training N-Gram Models..."
     unigrams, bigrams, backoff = getGrams(path=ngram_path);
     
-    print "Loading Training Questions"
+    print "Loading Training Questions..."
     training_questions = loadQuestions(directory="../data/train/")
     
-    print "Loading Dev Questions"
+    print "Loading Dev Questions...."
     dev_qs = loadQuestions(directory="../data/dev_set/")
     
     print "Loading Test Questions"
@@ -201,13 +205,13 @@ def getEvaluatingTrainingSentence():
     ngram_path = "../data/Holmes_Training_Data/norvig.txt"
     glove_file = "../data/glove_vectors/glove.6B.50d.txt" # TODO: change to 300
     
-    print "Training N-Gram Models"
+    print "Training N-Gram Models..."
     unigrams, bigrams, backoff = getGrams(path=ngram_path);
     
-    print "Loading Training Questions"
+    print "Loading Training Questions..."
     training_questions = loadQuestions(directory="../data/train/")
     
-    print "Loading Evlauation Questions"
+    print "Loading Evlauation Questions..."
     dev_qs = []
     dev_qs = loadQuestions(directory="../data/dev_set/")
     
@@ -227,6 +231,9 @@ def getEvaluatingTrainingSentence():
     # Get Features for all Questions
     com_features = sentence.extractAllSentenceFeatures(com_questions)
     print com_features
+
+    print "done."
+    return #for cayman debugging purposes
     
     print len(com_questions)
     print len(com_mappings)
