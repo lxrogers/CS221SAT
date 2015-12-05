@@ -92,7 +92,7 @@ def update_progress(progress):
 
 # Reads a file and returns the text contents
 def readFile(filename):
-    with open(filename) as f: return f.read();
+    with open(filename, 'rb') as f: return f.read();
 
 # Throws an error.
 #   First param: String that contains error/notification

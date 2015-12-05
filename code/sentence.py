@@ -111,6 +111,8 @@ def featuresUnitTest():
 	assert testFeatures[SUPPORT_INDEX] is 1
 	assert testFeatures[CAPITAL_WORDS_INDEX] is 2
 
+featuresUnitTest()
+
 #################################################################################
 #######             MODEL EVALUATION THINGS
 
