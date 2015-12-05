@@ -66,7 +66,7 @@ def getStrippedAnswerWords(answer):
         return [stripTinyWords(answer)]
     else:
         print "there was an error parsing answer: ", answer
-        return [comma_split[0]]
+        return answer
 
 def stripTinyWords(answer):
     space_split = re.split("[\s]", answer.lstrip())
@@ -75,7 +75,8 @@ def stripTinyWords(answer):
     elif len(space_split) == 1:
         return answer
     else:
-        raise Exception("answer formatting error")
+        print "there was an error parsing answer: ", answer
+        return answer
 
 def calcVecDistance(glove, targetvec, distfunc, answer):
     vec = None;
