@@ -221,23 +221,23 @@ def getEvaluatingTrainingSentence():
     com_mappings = None
     if len(getRecursiveFiles("../data/ml_data/sentence_train", filter_fn=lambda a: ".pickle" in a)) > 0:
         print "Found Saved Mappings"
-        com_mappings = loadPickle("../data/ml_data/sentence_train/com_traindev_mappings.pickle")
+        com_mapping_array = loadPickle("../data/ml_data/sentence_train/com_traindev_mappings.pickle")
     else:
         print "Getting AlL Model-Question Mappings"
         # Get the correct classification for each model
-        com_mappings = sentence.getQuestionClassifications(com_questions, unigrams, bigrams, glove_file)
-        savePickle(com_mappings, "../data/ml_data/sentence_train/com_traindev_mappings.pickle")
-    print com_mappings
+        com_mapping_array = sentence.getQuestionClassifications(com_questions, unigrams, bigrams, glove_file)
+        savePickle(com_mapping_array, "../data/ml_data/sentence_train/com_traindev_mappings.pickle")
+    print com_mapping_array
     print "Getting Question Features"
     # Get Features for all Questions
     com_features = sentence.extractAllSentenceFeatures(com_questions)
-    print com_features
+    #print com_features
 
     print "done."
-    return #for cayman debugging purposes
+    #return #for cayman debugging purposes
     
     print len(com_questions)
-    print len(com_mappings)
+    print len(com_mapping_array)
     print "Separating the Data"
     training_data = ([], [], [])
     dev_data = ([], [], [])
@@ -245,11 +245,11 @@ def getEvaluatingTrainingSentence():
         if q in training_questions:
             training_data[0].append(q)
             training_data[1].append(com_features[i])
-            training_data[2].append(com_mappings[i])
+            training_data[2].append(com_mapping_array[i])
         else:
             dev_data[0].append(q)
             dev_data[1].append(com_features[i])
-            dev_data[2].append(com_mappings[i])
+            dev_data[2].append(com_mapping_array[i])
     print training_data
     print "HEYYYYYYYYYYYY"
     print dev_data
@@ -257,5 +257,3 @@ def getEvaluatingTrainingSentence():
 
 def getTestingTrainingSentence():
     return True
-
-getEvaluatingTrainingSentence()
