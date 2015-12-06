@@ -45,7 +45,7 @@ def getPOSVecs(sentence):
 SUPPORT_WORDS = ["moreover", "besides", "additionally", "furthermore", "in fact", "and", "therefore"]
 CONTRAST_WORDS = ["although", "however", "rather than", "nevertheless", "whereas", "on the other hand", "but"]
 
-NUM_FEATURES = 13
+NUM_FEATURES = 15
 NOUNS_INDEX = 0
 ADJECTIVES_INDEX = 1
 VERBS_INDEX = 2
@@ -59,43 +59,64 @@ BLANK_POSITION_INDEX = 9
 COMMAS_INDEX = 10
 COLON_INDEX = 11
 BLANK_PERCENT_INDEX = 12 #positin of blank as percentage of total words
+IS_DOUBLE = 13
+EXCLAMATION_INDEX = 14
 
-def extractSentenceFeatures(sentence):
-	features = [0 for i in range(NUM_FEATURES)]
-	POSvecs = getPOSVecs(sentence)
-	#print "NOUNS:", POSvecs[0]
-	#print "VERBS:", POSvecs[1]
-	#print "ADJ:", POSvecs[2]
-	#features[NOUNS_INDEX] = len(POSvecs[0])
-	#features[VERBS_INDEX] = len(POSvecs[1])
-	#features[ADJECTIVES_INDEX] = len(POSvecs[2])
-	#for char in sentence:
-	#	if char is ';':
-	#		features[SEMICOLON_INDEX] = features[SEMICOLON_INDEX] + 1
-	#	elif char is ':':
-	#		features[COLON_INDEX] = features[COLON_INDEX] + 1
-	#	elif char is ',':
-	#		features[COMMAS_INDEX] = features[COMMAS_INDEX] + 1
+def extractSentenceFeatures(q):
+    sentence = q.getSentence()
+    features = [0 for i in range(NUM_FEATURES)]
+    POSvecs = getPOSVecs(sentence)
+    #print "NOUNS:", POSvecs[0]
+    #print "VERBS:", POSvecs[1]
+    #print "ADJ:", POSvecs[2]
+    features[NOUNS_INDEX] = len(POSvecs[0])
+    features[VERBS_INDEX] = len(POSvecs[1])
+    features[ADJECTIVES_INDEX] = len(POSvecs[2])
+    for word in sentence:
+        features[TOTAL_WORDS_INDEX] = features[TOTAL_WORDS_INDEX] + 1
+        if word in SUPPORT_WORDS:
+            features[SUPPORT_INDEX] = features[SUPPORT_INDEX] + 1
+        elif word in CONTRAST_WORDS:
+            features[CONTRAST_INDEX] = features[CONTRAST_INDEX] + 1
 
-	#for word in re.split("[^A-Za-z0-9_\']", sentence):
-	#	features[TOTAL_WORDS_INDEX] = features[TOTAL_WORDS_INDEX] + 1
-	#	if not word: continue
-	#	if word[0].isupper():
-	#		features[CAPITAL_WORDS_INDEX] = features[CAPITAL_WORDS_INDEX] + 1
-	#	if word in SUPPORT_WORDS:
-	#		features[SUPPORT_INDEX] = features[SUPPORT_INDEX] + 1
-	#	elif word in CONTRAST_WORDS:
-	#		features[CONTRAST_INDEX] = features[CONTRAST_INDEX] + 1
+    # TODO: convert to actual count + not just bindary
+    if ',' in q.text:
+        features[COMMAS_INDEX] = features[COMMAS_INDEX] + 1
+    if ';' in q.text:
+        features[SEMICOLON_INDEX] = features[SEMICOLON_INDEX] + 1
+    if ':' in q.text:
+        features[COLON_INDEX] = features[COLON_INDEX] + 1
+    if '!' in q.text:
+        features[EXCLAMATION_INDEX] = features[EXCLAMATION_INDEX] + 1
 
-	#features[BLANK_POSITION_INDEX] = sentence.find('____')
-	#features[BLANK_PERCENT_INDEX] = features[BLANK_POSITION_INDEX] * 1.0/ features[TOTAL_WORDS_INDEX]
+    # Proxy for getting capitalized words since get sentence leaves out capitalization
+    for word in q.text.split():
+        try:
+            if word[0].isupper():
+                print word
+                features[CAPITAL_WORDS_INDEX] = features[CAPITAL_WORDS_INDEX] + 1
+        except:
+            features[CAPITAL_WORDS_INDEX] = features[CAPITAL_WORDS_INDEX]
+    
+    features[CAPITAL_WORDS_INDEX] = features[CAPITAL_WORDS_INDEX] - 1 # Account for first word
 
-	return features
+    # Get Double Blank and First Blank Position
+    try:
+        features[BLANK_POSITION_INDEX] = sentence.index('____')
+        features[BLANK_PERCENT_INDEX] = features[BLANK_POSITION_INDEX] * 1.0/ features[TOTAL_WORDS_INDEX]
+    except:
+        features[BLANK_POSITION_INDEX] = 0
+    try:
+        if sentence.count('____') > 1:
+            features[IS_DOUBLE] = 1
+    except:
+        features[IS_DOUBLE] = 0
+    return features
 
 def extractAllSentenceFeatures(questions):
     features = []
     for i, q in enumerate(questions):
-        features.append(extractSentenceFeatures(q.getSentence()))
+        features.append(extractSentenceFeatures(q))
     return features
 
 def featuresUnitTest():
