@@ -153,7 +153,7 @@ param_models = [
 ];
 
 low_ranks = ["None", "pmi", "ppmi", "tfidf"];
-#low_ranks = ["None"]
+#low_ranks = ["None", "pmi"]
 
 def getModelClassifications():
     model_classes = {}
@@ -183,16 +183,18 @@ def getQuestionClassifications(questions, unigrams, bigrams, glove_file):
         for i,question in enumerate(questions):
             u_answer = unigramModel(unigrams, question)
             b_answer = bigramModel(bigrams, question)
-            if u_answer == question.getCorrectWord():
+            if u_answer[0] == question.getCorrectWord():
+                tups = ("Unigram", 2) # TODO: change
                 if i in prelim_mapping_array:
-                    prelim_mapping_array[i].append("Unigram")
+                    prelim_mapping_array[i].append(tups)
                 else:
-                    prelim_mapping_array[i] = ["Unigram"]
-            if b_answer == question.getCorrectWord():
+                    prelim_mapping_array[i] = [tups]
+            if b_answer[0] == question.getCorrectWord():
+                tups = ("Bigram", 2) # TODO: change
                 if i in prelim_mapping_array:
-                    prelim_mapping_array[i].append("Bigram")
+                    prelim_mapping_array[i].append(tups)
                 else:
-                    prelim_mapping_array[i] = ["Bigram"]
+                    prelim_mapping_array[i] = [tups]
 
         # Do glove based now
         for lr in low_ranks:
@@ -208,11 +210,12 @@ def getQuestionClassifications(questions, unigrams, bigrams, glove_file):
                             answer = model_form(glove, unigrams, q, threshold=.95)
                         else:
                             answer = model_form(glove, q, threshold=.95)
-                        if answer != None and answer != -1 and answer == q.getCorrectWord():
+                        if answer[0] != None and answer[0] != -1 and answer[0] == q.getCorrectWord():
+                            tups = (whole_name, answer[1]) # (Name, Distance)
                             if i in prelim_mapping_array:
-                                prelim_mapping_array[i].append(whole_name)
+                                prelim_mapping_array[i].append(tups)
                             else:
-                                prelim_mapping_array[i] = [whole_name]
+                                prelim_mapping_array[i] = [tups]
         print "saving preliminary mapping"
         savePickle(prelim_mapping_array, "../data/ml_data/sentence_train_prelim/com_triandev_prelimmaparray.pickle")
     #print prelim_mapping_array 
@@ -222,8 +225,10 @@ def getQuestionClassifications(questions, unigrams, bigrams, glove_file):
     real_mapping = [None]*len(questions)
     for i,q in enumerate(questions):
         if prelim_mapping_array[i] != None:
-            best_model = random.choice(prelim_mapping_array[i])
+            #best_model = random.choice(prelim_mapping_array[i])
+            best_model = min(prelim_mapping_array[i], key=lambda x: x[1])[0] # Get the name of the model with the lowest distance
             real_mapping[i] = model_classes[best_model]
         else:
             real_mapping[i] = model_classes["None"]
+    #print real_mapping
     return real_mapping

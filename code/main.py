@@ -217,12 +217,12 @@ def findBestVector(glove, targetvec, answers, distfunc, threshold):
         # Glove does not have the answer in its vocabulary
         if(vec == None):
             #if(v): error("Glove does not have the means to evaluate \"" + answer + "\" in its vocabulary", False);
-            return None;
+            return (None, None);
         if( distfunc(vec, targetvec) < min(mindist, threshold) ):
             ind, mindist = i, distfunc(vec, targetvec);
     if (ind == -1):
-        return -1
-    return answers[ind];
+        return (-1, mindist)
+    return (answers[ind], mindist);
 
 #return a list of words stripped of irrelevant words
 #cleaving to -> [cleaving]
@@ -294,9 +294,9 @@ def answerWordDistance(glove, answer, distfunc=cosine):
 def getMaxDoubleBlankAnswer(glove, mode, question, distfunc=cosine):
     distances = [(answer, answerWordDistance(glove, answer)) for answer in question.answers]
     if mode == "support":
-        return min(distances, key=lambda x: x[1])[0]
+        return min(distances, key=lambda x: x[1])
     else:
-        return max(distances, key=lambda x: x[1])[0]
+        return max(distances, key=lambda x: x[1])
 
 # Gets Synonyms
 def getSynonyms(word):
@@ -327,9 +327,9 @@ def getPOSVecs(sentence):
 
 def adjectiveModel(glove, question, distfunc=cosine, threshold=2, rev=False):
     nouns, verbs, adjectives = getPOSVecs(question.getSentence());
-    if(len(adjectives) == 0): return -1
+    if(len(adjectives) == 0): return (-1, 2)
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), adjectives))
-    if(targetvec == None): return -1;
+    if(targetvec == None): return (-1, 2);
     if(not rev):
         return findBestVector(glove, targetvec, question.answers, distfunc, threshold);
     else:
@@ -337,9 +337,9 @@ def adjectiveModel(glove, question, distfunc=cosine, threshold=2, rev=False):
 
 def verbModel(glove, question, distfunc=cosine, threshold=2, rev=False):
     nouns, verbs, adjectives = getPOSVecs(question.getSentence());
-    if(len(verbs) == 0): return -1
+    if(len(verbs) == 0): return (-1, 2)
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), verbs))
-    if(targetvec == None): return -1
+    if(targetvec == None): return (-1, 2)
     if(len(targetvec) == 1):
         print question, verbs
     if(not rev):
@@ -349,9 +349,9 @@ def verbModel(glove, question, distfunc=cosine, threshold=2, rev=False):
 
 def nounModel(glove, question, distfunc=cosine, threshold=2, rev=False):
     nouns, verbs, adjectives = getPOSVecs(question.getSentence());
-    if(len(nouns) == 0): return -1
+    if(len(nouns) == 0): return (-1, 2)
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), nouns))
-    if(targetvec == None): return -1;
+    if(targetvec == None): return (-1, 2);
     if(not rev):
         return findBestVector(glove, targetvec, question.answers, distfunc, threshold);
     else:
@@ -405,30 +405,30 @@ def distanceModel(glove, question, distfunc=cosine, threshold=2, rev=False):
             dist = distfunc(glove.getVec(answer), glove.getVec(word));
             if(dist < mindist):
                 mindist, bestanswer = dist,answer
-        return bestanswer
+        return (bestanswer, mindist)
 
     else:
-        return 0;
+        return (0, mindist);
 
 def unigramModel(unigrams, question, distfunc=cosine, threshold=2, rev=False):
     if(not rev):
-        return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]))[0];
+        return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]));
     else:
-        return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]))[0];
+        return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]));
 
 
 def bigramModel(bigrams, question, distfunc=cosine, threshold=2, rev=False):
     if(not rev):
-        return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]))[0];
+        return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]));
     else:
-        return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]))[0];
+        return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]));
 
 
 def backOffModel(question, distfunc=cosine, threshold=2, rev=False):
     if(not rev):
-        return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]))[0];
+        return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]));
     else:
-        return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]))[0];
+        return min([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]));
 
 
 
@@ -469,9 +469,9 @@ def main(questions, glove):
 
     for name, model in param_models:
         if name == "Weighted VSM":
-            scoring.score_model( [(model(glove, unigrams, q, threshold=.9), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
+            scoring.score_model( [(model(glove, unigrams, q, threshold=.9)[0], q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
         else:
-            scoring.score_model( [(model(glove, q, threshold=.9), q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
+            scoring.score_model( [(model(glove, q, threshold=.9)[0], q.getCorrectWord()) for q in questions], verbose=True, modelname=name)
 
     os.system("say Finished");
 

@@ -227,7 +227,7 @@ def getEvaluatingTrainingSentence():
         # Get the correct classification for each model
         com_mapping_array = sentence.getQuestionClassifications(com_questions, unigrams, bigrams, glove_file)
         savePickle(com_mapping_array, "../data/ml_data/sentence_train/com_traindev_mappings.pickle")
-    
+    #print com_mapping_array
     print "Getting Question Features"
     # Get Features for all Questions
     com_features = sentence.extractAllSentenceFeatures(com_questions)
