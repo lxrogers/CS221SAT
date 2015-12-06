@@ -93,7 +93,6 @@ def extractSentenceFeatures(q):
     for word in q.text.split():
         try:
             if word[0].isupper():
-                print word
                 features[CAPITAL_WORDS_INDEX] = features[CAPITAL_WORDS_INDEX] + 1
         except:
             features[CAPITAL_WORDS_INDEX] = features[CAPITAL_WORDS_INDEX]
@@ -153,8 +152,8 @@ param_models = [
     ("Double Blank Max VSM", doubleSentenceMaxModel)
 ];
 
-#low_ranks = ["None", "pmi", "ppmi", "tfidf"];
-low_ranks = ["None"]
+low_ranks = ["None", "pmi", "ppmi", "tfidf"];
+#low_ranks = ["None"]
 
 def getModelClassifications():
     model_classes = {}
@@ -172,12 +171,12 @@ def getModelClassifications():
 
 def getQuestionClassifications(questions, unigrams, bigrams, glove_file):
     model_classes = getModelClassifications(); # Mapping of types of models/parameters to integer
-    prelim_mapping = {} # Map of question to a list of corresponding to models that correctly predicted the answer
+    prelim_mapping_array = [None]*len(questions) # Map of question to a list of corresponding to models that correctly predicted the answer
     # First Check if the prelim mapping is in a pickle
 
     if len(getRecursiveFiles("../data/ml_data/sentence_train_prelim", filter_fn=lambda a: ".pickle" in a)) > 0:
         print "found Saved Prelimninary Mappings"
-        prelim_mapping = loadPickle("../data/ml_data/sentence_train_prelim/com_triandev_prelimmap.pickle")
+        prelim_mapping_array = loadPickle("../data/ml_data/sentence_train_prelim/com_triandev_prelimmaparray.pickle")
     else:
         print "Finding Preliminary Mapping"
         # Do unigram + bigram first
@@ -185,21 +184,21 @@ def getQuestionClassifications(questions, unigrams, bigrams, glove_file):
             u_answer = unigramModel(unigrams, question)
             b_answer = bigramModel(bigrams, question)
             if u_answer == question.getCorrectWord():
-                if i in prelim_mapping:
-                    prelim_mapping[i].append("Unigram")
+                if i in prelim_mapping_array:
+                    prelim_mapping_array[i].append("Unigram")
                 else:
-                    prelim_mapping[i] = ["Unigram"]
+                    prelim_mapping_array[i] = ["Unigram"]
             if b_answer == question.getCorrectWord():
-                if i in prelim_mapping:
-                    prelim_mapping[i].append("Bigram")
+                if i in prelim_mapping_array:
+                    prelim_mapping_array[i].append("Bigram")
                 else:
-                    prelim_mapping[i] = ["Bigram"]
+                    prelim_mapping_array[i] = ["Bigram"]
 
         # Do glove based now
         for lr in low_ranks:
             print "Loading Glove %s" %(lr)
             glove = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, weighting=lr, v=False);
-            glove.lsa(25) # TODO: change to 250
+            glove.lsa(250) # TODO: change to 250
             for model_name, model_form in param_models:
                 for d_form, d_name in distances:
                     whole_name = lr + model_name + d_name
@@ -210,20 +209,20 @@ def getQuestionClassifications(questions, unigrams, bigrams, glove_file):
                         else:
                             answer = model_form(glove, q, threshold=.95)
                         if answer != None and answer != -1 and answer == q.getCorrectWord():
-                            if i in prelim_mapping:
-                                prelim_mapping[i].append(whole_name)
+                            if i in prelim_mapping_array:
+                                prelim_mapping_array[i].append(whole_name)
                             else:
-                                prelim_mapping[i] = [whole_name]
+                                prelim_mapping_array[i] = [whole_name]
         print "saving preliminary mapping"
-        savePickle(prelim_mapping, "../data/ml_data/sentence_train_prelim/com_triandev_prelimmap.pickle")
-    print prelim_mapping
+        savePickle(prelim_mapping_array, "../data/ml_data/sentence_train_prelim/com_triandev_prelimmaparray.pickle")
+    #print prelim_mapping_array 
 
     # Classify each question now + return
     # For now, randomly picks out of the right ones
-    real_mapping = {}
+    real_mapping = [None]*len(questions)
     for i,q in enumerate(questions):
-        if i in prelim_mapping:
-            best_model = random.choice(prelim_mapping[i])
+        if prelim_mapping_array[i] != None:
+            best_model = random.choice(prelim_mapping_array[i])
             real_mapping[i] = model_classes[best_model]
         else:
             real_mapping[i] = model_classes["None"]
