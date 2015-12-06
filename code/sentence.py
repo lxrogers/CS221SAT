@@ -185,13 +185,13 @@ def getQuestionClassifications(questions, unigrams, bigrams, glove_file):
             b_answer = bigramModel(bigrams, question)
             if u_answer[0] == question.getCorrectWord():
                 tups = ("Unigram", 2) # TODO: change
-                if i in prelim_mapping_array:
+                if prelim_mapping_array[i] != None:
                     prelim_mapping_array[i].append(tups)
                 else:
                     prelim_mapping_array[i] = [tups]
             if b_answer[0] == question.getCorrectWord():
                 tups = ("Bigram", 2) # TODO: change
-                if i in prelim_mapping_array:
+                if prelim_mapping_array[i] != None:
                     prelim_mapping_array[i].append(tups)
                 else:
                     prelim_mapping_array[i] = [tups]
@@ -212,7 +212,7 @@ def getQuestionClassifications(questions, unigrams, bigrams, glove_file):
                             answer = model_form(glove, q, threshold=.95)
                         if answer[0] != None and answer[0] != -1 and answer[0] == q.getCorrectWord():
                             tups = (whole_name, answer[1]) # (Name, Distance)
-                            if i in prelim_mapping_array:
+                            if prelim_mapping_array[i] != None:
                                 prelim_mapping_array[i].append(tups)
                             else:
                                 prelim_mapping_array[i] = [tups]
