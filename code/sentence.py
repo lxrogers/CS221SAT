@@ -152,8 +152,8 @@ param_models = [
     ("Double Blank Max VSM", doubleSentenceMaxModel)
 ];
 
-#low_ranks = ["None", "pmi", "ppmi", "tfidf"];
-low_ranks = ["None"]
+low_ranks = ["None", "pmi", "ppmi", "tfidf"];
+#low_ranks = ["None"]
 
 def getModelClassifications():
     model_classes = {}
@@ -198,7 +198,7 @@ def getQuestionClassifications(questions, unigrams, bigrams, glove_file):
         for lr in low_ranks:
             print "Loading Glove %s" %(lr)
             glove = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, weighting=lr, v=False);
-            glove.lsa(25) # TODO: change to 250
+            glove.lsa(250) # TODO: change to 250
             for model_name, model_form in param_models:
                 for d_form, d_name in distances:
                     whole_name = lr + model_name + d_name
@@ -215,7 +215,7 @@ def getQuestionClassifications(questions, unigrams, bigrams, glove_file):
                                 prelim_mapping_array[i] = [whole_name]
         print "saving preliminary mapping"
         savePickle(prelim_mapping_array, "../data/ml_data/sentence_train_prelim/com_triandev_prelimmaparray.pickle")
-    print prelim_mapping_array 
+    #print prelim_mapping_array 
 
     # Classify each question now + return
     # For now, randomly picks out of the right ones

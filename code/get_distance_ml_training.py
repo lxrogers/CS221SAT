@@ -203,7 +203,7 @@ def getEvaluatingTrainingSentence():
     global save
     save = True
     ngram_path = "../data/Holmes_Training_Data/norvig.txt"
-    glove_file = "../data/glove_vectors/glove.6B.50d.txt" # TODO: change to 300
+    glove_file = "../data/glove_vectors/glove.6B.300d.txt" # TODO: change to 300
     
     print "Training N-Gram Models..."
     unigrams, bigrams, backoff = getGrams(path=ngram_path);
@@ -227,17 +227,13 @@ def getEvaluatingTrainingSentence():
         # Get the correct classification for each model
         com_mapping_array = sentence.getQuestionClassifications(com_questions, unigrams, bigrams, glove_file)
         savePickle(com_mapping_array, "../data/ml_data/sentence_train/com_traindev_mappings.pickle")
-    print com_mapping_array
+    
     print "Getting Question Features"
     # Get Features for all Questions
     com_features = sentence.extractAllSentenceFeatures(com_questions)
-    #print com_features
 
-    print "done."
     #return #for cayman debugging purposes
     
-    print len(com_questions)
-    print len(com_mapping_array)
     print "Separating the Data"
     training_data = ([], [], [])
     dev_data = ([], [], [])
@@ -250,9 +246,6 @@ def getEvaluatingTrainingSentence():
             dev_data[0].append(q)
             dev_data[1].append(com_features[i])
             dev_data[2].append(com_mapping_array[i])
-    print training_data
-    print "HEYYYYYYYYYYYY"
-    print dev_data
     return (training_data, dev_data)
 
 def getTestingTrainingSentence():
