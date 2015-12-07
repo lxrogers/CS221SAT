@@ -400,7 +400,8 @@ demonstrative
 2
 
 The delegates’ behavior at the convention was utterly disgraceful and fully deserving of the ____it provoked.
-rancor lethargy
+rancor
+lethargy
 commiseration
 forbearance
 compunction

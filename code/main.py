@@ -228,7 +228,7 @@ def findBestVector(glove, targetvec, answers, distfunc, threshold):
 #cleaving to -> [cleaving]
 #cleaving to, ineffable -> [cleaving, ineffable]
 def getStrippedAnswerWords(answer):
-    answers = filter(lambda x: len(x) > 0 and x not in stopwords.words('english') + ["upon", "toward"], re.split("[ ,]", answer));
+    answers = filter(lambda x: len(x) > 0 and x not in stopwords.words('english') + ["upon", "toward"], re.split("[ ,]", answer.lower()));
     if(len(answers) > 2):
         print answer, answers
     assert(len(answers) <= 2) # checking to make sure correct split
@@ -248,6 +248,10 @@ def stripTinyWords(answer):
 # if more support words, return "support", if more contrast words, return "contrast"
 def getDoubleBlankEliminationMode(question):
     #between_text_words = re.compile('____(.*?)___').search(question.text)
+    if len(re.findall ( '____(.*?)____', question.text, re.DOTALL)) == 0:
+        print "DOUBLE BLANK ERROR ON:"
+        print question
+        return "neutral"
     between_text_words = re.findall ( '____(.*?)____', question.text, re.DOTALL)[0]
     support_words = ["moreover", "besides", "additionally", "furthermore", "in fact", "and", "therefore"]
     contrast_words = ["although", "however", "rather than", "nevertheless", "whereas", "on the other hand", "but"]
@@ -376,7 +380,7 @@ def doubleSentenceModel(glove, question, distfunc=cosine, threshold=2, rev=False
     if(len(answer_words) == 1):
         #single blank answer
         return sentenceModel(glove, question, distfunc, threshold, rev)
-    elif(len(answer_words) == 2):    
+    elif(len(answer_words) == 2):
         #double blank answer
         elimination_mode = getDoubleBlankEliminationMode(question) #step 1: use clue words to determine which answers to eliminate (similar or different)
         question2 = getRemainingAnswers(glove, elimination_mode, question) #step 2: eliminate those words
