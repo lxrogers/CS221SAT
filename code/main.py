@@ -230,9 +230,9 @@ def findBestVector(glove, targetvec, answers, distfunc, threshold):
 def getStrippedAnswerWords(answer):
     answers = filter(lambda x: len(x) > 0 and x not in stopwords.words('english') + ["upon", "toward"], re.split("[ ,]", answer.lower()));
     if(len(answers) > 2):
-        print answer, answers
+        print "error:" + answer, answers
     assert(len(answers) <= 2) # checking to make sure correct split
-    return answers if len(answers) > 0 else answer.strip(); # if answer is a stop word
+    return answers if len(answers) > 0 else [answer.strip()]; # if answer is a stop word
 
 def stripTinyWords(answer):
     space_split = re.split("[\s]", answer.lstrip())
