@@ -106,11 +106,11 @@ class Glove:
     # Computes the sum of the glove vectors of all elements in words
     def getSumVec(self, words):
         targetvec = self.getVec(words[0]);
-        if(targetvec == None and self.v): self.error("Glove does not have \"" + words[0] + "\" in its vocabulary");
+        if(targetvec is None and self.v): self.error("Glove does not have \"" + words[0] + "\" in its vocabulary");
 
         for word in words[1:]:
             wordvec = self.getVec(word);
-            if(wordvec != None): targetvec = map(lambda i: targetvec[i] + wordvec[i], xrange(len(targetvec)));  
+            if(wordvec is not None): targetvec = map(lambda i: targetvec[i] + wordvec[i], xrange(len(targetvec)));  
             else:
                 if(self.v): self.error("Glove does not have \"" + word + "\" in its vocabulary");
 
@@ -128,7 +128,7 @@ class Glove:
                 total_sum += float(wProb)
         for word in words:
             wordvec = self.getVec(word);
-            if(wordvec != None):
+            if(wordvec is not None):
                 wordProb = 1 if unigrams == None else unigrams.getSingleNonLogScore(word)/total_sum
                 count += 1;
                 targetvec = map(lambda i: targetvec[i] + wordvec[i]*(1/wordProb), xrange(len(targetvec)));

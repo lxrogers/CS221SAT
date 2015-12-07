@@ -65,16 +65,6 @@ def getStrippedAnswerWords(answer):
     assert(len(answers) <= 2) # checking to make sure correct split
     return answers if len(answers) > 0 else [answer.strip()]; # if answer is a stop word
 
-def stripTinyWords(answer):
-    space_split = re.split("[\s]", answer.lstrip())
-    if len(space_split) == 2:
-        return space_split[0] if len(space_split[0]) > len(space_split[1]) else space_split[1]
-    elif len(space_split) == 1:
-        return answer
-    else:
-        print "there was an error parsing answer: ", answer
-        return answer
-
 def calcVecDistance(glove, targetvec, distfunc, answer):
     vec = None;
     answer_words = getStrippedAnswerWords(answer)

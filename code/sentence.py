@@ -162,7 +162,7 @@ def getModelClassifications():
     for lr in low_ranks:
         for m_n, m_m in param_models:
             for d_m, d_n in distances:
-                whole_name = lr + m_n + d_n
+                whole_name = lr + "|" + m_n + "|" + d_n
                 model_classes[whole_name] = prev + 1
                 prev += 1
     model_classes["Unigram"] = prev + 1

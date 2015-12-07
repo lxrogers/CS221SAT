@@ -82,14 +82,14 @@ def sentenceTrainDataDevTest(dev=True):
     eval_features = eval_data[1]
     eval_labels = eval_data[2]
     
-    return # remove. for debugging purposes
+     # remove. for debugging purposes
     print "Training the models...";
 
-    for model, name in class_models:
+    for model, name in distance_models:
 	    model.fit(train_features, train_labels);
 
     print "Get Training Error..."
-    for model, name in class_models:
+    for model, name in distance_models:
         print "\nML Algorithm Training: ", name;
         print "Scored: ", model.score(train_features, train_labels);
 

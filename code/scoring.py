@@ -21,6 +21,7 @@ def score_model(guess_answer_pairs, verbose=False, modelname="Name Not Given"):
     if(verbose): print '\033[95mModel: ' + modelname + "\033[0m";
 
     num_correct = 0
+    num_omitted = 0;
     unscaled_score = 0.0
     for guess, answer in guess_answer_pairs:
         if guess == answer:
@@ -28,6 +29,7 @@ def score_model(guess_answer_pairs, verbose=False, modelname="Name Not Given"):
             unscaled_score += 1.0
         elif guess == None or guess == -1:
             unscaled_score += 0.0
+            num_omitted += 1;
         else:
             unscaled_score -= 0.25
     scaled_score = scale_score(unscaled_score, len(guess_answer_pairs))
@@ -35,7 +37,8 @@ def score_model(guess_answer_pairs, verbose=False, modelname="Name Not Given"):
     if(verbose):
         print "SAT SCORE: " + str(score)
         print "\tBreakdown:"
-        print "\tNumber of Correct Answers: " + str(num_correct) + "/" + str(len(guess_answer_pairs))
+        print "\tNumber of Correct Answers: " + str(num_correct) + "/" + str(len(guess_answer_pairs) - num_omitted)
+        print "\tNumber of Omitted Answers: " + str(num_omitted) + "/" + str(len(guess_answer_pairs))
         print "\tUnscaled (Raw) Score: " + str(unscaled_score) + "/" + str(len(guess_answer_pairs))
         print "\tScaled Score: " + str(scaled_score) + "/" + str(len(SCORE_CONVERSION_TABLE)-3)
         print "\tConverted SAT Score: " + str(score) + "/800\n"
