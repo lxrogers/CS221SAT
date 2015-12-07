@@ -1341,7 +1341,7 @@ paused
 digressed
 4
 
-Although she often described reason as the noblest ____, author Ayn Rand never implied that she rejected
+Although she often described reason as the noblest ____, author Ayn Rand never implied that she rejected ____
 enigma,logic
 faculty,emotion
 fantasy,rhetoric
@@ -1429,7 +1429,7 @@ an understatement
 A platitude
 1
 
- In his essay, writer Rudolfo Anaya strives to blink his sometimes incongruous Mexican and American identities by combining ____ worldviews to create one unique vision.
+In his essay, writer Rudolfo Anaya strives to ____ his sometimes incongruous Mexican and American identities by combining ____ worldviews to create one unique vision.
 Distinguish, irreconcilable
 Assimilate, simultaneous
 Synthesize, divergent

@@ -82,6 +82,7 @@ def sentenceTrainDataDevTest(dev=True):
     eval_features = eval_data[1]
     eval_labels = eval_data[2]
     
+    return # remove. for debugging purposes
     print "Training the models...";
 
     for model, name in class_models:
@@ -94,4 +95,5 @@ def sentenceTrainDataDevTest(dev=True):
 
     # TODO: create evluation metric + apply to training set + eval set
 
-distanceTrainDataDevTest()
+#distanceTrainDataDevTest()
+sentenceTrainDataDevTest()

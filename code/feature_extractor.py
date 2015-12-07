@@ -59,14 +59,11 @@ def backOffModel(backoff, question, target, distfunc=cosine, threshold=1, rev=Fa
 # Returns -1 if no answers pass the confidence threshold
 
 def getStrippedAnswerWords(answer):
-    answers = filter(lambda x: len(x) > 0 and x not in stopwords.words('english'), re.split("[ ,]", answer));
-    if len(answers) > 2: #double blank
-        print "PROBLEM", answer, answers
-    return answers
-    """else:
-        print "\n"
-        print "there was an error parsing answer: ", answer
-        return answer"""
+    answers = filter(lambda x: len(x) > 0 and x not in stopwords.words('english') + ["upon", "toward"], re.split("[ ,]", answer.lower()));
+    if(len(answers) > 2):
+        print "error:" + answer, answers
+    assert(len(answers) <= 2) # checking to make sure correct split
+    return answers if len(answers) > 0 else [answer.strip()]; # if answer is a stop word
 
 def stripTinyWords(answer):
     space_split = re.split("[\s]", answer.lstrip())
@@ -75,7 +72,7 @@ def stripTinyWords(answer):
     elif len(space_split) == 1:
         return answer
     else:
-        print "there was an error parsing answer in tiny words: ", answer
+        print "there was an error parsing answer: ", answer
         return answer
 
 def calcVecDistance(glove, targetvec, distfunc, answer):
@@ -175,7 +172,6 @@ def createSingleExtractorVSM(example, glove, unigrams):
     q = example[0]
     word = example[1]
     features = []
-
     # Look at VSM models now
     for name, model in param_models:
         for d_method, d_name in distances:
