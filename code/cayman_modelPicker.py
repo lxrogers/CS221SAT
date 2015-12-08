@@ -18,13 +18,13 @@ algorithms = [
 		  (LogisticRegression(), "Logistic Regression"),
 		  (LinearSVC(), "Support Vector Machine"),
 		  (DecisionTreeClassifier(max_depth=10), "Decision Tree"),
-		  #(QDA(), "QDA"),
+		  (QDA(), "QDA"),
 		  (GradientBoostingClassifier(), "BOOSTING!!!"),
 		  (Pipeline(steps=[('rbm', BernoulliRBM()), ('logistic', LogisticRegression())]), "Bernoulli Neural Network Combo Logit")
 		]
 
 
-
+# question + answer = right fit?
 
 
 
@@ -32,7 +32,7 @@ algorithms = [
 #	 In this case, y is the label of which algorithm to use to answer the question based on
 #	 sentence features.
 def generateDataset(datafile):
-	generatedFile = "../data/cayman_sentence_data/sentenceDataset.pickle"
+	generatedFile = "../data/cayman_distance_data/distanceDataset.pickle"
 
 	# No need to generate twice. 
 	if(isfile(generatedFile)):
@@ -66,7 +66,7 @@ def generateDataset(datafile):
 		y.append(bestModel);
 
 	# Save the X,y pair so we don't have to generate the dataset again
-	savePickle( (questions, y), "../data/cayman_sentence_data/sentenceDataset.pickle")
+	savePickle( (questions, y), generatedFile)
 	return (questions, y); 
 		
 
