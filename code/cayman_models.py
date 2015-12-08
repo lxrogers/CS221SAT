@@ -25,107 +25,119 @@ from cayman_utility import *
 
 
 # Averages adjectives in sentence and uses it as guess to what should be in blank
-def adjectiveModel(glove, question, distfunc=cosine, threshold=2):
+def adjectiveModel(glove, question, distfunc=cosine, threshold=2, return_vec = False):
     nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+    false_return = -1 if not return_vec else None
 
     # No adjectives in sentence, don't answer
-    if(len(adjectives) == 0): return (-1, 2)
+    if(len(adjectives) == 0): return (false_return, 2)
 
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), adjectives))
 
     # Don't understand adjectives in the sentence, don't answer
-    if(targetvec == None): return (-1, 2);
-
+    if(targetvec == None): return (false_return, 2);
+    
+    if return_vec:
+        return (targetvec, 2)
     return findBestVector(glove, targetvec, question.answers, distfunc, threshold);
 
 
 
 # Averages verbs in sentence and uses it as guess to what should be in blank
-def verbModel(glove, question, distfunc=cosine, threshold=2):
+def verbModel(glove, question, distfunc=cosine, threshold=2, return_vec = False):
     nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+    false_return = -1 if not return_vec else None
 
     # No verbs found in sentence, don't answer
-    if(len(verbs) == 0): return (-1, 2)
+    if(len(verbs) == 0): return (false_return, 2)
 
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), verbs))
 
     # No verbs we understand in sentence, don't answer
-    if(targetvec == None): return (-1, 2)
+    if(targetvec == None): return (false_return, 2)
 
     # Bug-hunting purposes - ignore
     if(len(targetvec) == 1):
         print question, verbs
 
+    if return_vec:
+        return (targetvec, 2)
     return findBestVector(glove, targetvec, question.answers, distfunc, threshold);
 
 
 
 # Averages nouns in sentence and uses it as guess to what should be in blank
-def nounModel(glove, question, distfunc=cosine, threshold=2):
+def nounModel(glove, question, distfunc=cosine, threshold=2, return_vec = False):
     nouns, verbs, adjectives = getPOSVecs(question.getSentence());
+    false_return = -1 if not return_vec else None
 
     # No nouns found in sentence, don't answer
-    if(len(nouns) == 0): return (-1, 2)
+    if(len(nouns) == 0): return (false_return, 2)
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), nouns))
 
     # No nouns understood in sentence, don't answer
-    if(targetvec == None): return (-1, 2);
+    if(targetvec == None): return (false_return, 2);
 
+    if return_vec:
+        return (targetvec, 2)
     return findBestVector(glove, targetvec, question.answers, distfunc, threshold);
 
 
 
 # Averages all words in sentence and uses it as guess to what should be in blank
-def sentenceModel(glove, question, distfunc=cosine, threshold=2, unigrams=None):
+def sentenceModel(glove, question, distfunc=cosine, threshold=2, unigrams=None, return_vec = False):
     targetvec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), question.getSentence()), unigrams);
+    false_return = -1 if not return_vec else None
 
     # Understand no words in sentence, don't answer
-    if(targetvec == None): return (-1, 2);
+    if(targetvec == None): return (false_return, 2);
 
+    if return_vec:
+        return (targetvec, 2)
     return findBestVector(glove, targetvec, question.answers, distfunc, threshold);
 
 
 
 # Averages words in sentence, weighted by unigrams and uses it as guess to what should be in blank
-def weightedSentenceModel(glove, question, unigrams=None, distfunc=cosine, threshold=2):
-    return sentenceModel(glove, question, distfunc, threshold)
+def weightedSentenceModel(glove, question, unigrams=None, distfunc=cosine, threshold=2, return_vec = False):
+    return sentenceModel(glove, question, distfunc, threshold, unigrams, return_vec=return_vec)
 
 
 # If double-blank sentence, tries to eliminate answers and use sentence model on new questions
-def doubleSentenceModel(glove, question, distfunc=cosine, threshold=2):
+def doubleSentenceModel(glove, question, distfunc=cosine, threshold=2, return_vec = False):
     answer_words = getStrippedAnswerWords(question.answers[0])
     if(len(answer_words) == 1):
         #single blank answer
-        return sentenceModel(glove, question, distfunc, threshold)
+        return sentenceModel(glove, question, distfunc, threshold, return_vec=return_vec)
     elif(len(answer_words) == 2):
         #double blank answer
         elimination_mode = getDoubleBlankEliminationMode(question) #step 1: use clue words to determine which answers to eliminate (similar or different)
         question2 = getRemainingAnswers(glove, elimination_mode, question) #step 2: eliminate those words
-        return sentenceModel(glove, question2, distfunc, threshold) #step 3: find best answer out of un-eliminated words
+        return sentenceModel(glove, question2, distfunc, threshold, return_vec=return_vec) #step 3: find best answer out of un-eliminated words
 
 # If double-blank sentence, tries to eliminate answers and use noun model on new questions
-def doubleNounModel(glove, question, distfunc=cosine, threshold=2):
+def doubleNounModel(glove, question, distfunc=cosine, threshold=2, return_vec = False):
     answer_words = getStrippedAnswerWords(question.answers[0])
     if(len(answer_words) == 1):
         #single blank answer
-        return nounModel(glove, question, distfunc, threshold)
+        return nounModel(glove, question, distfunc, threshold, return_vec=return_vec)
     elif(len(answer_words) == 2):
         #double blank answer
         elimination_mode = getDoubleBlankEliminationMode(question) #step 1: use clue words to determine which answers to eliminate (similar or different)
         question2 = getRemainingAnswers(glove, elimination_mode, question) #step 2: eliminate those words
-        return nounModel(glove, question2, distfunc, threshold) #step 3: find best answer out of un-eliminated words
+        return nounModel(glove, question2, distfunc, threshold, return_vec=return_vec) #step 3: find best answer out of un-eliminated words
 
 # Unusable with distance ML - can't evaluate fit of answer to sentence
-def doubleSentenceMaxModel(glove, question, distfunc=cosine, threshold=2):
+def doubleSentenceMaxModel(glove, question, distfunc=cosine, threshold=2, return_vec = False):
     answer_words = getStrippedAnswerWords(question.answers[0])
     if(len(answer_words) == 1):
         #single blank answer
-        return sentenceModel(glove, question, distfunc, threshold)
+        return sentenceModel(glove, question, distfunc, threshold, return_vec=return_vec)
     elif(len(answer_words) == 2):    
         #double blank answer
         elimination_mode = getDoubleBlankEliminationMode(question) #step 1: use clue words to determine which answers to eliminate (similar or different)
         if elimination_mode == "neutral":
-            return sentenceModel(glove, question, distfunc, threshold)
+            return sentenceModel(glove, question, distfunc, threshold, return_vec=return_vec)
         else:
             return getMaxDoubleBlankAnswer(glove, elimination_mode, question)
             
@@ -162,10 +174,10 @@ def bigramModel(unigrams, bigrams, question, distfunc=cosine, threshold=2):
 
 vsm_models = [
     ("Sentence", sentenceModel),
-    ("Distance Model", distanceModel),
+    #("Distance Model", distanceModel),
     ("Weighted VSM", weightedSentenceModel),
     ("Double Blank Combo VSM", doubleSentenceModel),
-    ("Double Blank Max VSM", doubleSentenceMaxModel),
+    #("Double Blank Max VSM", doubleSentenceMaxModel),
     ("Adjective Model", adjectiveModel),
     ("Noun Model", nounModel),
     ("Verb Model", verbModel),

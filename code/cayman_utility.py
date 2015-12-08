@@ -109,6 +109,8 @@ def loadQuestions(directory="../data/train/"):
         files = getRecursiveFiles(directory, lambda x: x[x.rfind("/") + 1] != "." and ".txt" in x and x[-1] != '~' and "norvig" not in x.lower());
     return [Question(text) for filename in files for text in readFile(filename).split("\n\n") ];
 
+global save
+save = True
 
 # Returns (unigram_dict, bigram_dict, trigram_dict)
 def getGrams(path="../data/Holmes_Training_Data/"):
@@ -146,11 +148,33 @@ def getGrams(path="../data/Holmes_Training_Data/"):
             # savePickle(c.total, "../data/languagemodels/c-total.pickle")
     return u, b, c
 
+
+def distanceSingleWords(glove, given_vector, given_answer, distfunc=cosine):
+    answer_words = getStrippedAnswerWords(given_answer)
+    vec = None
+    if(len(answer_words) == 1):
+        # Single word answer
+        vec = glove.getVec(answer_words[0]);
+
+        # Compound answer, adding the vector
+        if(any(x in answer_words[0] for x in ['\'','-'])): vec = glove.getSumVec(re.split('[\'\-]', answer_words[0]));
+    else:
+        # Double answer question type
+        vec = glove.getAverageVec(filter(lambda y: len(y) > 0, map(lambda x: x.strip(), answer_words[0])));
+
+    # Glove does not have the answer in its vocabulary
+    # i.e. we shouldn't answer the question because we don't know what an answer means
+    if(vec is None):
+        return None
+    return distfunc(given_vector, vec)
+
+
 # Given a list of possible answers (in text form), it finds the closest answer to the target vector
 # 
 # 
 # Returns (-1, inf) if none of the answers fall within the threshold or if an answer we don't understand
 # Returns (text form of answer, distance our target vector is from answer)
+# If return_vec is True returns (best_vector, distance our target vector is from answer)
 def findBestVector(glove, targetvec, answers, distfunc, threshold):
     ind, mindist = -1, 10e100;
     for i,answer in enumerate(answers):
@@ -174,8 +198,10 @@ def findBestVector(glove, targetvec, answers, distfunc, threshold):
 
         if( distfunc(vec, targetvec) < min(mindist, threshold) ):
             ind, mindist = i, distfunc(vec, targetvec);
+
     if (ind == -1):
         return (-1, mindist)
+
     return (answers[ind], mindist);
 
 # Given a question's text answers, returns a list of words (either 1 or 2) that the answer is
