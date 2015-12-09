@@ -92,7 +92,7 @@ def sentenceModel(glove, question, distfunc=cosine, threshold=2, tvec=False, uni
 
 # Averages words in sentence, weighted by unigrams and uses it as guess to what should be in blank
 def weightedSentenceModel(glove, question, unigrams=None, distfunc=cosine, threshold=2, tvec=False):
-    return sentenceModel(glove, question, distfunc, threshold)
+    return sentenceModel(glove, question, distfunc, threshold, tvec, unigrams)
 
 
 # If double-blank sentence, tries to eliminate answers and use sentence model on new questions
