@@ -24,10 +24,6 @@ algorithms = [
 		]
 
 
-# question + answer = right fit?
-
-
-
 # Create dataset of (X, y) where X is questions, y is labels.
 #	 In this case, y is the label of which algorithm to use to answer the question based on
 #	 sentence features.
@@ -158,7 +154,7 @@ def train(phi, y):
 # Evaluate the ML algorithms on the trained algorithms
 def evaluateML(phi, y):
 	for algorithm, name in algorithms:
-		print '{0}{1}: {2}'.format(name, ' '*(36 - len(name)), str(algorithm.score(phi, y)));
+		print '{0}{1}: {2}'.format(name, ' '*(37 - len(name)), str(algorithm.score(phi, y)));
 
 
 
