@@ -14,6 +14,11 @@ import scoring
 import numpy
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.svm import SVC
+import warnings
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 algorithms = [
@@ -72,9 +77,9 @@ def generateDataset(datafile):
 			#if(question.getCorrectWord() == guess and dist < smallestDistance):
 			#	bestModel, smallestDistance = name, dist
 
-		# At this point, we've tried all the models and we have the best model that performed
-		# on that question with the distance it got
-		y.append(bestModel);
+        # At this point, we've tried all the models and we have the best model that performed
+        # on that question with the distance it got
+        y.append(bestModel);
 
 	# Save the X,y pair so we don't have to generate the dataset again
     savePickle( (questions, y), generatedFile)
@@ -95,7 +100,7 @@ def featurize(q):
 	# Constants defining features
     SUPPORT_WORDS = ["moreover", "besides", "additionally", "furthermore", "in fact", "and", "therefore"]
     CONTRAST_WORDS = ["although", "however", "rather than", "nevertheless", "whereas", "on the other hand", "but"]
-    NUM_FEATURES = 24
+    NUM_FEATURES = 23
     NOUNS_INDEX = 0
     ADJECTIVES_INDEX = 1
     VERBS_INDEX = 2
@@ -124,8 +129,8 @@ def featurize(q):
     sentence = q.getSentence()
 
 	# Features to be returned
-    #features = [0]*NUM_FEATURES
-    features = {}
+    features = [0]*NUM_FEATURES
+    #features = {}
 
 	# Part of Speech vectors defined in cayman_utility.py
     nouns, verbs, adjectives = getPOSVecs(sentence)
@@ -142,7 +147,7 @@ def featurize(q):
     features[EXCLAMATION_INDEX] = q.text.count('!')
     features[PERIOD_INDEX] = q.text.count('.')
 
-    features[CAPITAL_WORDS_INDEX] = len(filter(lambda x: len(x) > 0 and x[0].isalpha() and x[0].isupper(), sentence)) - 1;
+    features[CAPITAL_WORDS_INDEX] = len(filter(lambda x: len(x) > 0 and x[0].isalpha() and x[0].isupper(), q.text.split())) - 1;
 
     # Get average word lengths and variances
     avg_answer_length = numpy.mean([len(word) for word in q.answers])
@@ -159,11 +164,11 @@ def featurize(q):
     features[BIGRAM_I] = bigrams.score(q.getSentence())
 
     # Words:
-    for word in sentence:
-        if word in features:
-            features[word] += 1
-        else:
-            features[word] = 1
+    #for word in sentence:
+    #    if word in features:
+    #        features[word] += 1
+    #    else:
+    #        features[word] = 1
 
     
 
@@ -256,13 +261,12 @@ def main():
     # Create or Load the dataset in -- X is array of questions, y is labels (name of model to use)
     inform("Generating/Loading dataset...");
     X, y = generateDataset("../data/cayman_all_training.txt");
-
     # Convert array of Questions (X) into sentence features phi(X)
     inform("Featurizing all " + str(len(X)) + " questions...");
     phi = map(lambda x: featurize(x), X);
-
-    v = DictVectorizer(sparse=False)
-    phi = v.fit_transform(phi)
+    
+    #v = DictVectorizer(sparse=False)
+    #phi = v.fit_transform(phi)
 
     # Split into train/dev
     split = len(X) - len(X)/10;
@@ -270,7 +274,7 @@ def main():
     train_questions, dev_questions = X[:split], X[split:];
     train_features, dev_features = phi[:split], phi[split:];
     train_labels, dev_labels = y[:split], y[split:];
-
+    
     inform("Training Machine Learning algorithms...");
     train(train_features, train_labels);
 
@@ -292,6 +296,6 @@ if __name__ == "__main__":
     # Using standard glove for now to just get this working...
     inform("Finished importing! Loading Glove...");
     unigrams, bigrams, cgrams = getGrams(path="../data/Holmes_Training_Data/norvig.txt")
-    glove = Glove("../data/glove_vectors/glove.6B.50d.txt", delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
+    glove = Glove("../data/glove_vectors/glove.6B.300d.txt", delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
 
     main();
