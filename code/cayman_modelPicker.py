@@ -11,12 +11,17 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import BernoulliRBM
 from sklearn.pipeline import Pipeline
 import scoring
+import numpy
+from sklearn.feature_extraction import DictVectorizer
+from sklearn.svm import SVC
+
 
 algorithms = [
 		  (RandomForestClassifier(max_depth=5, n_jobs=-1, n_estimators=10, max_features=10), "Random Forest"),
 		  (GaussianNB(), "Gaussian Naive Bayes"),
 		  (LogisticRegression(), "Logistic Regression"),
 		  (LinearSVC(), "Support Vector Machine"),
+          (SVC(kernel='rbf'), "Support Vector MAchine Radial Kernel"),
 		  (DecisionTreeClassifier(max_depth=10), "Decision Tree"),
 		  (QDA(), "QDA"),
 		  (GradientBoostingClassifier(), "BOOSTING!!!"),
@@ -32,42 +37,48 @@ algorithms = [
 #	 In this case, y is the label of which algorithm to use to answer the question based on
 #	 sentence features.
 def generateDataset(datafile):
-	generatedFile = "../data/cayman_distance_data/distanceDataset.pickle"
-
+    generatedFile = "../data/cayman_sentence_data/sentenceDataset.pickle"
+    print generatedFile
 	# No need to generate twice. 
-	if(isfile(generatedFile)):
-		return loadPickle(generatedFile);
+    if(isfile(generatedFile)):
+        return loadPickle(generatedFile);
 
 	# If we haven't generated the dataset yet
-	questions = loadQuestions(datafile);
+    questions = loadQuestions(datafile);
 
 	# For now, we will use regular parameters to generate dataset.
 	# The y will be the name of the model who gets it closest.
-	y = [];
-	for question in questions:
+    y = [];
+    for question in questions:
 		# For every question, we're evaluating all the models
 		# and we're choosing the model who most confidently gets it (smallest distance)
-		bestModel, smallestDistance = "No model", 2
+        bestModel, smallestDistance = "No model", 2
 
-		for name, model in models.vsm_models:
-			# What the model guesses and the distance it thinks the perfect answer is from
-			# the given answers in the SAT qustion
-			guess, dist = model(glove, question);
+        for name, model in models.targetvec_models:
+            # What the model guesses and the distance it thinks the perfect answer is from
+            # the given answers in the SAT qustion
+            guess = model(glove, question, tvec=True);
+            
+            # Model failed at guessing question
+			#if(guess == -1 or guess == None): continue;
+            if (guess == None or isinstance(guess, tuple)): continue;
+            
+            answer_dist = distanceSingleWords(glove, guess, question.getCorrectWord())
 
-			# Model failed at guessing question
-			if(guess == -1 or guess == None): continue;
+            if answer_dist != None and answer_dist < smallestDistance:
+                bestModel, smallestDistance = name, answer_dist
 
-			# The model that gets the question right, and gets it best wins
-			if(question.getCorrectWord() == guess and dist < smallestDistance):
-				bestModel, smallestDistance = name, dist
+			## The model that gets the question right, and gets it best wins
+			#if(question.getCorrectWord() == guess and dist < smallestDistance):
+			#	bestModel, smallestDistance = name, dist
 
 		# At this point, we've tried all the models and we have the best model that performed
 		# on that question with the distance it got
 		y.append(bestModel);
 
 	# Save the X,y pair so we don't have to generate the dataset again
-	savePickle( (questions, y), generatedFile)
-	return (questions, y); 
+    savePickle( (questions, y), generatedFile)
+    return (questions, y); 
 		
 
 
@@ -80,61 +91,97 @@ def generateDataset(datafile):
 #	 about which model to use (i.e. the label, y).
 def featurize(q):
 
+
 	# Constants defining features
-	SUPPORT_WORDS = ["moreover", "besides", "additionally", "furthermore", "in fact", "and", "therefore"]
-	CONTRAST_WORDS = ["although", "however", "rather than", "nevertheless", "whereas", "on the other hand", "but"]
-	NUM_FEATURES = 15
-	NOUNS_INDEX = 0
-	ADJECTIVES_INDEX = 1
-	VERBS_INDEX = 2
-	NEGATION_INDEX = 3 # Currently do not support negation feature
-	SUPPORT_INDEX = 4
-	CONTRAST_INDEX = 5
-	SEMICOLON_INDEX = 6
-	TOTAL_WORDS_INDEX = 7
-	CAPITAL_WORDS_INDEX = 8
-	BLANK_POSITION_INDEX = 9
-	COMMAS_INDEX = 10
-	COLON_INDEX = 11
-	BLANK_PERCENT_INDEX = 12 # position of blank as percentage of total words
-	IS_DOUBLE = 13
-	EXCLAMATION_INDEX = 14
+    SUPPORT_WORDS = ["moreover", "besides", "additionally", "furthermore", "in fact", "and", "therefore"]
+    CONTRAST_WORDS = ["although", "however", "rather than", "nevertheless", "whereas", "on the other hand", "but"]
+    NUM_FEATURES = 24
+    NOUNS_INDEX = 0
+    ADJECTIVES_INDEX = 1
+    VERBS_INDEX = 2
+    NEGATION_INDEX = 3 # Currently do not support negation feature
+    SUPPORT_INDEX = 4
+    CONTRAST_INDEX = 5
+    SEMICOLON_INDEX = 6
+    TOTAL_WORDS_INDEX = 7
+    CAPITAL_WORDS_INDEX = 8
+    BLANK_POSITION_INDEX = 9
+    COMMAS_INDEX = 10
+    COLON_INDEX = 11
+    BLANK_PERCENT_INDEX = 12 # position of blank as percentage of total words
+    IS_DOUBLE = 13
+    EXCLAMATION_INDEX = 14
+    PERIOD_INDEX = 15
+    AVG_ANSWER_L = 16
+    AVG_WORD_L = 17
+    VAR_ANSWER_L = 18
+    VAR_WORD_L = 19
+    UNIGRAM_I = 20
+    BIGRAM_I = 21
+    BIAS = 22
 
 	# The sentence of the question in an array
-	sentence = q.getSentence()
+    sentence = q.getSentence()
 
 	# Features to be returned
-	features = [0]*NUM_FEATURES
+    #features = [0]*NUM_FEATURES
+    features = {}
 
 	# Part of Speech vectors defined in cayman_utility.py
-	nouns, verbs, adjectives = getPOSVecs(sentence)
+    nouns, verbs, adjectives = getPOSVecs(sentence)
 
-	features[NOUNS_INDEX] = len(nouns);
-	features[VERBS_INDEX] = len(verbs);
-	features[ADJECTIVES_INDEX] = len(adjectives);
-	features[TOTAL_WORDS_INDEX] = len(sentence);
-	features[SUPPORT_INDEX] = len(filter(lambda x: x in SUPPORT_WORDS, sentence));
-	features[CONTRAST_INDEX] = len(filter(lambda x: x in CONTRAST_WORDS, sentence));
-	features[COMMAS_INDEX] = 1 if "," in q.text else 0; # TODO: we could do count, not just indicator?
-	features[SEMICOLON_INDEX] = 1 if ";" in q.text else 0;
-	features[COLON_INDEX] = 1 if ":" in q.text else 0;
-	features[EXCLAMATION_INDEX] = 1 if "!" in q.text else 0;
-	features[CAPITAL_WORDS_INDEX] = len(filter(lambda x: len(x) > 0 and x[0].isalpha() and x[0].isupper(), sentence)) - 1;
+    features[NOUNS_INDEX] = len(nouns);
+    features[VERBS_INDEX] = len(verbs);
+    features[ADJECTIVES_INDEX] = len(adjectives);
+    features[TOTAL_WORDS_INDEX] = len(sentence);
+    features[SUPPORT_INDEX] = len(filter(lambda x: x in SUPPORT_WORDS, sentence));
+    features[CONTRAST_INDEX] = len(filter(lambda x: x in CONTRAST_WORDS, sentence));
+    features[COMMAS_INDEX] = q.text.count(',')
+    features[SEMICOLON_INDEX] = q.text.count(';')
+    features[COLON_INDEX] = q.text.count(':')
+    features[EXCLAMATION_INDEX] = q.text.count('!')
+    features[PERIOD_INDEX] = q.text.count('.')
 
-	# Get Double Blank and First Blank Position
-	try:
-		features[BLANK_POSITION_INDEX] = sentence.index('____')
-		features[BLANK_PERCENT_INDEX] = features[BLANK_POSITION_INDEX] * 1.0/ features[TOTAL_WORDS_INDEX]
-	except:
-		features[BLANK_POSITION_INDEX] = 0
-	try:
-		if sentence.count('____') > 1:
-			features[IS_DOUBLE] = 1
-	except:
-		features[IS_DOUBLE] = 0
+    features[CAPITAL_WORDS_INDEX] = len(filter(lambda x: len(x) > 0 and x[0].isalpha() and x[0].isupper(), sentence)) - 1;
 
-	return features
+    # Get average word lengths and variances
+    avg_answer_length = numpy.mean([len(word) for word in q.answers])
+    avg_sentence_length = numpy.mean([len(word) for word in sentence])
+    var_answer_length = numpy.var([len(word) for word in q.answers])
+    var_sentence_length = numpy.var([len(word) for word in sentence])
+    features[AVG_ANSWER_L] = avg_answer_length
+    features[AVG_WORD_L] = avg_sentence_length
+    features[VAR_ANSWER_L] = var_answer_length
+    features[VAR_WORD_L] = var_sentence_length
 
+    # N-gram features
+    features[UNIGRAM_I] = unigrams.score(q.getSentence())# TODO: Probs change
+    features[BIGRAM_I] = bigrams.score(q.getSentence())
+
+    # Words:
+    for word in sentence:
+        if word in features:
+            features[word] += 1
+        else:
+            features[word] = 1
+
+    
+
+    # Get Double Blank and First Blank Position
+    try:
+        features[BLANK_POSITION_INDEX] = sentence.index('____')
+        features[BLANK_PERCENT_INDEX] = features[BLANK_POSITION_INDEX] * 1.0/ features[TOTAL_WORDS_INDEX]
+    except:
+        features[BLANK_POSITION_INDEX] = 0
+    try:
+        if sentence.count('____') > 1:
+            features[IS_DOUBLE] = 1
+    except:
+        features[IS_DOUBLE] = 0
+
+    features[BIAS] = 1 # Bias Term
+
+    return features
 
 
 
@@ -206,41 +253,45 @@ def evaluateScore(questions, features, labels):
 # Main method
 def main():
 
-	# Create or Load the dataset in -- X is array of questions, y is labels (name of model to use)
-	inform("Generating/Loading dataset...");
-	X, y = generateDataset("../data/cayman_all_training.txt");
+    # Create or Load the dataset in -- X is array of questions, y is labels (name of model to use)
+    inform("Generating/Loading dataset...");
+    X, y = generateDataset("../data/cayman_all_training.txt");
 
-	# Convert array of Questions (X) into sentence features phi(X)
-	inform("Featurizing all " + str(len(X)) + " questions...");
-	phi = map(lambda x: featurize(x), X);
+    # Convert array of Questions (X) into sentence features phi(X)
+    inform("Featurizing all " + str(len(X)) + " questions...");
+    phi = map(lambda x: featurize(x), X);
 
-	# Split into train/dev
-	split = len(X) - len(X)/10;
-	inform("Splitting Data: " + str(split) + " questions in training and " + str(len(X) - split) + " in dev...");
-	train_questions, dev_questions = X[:split], X[split:];
-	train_features, dev_features = phi[:split], phi[split:];
-	train_labels, dev_labels = y[:split], y[split:];
+    v = DictVectorizer(sparse=False)
+    phi = v.fit_transform(phi)
 
-	inform("Training Machine Learning algorithms...");
-	train(train_features, train_labels);
+    # Split into train/dev
+    split = len(X) - len(X)/10;
+    inform("Splitting Data: " + str(split) + " questions in training and " + str(len(X) - split) + " in dev...");
+    train_questions, dev_questions = X[:split], X[split:];
+    train_features, dev_features = phi[:split], phi[split:];
+    train_labels, dev_labels = y[:split], y[split:];
 
-	inform("Training Error");
-	evaluateML(train_features, train_labels);
+    inform("Training Machine Learning algorithms...");
+    train(train_features, train_labels);
 
-	inform("Dev Error");
-	evaluateML(dev_features, dev_labels);
+    inform("Training Error");
+    evaluateML(train_features, train_labels);
 
-	inform("Evaluating Score of ML algorithms choosing models on Training Data");
-	evaluateScore(train_questions, train_features, train_labels);
+    inform("Dev Error");
+    evaluateML(dev_features, dev_labels);
 
-	inform("Evaluating Score of ML algorithms choosing models on Dev");
-	evaluateScore(dev_questions, dev_features, dev_labels);
+    inform("Evaluating Score of ML algorithms choosing models on Training Data");
+    evaluateScore(train_questions, train_features, train_labels);
+
+    inform("Evaluating Score of ML algorithms choosing models on Dev");
+    evaluateScore(dev_questions, dev_features, dev_labels);
 
 # Boilerplate code
 if __name__ == "__main__":
 
-	# Using standard glove for now to just get this working...
-	inform("Finished importing! Loading Glove...");
-	glove = Glove("../data/glove_vectors/glove.6B.50d.txt", delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
+    # Using standard glove for now to just get this working...
+    inform("Finished importing! Loading Glove...");
+    unigrams, bigrams, cgrams = getGrams(path="../data/Holmes_Training_Data/norvig.txt")
+    glove = Glove("../data/glove_vectors/glove.6B.50d.txt", delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
 
-	main();
+    main();
