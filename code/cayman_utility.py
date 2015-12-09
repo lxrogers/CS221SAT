@@ -110,6 +110,9 @@ def loadQuestions(directory="../data/train/"):
     return [Question(text) for filename in files for text in readFile(filename).split("\n\n") ];
 
 
+global save
+save = True
+
 # Returns (unigram_dict, bigram_dict, trigram_dict)
 def getGrams(path="../data/Holmes_Training_Data/"):
     loadFile = "../data/languagemodels"
@@ -145,6 +148,26 @@ def getGrams(path="../data/Holmes_Training_Data/"):
             # savePickle(c.continuationProb, "../data/languagemodels/c-continuationProb.pickle")
             # savePickle(c.total, "../data/languagemodels/c-total.pickle")
     return u, b, c
+
+
+def distanceSingleWords(glove, given_vec, given_answer, distfunc=cosine):
+    vec = None;
+    answer_words = getStrippedAnswerWords(given_answer)
+    if(len(answer_words) == 1):
+        vec = glove.getVec(answer_words[0]);
+
+        # Compound answer, adding the vector
+        if(any(x in answer_words[0] for x in ['\'','-'])): vec = glove.getSumVec(re.split('[\'\-]', answer_words[0]));
+    else:
+        # Double answer question type
+        vec = glove.getAverageVec(filter(lambda y: len(y) > 0, map(lambda x: x.strip(), answer_words[0])));
+
+    # Glove does not have the answer in its vocabulary
+    # i.e. we shouldn't answer the question because we don't know what an answer means
+    if(vec is None):
+        return 2
+    return distfunc(vec, given_vec)
+    
 
 # Given a list of possible answers (in text form), it finds the closest answer to the target vector
 # 
