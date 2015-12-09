@@ -1,47 +1,56 @@
 from cayman_utility import *
-import cayman_models
+from cayman_models import *
 from Glove import *
 from Question import *
 import scoring
 
-def score(question_dir = "../data/dev_set/devset_65questions.txt", glove_file="../data/glove_vectors/glove.6B.300d.txt"):
+# Script to analyze our elementary models on the dev set and test set
 
-	print "Loading Questions"
-	questions = loadQuestions(question_dir)
-	
-	print "Total Questions: " , len(questions)
-	print "Loading Glove THREE HUNDRED"
-	glove = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False)
 
-	models = [
-		("Sentence", cayman_models.sentenceModel),
-        ("Distance Model", cayman_models.distanceModel),
-        ("Weighted VSM", cayman_models.weightedSentenceModel),
-        ("Double Blank Combo VSM", cayman_models.doubleSentenceModel),
-        ("Double Blank Max VSM", cayman_models.doubleSentenceMaxModel),
-        ("Adjective Model", cayman_models.adjectiveModel),
-        ("Noun Model", cayman_models.nounModel),
-        ("Verb Model", cayman_models.verbModel)
-	]
+def score(question_dir = "../data/cayman_all_training.txt", glove_file="../data/glove_vectors/glove.6B.300d.txt", ngram_path="../data/Holmes_Training_Data/norvig.txt", dev=True):
+    print "Training N-Grams"
+    unigrams, bigrams, cgrams = getGrams(path=ngram_path)
 
-	total = 100#len(questions) * len(models)
-	for model in models:
-		print "Scoring ", model[0]
-		count = 0
-		answer_guess_pairs = []
-		for question in questions:
-			guess = model[1](glove, question)[0]
-			answer = question.getCorrectWord()
-			answer_guess_pairs.append((guess, answer))
-			count += 1
+    print "Loading Questions"
+    questions = loadQuestions(question_dir)
+    eval_qs = None
+    if dev:
+        # Split into train/dev
+        split = len(questions) - len(questions)/10;
+        inform("Splitting Data: " + str(split) + " questions in training and " + str(len(questions) - split) + " in dev...");
+        train_questions, eval_qs = questions[:split], questions[split:];
+    else:
+        eval_qs = questions
 
-			if (len(answer_guess_pairs) > 100):
-				break;
-			if count % (total / 100) == 0:
-				print round(count * 1.0 / total, 2), "% ", 
+    print "Loading Glove"
+    glove = Glove(glove_file, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False)
 
-		print "\n\n"
-		scoring.score_model(answer_guess_pairs, True, model[0])
-		#create answer, geuss pair for each model
+    for name, model in vsm_models:
+        print "Scoring ", name
+        answer_guess_pairs = []
+        for question in eval_qs:
+            guess = None
+            if name == "Weighted VSM":
+                guess = model(glove, question, unigrams)[0]
+            else:
+                guess = model(glove, question)[0]
+            answer = question.getCorrectWord()
+            answer_guess_pairs.append((guess, answer))
+		
+        print "\n\n"
+        scoring.score_model(answer_guess_pairs, verbose=True, modelname=name)
+        #create answer, geuss pair for each model
 
-score("../data/cayman_all_training.txt")
+    for name, model in language_models:
+        print "Scoring ", name
+        answer_guess_pairs = []
+        for question in eval_qs:
+            guess = model(unigrams, bigrams, question)[0]
+            answer = question.getCorrectWord()
+            answer_guess_pairs.append((guess, answer))
+		
+        print "\n\n"
+        scoring.score_model(answer_guess_pairs, verbose=True, modelname=name)
+        #create answer, geuss pair for each model
+
+score()
