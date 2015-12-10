@@ -50,7 +50,7 @@ def generateDataset(datafile):
 	# For now, we will use regular parameters to generate dataset.
 	# The y will be the name of the model who gets it closest.
 	X, y = [], [];
-	for question in questions[:250]:
+	for question in questions:
 		for i, answer in enumerate(question.answers):
 			X.append( (answer, question) );
 			y.append(1 if i == question.correctAnswer else 0);
