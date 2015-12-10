@@ -36,4 +36,10 @@ class UnigramModel:
 
     # Returns probability of the sentence naturally occuring
     def score(self, sentence):
-        return sum(math.log(self.unigramProbs[word if word in self.unigramProbs else "<UNK"]) for word in sentence);
+        s = 0;
+        for word in sentence:
+            if(word in self.unigramProbs):
+                s += math.log(self.unigramProbs[word]);
+            else:
+                s += math.log(self.unigramProbs["<UNK>"]);
+        return s;
