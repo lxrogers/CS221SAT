@@ -44,7 +44,7 @@ def score(question_dir = "../data/cayman_all_training.txt", glove_file="../data/
             if name == "Weighted VSM":
                 guess = model(glove, question, unigrams)[0]
             else:
-                guess = model(glove, question)[0]
+                guess = model(glove, question, threshold=.95)[0]
 
             # Get the correct answer
             answer = question.getCorrectWord()

@@ -36,7 +36,7 @@ warnings.filterwarnings("ignore", category=UnicodeWarning)
 
 # ML algorithms we'll be testing
 algorithms = [
-		  (RandomForestClassifier(max_depth=5, n_jobs=-1, n_estimators=10, max_features=10), "Random Forest"),
+		  (RandomForestClassifier(max_depth=5, n_jobs=-1, n_estimators=10, max_features=6), "Random Forest"),
 		  (GaussianNB(), "Gaussian Naive Bayes"),
 		  (LogisticRegression(), "Logistic Regression"),
 		  (LinearSVC(), "Support Vector Machine"),
@@ -207,9 +207,9 @@ def featurize(q):
     features[MIN_TOTAL_DIST] = min(getDist(q.getSentence(), answer) for answer in q.answers)
     features[MAX_TOTAL_DIST] = min(getDist(q.getSentence(), answer) for answer in q.answers)
     
-    for i in range(1, len(features)):
-        for j in range(i+1, len(features)):
-            features.append(features[i]*features[j])
+    #for i in range(1, len(features)):
+    #    for j in range(i+1, len(features)):
+    #        features.append(features[i]*features[j])
 
     return features
 
@@ -316,8 +316,9 @@ def main(dev=True):
         inform("Evaluating Score of ML algorithms choosing models on Dev");
         evaluateScore(dev_questions, dev_features, dev_labels);
     else:
-        t_X, t_y = generateDataset("../data/test/test_sat.txt", dev=False)
-        inform("Featurizing all " + str(len(X)) + " test questions...");
+        inform("Generating Test Datset")
+        t_X, t_y = generateDataset("../data/test/com_sat_test.txt", dev=False)
+        inform("Featurizing all " + str(len(t_X)) + " test questions...");
         t_phi = map(lambda x: featurize(x), t_X);
         inform("Evaluating Score of ML algorithms choosing models on Test");
         evaluateScore(t_X, t_phi, t_y);
@@ -329,6 +330,6 @@ if __name__ == "__main__":
     # Using standard glove for now to just get this working...
     inform("Finished importing! Loading Glove...");
     unigrams, bigrams, cgrams = getGrams(path="../data/Holmes_Training_Data/norvig.txt")
-    glove = Glove("../data/glove_vectors/glove.6B.100d.txt", delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
+    glove = Glove("../data/glove_vectors/glove.6B.300d.txt", delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
 
-    main();
+    main(dev=False);
