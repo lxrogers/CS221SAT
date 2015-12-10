@@ -1,11 +1,10 @@
-In retrospect, the presidency of Dwight Eisenhower is preceived as ____ period because it was relatively free of domestic turmoil
+In retrospect, the presidency of Dwight Eisenhower is perceived as ____ period because it was relatively free of domestic turmoil
 a tranquil
 an intractable
 a dire
 a convergent
 a vanquished
 0
-
 
 The two astronomers who simultaneously discovered Comet Hale-Bopp were ____: individuals pursuing astronomy as an interest, not as a profession.
 researchers
@@ -23,7 +22,7 @@ endorsed,tyranny
 derided,meddling
 4
 
-The two friends occasinally indulged in ____, as they both enjoyed a bout of good-natured teasing.
+The two friends occasionally indulged in ____, as they both enjoyed a bout of good-natured teasing.
 banter
 libel
 bombast
@@ -41,7 +40,7 @@ underachiever,moderate
 
 The passengers experienced an intimacy not uncommon among vacationers spending days together, an intimacy more often due to ____ than to any community of taste
 proximity
-compativility
+compatibility
 affluence
 finesse
 recalcitrance
@@ -87,15 +86,14 @@ imperturbable
 cynical
 3
 
-Writing in a straightforward as opposed to ____ style, the author produced ____ argument that shed new light on a controversial topic
-an intricate, a trivial
-a stilted, a nonsensical
-a convoluted, a lucid
-a candid, a poignant
-an austere, a sweeping
+Writing in a straightforward as opposed to ____ style, the author produced ____ argument that shed new light on a controversial topic.
+an intricate,a trivial
+a stilted,a nonsensical
+a candid,a poignant
+an austere,a sweeping
 2
 
-The scientist ____ the value of an interdisciplinary approach to environmental studies, arguing such an approach was of ____importance in promoting enviromental literacy among students.
+The scientist ____ the value of an interdisciplinary approach to environmental studies, arguing such an approach was of ____ importance in promoting environmental literacy among students.
 invoked, marginal
 touted, paramount
 ignored, unprecedented
@@ -103,7 +101,7 @@ disparaged, unparalleled
 extolled, questionable
 1
 
-In Dorothy West’s novel The Living Is Easy, the main character feels ____ by her father’s authority, resenting his attempts to check her .
+In Dorothy West’s novel The Living Is Easy, the main character feels ____ by her father’s authority, resenting his attempts to check her ____.
 favored,growth
 fascinated,anger
 trapped,patience
@@ -111,7 +109,7 @@ revived,energy
 limited,independence
 4
 
-Believing that the problem could be solved if enough information were garnered, the scienteist vowed to ____her research as long as some ____of obtaining additional data existed.
+Believing that the problem could be solved if enough information were garnered, the scientist vowed to ____ her research as long as some ____of obtaining additional data existed.
 persevere in, likelihood
 dispense with, pretext
 minimize, prospect
