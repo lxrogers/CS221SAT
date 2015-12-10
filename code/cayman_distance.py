@@ -75,8 +75,8 @@ def featurize(X):
     if(isfile(featureFile)):
         return loadPickle(featureFile);
 
-	weightings = ["pmi", "ppmi", "tfidf", "None"];
-    #weightings = ["tfidf", "None"];
+	#weightings = ["pmi", "ppmi", "tfidf", "None"];
+    weightings = ["tfidf", "None", "pmi", "ppmi"];
     lsa = []; #[250,100,50,25]
 
     features = [[1]]*len(X); # Starting out with bias features
