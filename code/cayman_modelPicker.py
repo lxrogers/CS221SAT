@@ -316,7 +316,7 @@ def main(dev=True):
         inform("Evaluating Score of ML algorithms choosing models on Dev");
         evaluateScore(dev_questions, dev_features, dev_labels);
     else:
-        t_X, t_y = generateDataset("../data/test/test_sat.txt")
+        t_X, t_y = generateDataset("../data/test/test_sat.txt", dev=False)
         inform("Featurizing all " + str(len(X)) + " test questions...");
         t_phi = map(lambda x: featurize(x), t_X);
         inform("Evaluating Score of ML algorithms choosing models on Test");
