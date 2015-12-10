@@ -19,6 +19,7 @@ import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=UnicodeWarning)
 
 
 algorithms = [
@@ -96,7 +97,7 @@ def featurize(q):
 	# Constants defining features
     SUPPORT_WORDS = ["moreover", "besides", "additionally", "furthermore", "in fact", "and", "therefore"]
     CONTRAST_WORDS = ["although", "however", "rather than", "nevertheless", "whereas", "on the other hand", "but"]
-    NUM_FEATURES = 23
+    NUM_FEATURES = 29
     NOUNS_INDEX = 0
     ADJECTIVES_INDEX = 1
     VERBS_INDEX = 2
@@ -120,13 +121,19 @@ def featurize(q):
     UNIGRAM_I = 20
     BIGRAM_I = 21
     BIAS = 22
+    MIN_DIST_BEFORE = 23
+    MAX_DIST_BEFORE = 24
+    MIN_DIST_AFTER = 25
+    MAX_DIST_AFTER = 26
+    MIN_TOTAL_DIST = 27
+    MAX_TOTAL_DIST = 28
+
 
 	# The sentence of the question in an array
     sentence = q.getSentence()
 
 	# Features to be returned
     features = [0]*NUM_FEATURES
-    #features = {}
 
 	# Part of Speech vectors defined in cayman_utility.py
     nouns, verbs, adjectives = getPOSVecs(sentence)
@@ -159,15 +166,6 @@ def featurize(q):
     features[UNIGRAM_I] = unigrams.score(q.getSentence())# TODO: Probs change
     features[BIGRAM_I] = bigrams.score(q.getSentence())
 
-    # Words:
-    #for word in sentence:
-    #    if word in features:
-    #        features[word] += 1
-    #    else:
-    #        features[word] = 1
-
-    
-
     # Get Double Blank and First Blank Position
     try:
         features[BLANK_POSITION_INDEX] = sentence.index('____')
@@ -181,6 +179,19 @@ def featurize(q):
         features[IS_DOUBLE] = 0
 
     features[BIAS] = 1 # Bias Term
+
+    def getDist(array, word):
+    	ave = glove.getAverageVec(array);
+    	ans = glove.getVec(word);
+    	if(ave == None or ans == None or len(ave) != len(ans)): return 2;
+    	else: return cosine(ave, ans);
+
+    features[MIN_DIST_BEFORE] = min(getDist(q.getSentence()[:features[BLANK_POSITION_INDEX]], answer) for answer in q.answers)
+    features[MAX_DIST_BEFORE] = max(getDist(q.getSentence()[:features[BLANK_POSITION_INDEX]], answer) for answer in q.answers)
+    features[MIN_DIST_AFTER] = min(getDist(q.getSentence()[features[BLANK_POSITION_INDEX]:], answer) for answer in q.answers)
+    features[MAX_DIST_AFTER] = max(getDist(q.getSentence()[features[BLANK_POSITION_INDEX]:], answer) for answer in q.answers)
+    features[MIN_TOTAL_DIST] = min(getDist(q.getSentence(), answer) for answer in q.answers)
+    features[MAX_TOTAL_DIST] = min(getDist(q.getSentence(), answer) for answer in q.answers)
 
     return features
 
