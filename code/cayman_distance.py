@@ -12,6 +12,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import BernoulliRBM
 from sklearn.pipeline import Pipeline
 import scoring
+import math
 
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -68,44 +69,54 @@ def generateDataset(datafile):
 #	 for training. We use many basic sentence features to try to gain the most information
 #	 about which model to use (i.e. the label, y).
 def featurize(X):
-	featureFile = "../data/cayman_distance_data/featureDataset.pickle";
-	gloveFile = "../data/glove_vectors/glove.6B.50d.txt";
+    featureFile = "../data/cayman_distance_data/featureDataset.pickle";
+    gloveFile = "../data/glove_vectors/glove.6B.300d.txt";
 
-	if(isfile(featureFile)):
-		return loadPickle(featureFile);
+    if(isfile(featureFile)):
+        return loadPickle(featureFile);
 
-	weightings = ["pmi", "ppmi", "tfidf", "None"];
-	lsa = []; #[250,100,50,25]
+	#weightings = ["pmi", "ppmi", "tfidf", "None"];
+    weightings = ["tfidf", "None", "pmi", "ppmi"];
+    lsa = []; #[250,100,50,25]
 
-	features = [[1]]*len(X); # Starting out with bias features
+    features = [[1]]*len(X); # Starting out with bias features
 
-	# For every type of weighting for the glove vectors
-	for weighting in weightings:
+    # For every type of weighting for the glove vectors
+    for weighting in weightings:
 
-		# Load the glove vector (once)
-		print "Featurizing with glove with weight " + weighting + "...";
-		glove =  Glove(gloveFile, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, weighting=weighting, v=False);
+        # Load the glove vector (once)
+        print "Featurizing with glove with weight " + weighting + "...";
+        glove = None
+        if weighting == "None":
+            glove = Glove(gloveFile, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
+        else:
+            glove =  Glove(gloveFile, delimiter=" ", header=False, quoting=csv.QUOTE_NONE, weighting=weighting, v=False);
 
 		# For every type of model
-		for name, model in models.targetvec_models:
-
+        for name, model in models.targetvec_models:
+            if (name == "Weighted VSM"): continue;
 			# For every type of distance metric
-			for distance, dist_name in models.distances:
+            for distance, dist_name in models.distances:
 
 				# For every answer/question combo
-				for i, (answer, question) in enumerate(X):
-					answervec = glove.getVec(answer);
-					targetvec = model(glove, question, tvec=True)
-					if(answervec == None or targetvec == None or len(answervec) != targetvec):
-						features[i] += [float('inf')];
-					else:
-						d = distance(targetvec, answervec);
-						features[i] += [d if not d.isnan() else float('inf')]
+                for i, (answer, question) in enumerate(X):
+
+                    targetvec = model(glove, question, tvec=True)
+                    if (targetvec == None or isinstance(targetvec, tuple)):
+                        features[i].append(2)
+                    else:
+                        answer_dist = distanceSingleWords(glove, targetvec, answer, distance)
+                        features[i].append(answer_dist if not math.isnan(answer_dist) else 2)
+                    #if(answervec == None or targetvec == None or len(answervec) != targetvec):
+				    #	features[i] += [float('inf')];
+					#else:
+					#	d = distance(targetvec, answervec);
+					#	features[i] += [d if not d.isnan() else float('inf')]
 
 
 
-	savePickle(features, featureFile);
-	return features
+    savePickle(features, featureFile);
+    return features
 
 
 
@@ -141,30 +152,26 @@ def evaluateML(phi, y):
 
 
 # Tests the ML algorithm's model choice on questions
-def evaluateScore(questions, features, labels):
-	vsm_models = dict(models.vsm_models);
+def evaluateScore(pairs, features, labels):
+    vsm_models = dict(models.vsm_models);
 
 	# For every ML Algorithm we trained...
-	for algorithm, name in algorithms:
-
-		# Go through and using the model it thinks will guess right, guess the question
-		guesses = [];
-		for question, phi, label in zip(questions, features, labels):
-
-			# The model the algorithm thinks we should use
-			prediction =  algorithm.predict(phi)[0];
-
-			# If we predict we can't get this question right
-			if(prediction == "No model"): guesses.append((-1, 0));
-			else:
-				# Get the model we're going to use
-				model = vsm_models[algorithm.predict(phi)[0]];
-
-				# Using the model to answer the question
-				guesses.append((model(glove, question)[0], question.getCorrectWord()));
-
+    for algorithm, name in algorithms:
+        num_eval = len(pairs)/5
+        guesses = [];
+        for i in range(num_eval):
+            correct = []
+            for (answer, question), phi, label in zip(pairs[i*5:i*5+5], features[i*5:i*5+5], labels[i*5:i*5+5]):
+                prediction =  algorithm.predict(phi)[0];
+                if prediction == 1:
+                    correct.append(answer)
+            # TODO: create parameter that determines when not to guess
+            if len(correct) == 0:
+                guesses.append((-1, 0));
+            else:
+                guesses.append((correct[0], question.getCorrectWord()))
 		# How did this ML algorithm do?
-		scoring.score_model(guesses, verbose=True, modelname=name);
+        scoring.score_model(guesses, verbose=True, modelname=name);
 
 
 
@@ -179,34 +186,35 @@ def evaluateScore(questions, features, labels):
 def main():
 
 	# Create or Load the dataset in -- X is array of questions, y is labels (name of model to use)
-	inform("Generating/Loading dataset...");
-	X, y = generateDataset("../data/cayman_all_training.txt");
+    inform("Generating/Loading dataset...");
+    X, y = generateDataset("../data/cayman_all_training.txt");
 
 	# Convert array of Questions (X) into sentence features phi(X)
-	inform("Featurizing all " + str(len(X)) + " questions...");
-	phi = featurize(X);
-
+    inform("Featurizing all " + str(len(X)) + " questions...");
+    phi = featurize(X);
+    
 	# Split into train/dev
-	split = len(X) - len(X)/10;
-	inform("Splitting Data: " + str(split) + " questions in training and " + str(len(X) - split) + " in dev...");
-	train_questions, dev_questions = X[:split], X[split:];
-	train_features, dev_features = phi[:split], phi[split:];
-	train_labels, dev_labels = y[:split], y[split:];
+    split = len(X) - len(X)/10;
+    inform("Splitting Data: " + str(split) + " questions in training and " + str(len(X) - split) + " in dev...");
+    train_questions, dev_questions = X[:split], X[split:];
+    train_features, dev_features = phi[:split], phi[split:];
+    train_labels, dev_labels = y[:split], y[split:];
+    
+    print len(dev_labels)/5
+    inform("Training Machine Learning algorithms...");
+    train(train_features, train_labels);
 
-	inform("Training Machine Learning algorithms...");
-	train(train_features, train_labels);
+    inform("Training Error");
+    evaluateML(train_features, train_labels);
 
-	inform("Training Error");
-	evaluateML(train_features, train_labels);
-
-	inform("Dev Error");
-	evaluateML(dev_features, dev_labels);
+    inform("Dev Error");
+    evaluateML(dev_features, dev_labels);
 
 	# inform("Evaluating Score of ML algorithms choosing models on Training Data");
-	# evaluateScore(train_questions, train_features, train_labels);
+    evaluateScore(train_questions, train_features, train_labels);
 
 	# inform("Evaluating Score of ML algorithms choosing models on Dev");
-	# evaluateScore(dev_questions, dev_features, dev_labels);
+    evaluateScore(dev_questions, dev_features, dev_labels);
 
 # Boilerplate code
 if __name__ == "__main__":
