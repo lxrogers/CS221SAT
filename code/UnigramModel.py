@@ -1,19 +1,24 @@
+#!/usr/bin/env python
+# Cayman Simpson (cayman@stanford.edu), Orry Despo (odespo@stanford.edu), Lawrence Rogers (lxrogers@stanford.edu)
+# CS221, Created: 10 October 2015
+# file: UnigramModel.py
+
 import math, collections
+
+# So that I can pickle unigramProbs and unigramCounts
 def zero_fn():
     return 0;
+
+# Unigram model with Laplacian smoothing
 class UnigramModel:
 
     def __init__(self):
-        """Initialize your data structures in the constructor."""
         self.unigramProbs = collections.defaultdict(zero_fn)
         self.unigramCounts = collections.defaultdict(zero_fn);
         self.total = 0;
 
+    # Train unigram model
     def train(self, corpus):
-        """ Takes a corpus and trains your language model. 
-            Compute any counts or other corpus statistics in this function.
-        """  
-
         for sentence in corpus:
             for word in sentence:
                 self.unigramCounts[word] = self.unigramCounts[word] + 1;
@@ -21,25 +26,14 @@ class UnigramModel:
 
         self.unigramCounts["<UNK>"] = 0;
 
+        # Laplacian Smoothing
         for key in self.unigramCounts:
             self.unigramProbs[key] = float(self.unigramCounts[key] + 1)/len(self.unigramCounts);
 
+    # Gets score of a word
     def getSingleNonLogScore(self, word):
-        """ Takes a word and returns the probability of that word. If not in the dictionary, uses <UNK>.
-        """
-        if word in self.unigramProbs:
-            return self.unigramProbs[word]
-        return self.unigramProbs["<UNK>"]
+            return self.unigramProbs[word] if word in self.unigramProbs else self.unigramProbs["<UNK>"]
 
+    # Returns probability of the sentence naturally occuring
     def score(self, sentence):
-        """ Takes a list of strings as argument and returns the log-probability of the 
-            sentence using your language model. Use whatever data you computed in train() here.
-        """
-        s = 0;
-        for word in sentence:
-            if(word in self.unigramProbs):
-                s += math.log(self.unigramProbs[word]);
-            else:
-                s += math.log(self.unigramProbs["<UNK>"]);
-
-        return s;
+        return sum(math.log(self.unigramProbs[word if word in self.unigramProbs else "<UNK"]) for word in sentences);

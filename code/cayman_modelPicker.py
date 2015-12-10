@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# Cayman Simpson (cayman@stanford.edu), Orry Despo (odespo@stanford.edu), Lawrence Rogers (lxrogers@stanford.edu)
+# CS221, Created: 10 October 2015
+# file: cayman_modelPicker.py
+
 import cayman_models as models
 from cayman_utility import *
 from sklearn.ensemble import RandomForestClassifier
@@ -16,12 +21,20 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.svm import SVC
 import warnings
 
+# Silence all warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UnicodeWarning)
 
+# Machine Learning algorithm that picks which of our VSM models to use
+# based on features of the question's sentence. 
+# 
+# The idea here being that certain models will perform better on certain sentences
+# (based off of findings from experiment 2 in experiments.py) and we need ML algorithms
+# to determine which sentences to to use which models on.
 
+# ML algorithms we'll be testing
 algorithms = [
 		  (RandomForestClassifier(max_depth=5, n_jobs=-1, n_estimators=10, max_features=10), "Random Forest"),
 		  (GaussianNB(), "Gaussian Naive Bayes"),
@@ -40,7 +53,7 @@ algorithms = [
 #	 sentence features.
 def generateDataset(datafile):
     generatedFile = "../data/cayman_sentence_data/sentenceDataset.pickle"
-    print generatedFile
+
 	# No need to generate twice. 
     if(isfile(generatedFile)):
         return loadPickle(generatedFile);
@@ -303,6 +316,6 @@ if __name__ == "__main__":
     # Using standard glove for now to just get this working...
     inform("Finished importing! Loading Glove...");
     unigrams, bigrams, cgrams = getGrams(path="../data/Holmes_Training_Data/norvig.txt")
-    glove = Glove("../data/glove_vectors/glove.6B.300d.txt", delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
+    glove = Glove("../data/glove_vectors/glove.6B.100d.txt", delimiter=" ", header=False, quoting=csv.QUOTE_NONE, v=False);
 
     main();

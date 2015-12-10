@@ -1,3 +1,4 @@
+# Imports
 import warnings
 import cayman_models as models
 from cayman_utility import *
@@ -14,11 +15,12 @@ from sklearn.pipeline import Pipeline
 import scoring
 import math
 
-
+# Filter out all the warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
+# All the ML algorithms we're going to try
 algorithms = [
 		  (RandomForestClassifier(max_depth=5, n_jobs=-1, n_estimators=10, max_features=10), "Random Forest"),
 		  (GaussianNB(), "Gaussian Naive Bayes"),
@@ -94,27 +96,29 @@ def featurize(X):
 
 		# For every type of model
         for name, model in models.targetvec_models:
+
+            # Weighted VSM is the same as Sentence VSM because we don't use unigram counts
             if (name == "Weighted VSM"): continue;
+
 			# For every type of distance metric
             for distance, dist_name in models.distances:
 
 				# For every answer/question combo
                 for i, (answer, question) in enumerate(X):
 
+                    # Get the vector that the model predicts should go in the blank
                     targetvec = model(glove, question, tvec=True)
+
+                    # If the answer is not in the Glove dictionary, we say it's max distance
                     if (targetvec == None or isinstance(targetvec, tuple)):
                         features[i].append(2)
+
+                    # If the distance is valid, we add it as a feature
                     else:
                         answer_dist = distanceSingleWords(glove, targetvec, answer, distance)
                         features[i].append(answer_dist if not math.isnan(answer_dist) else 2)
-                    #if(answervec == None or targetvec == None or len(answervec) != targetvec):
-				    #	features[i] += [float('inf')];
-					#else:
-					#	d = distance(targetvec, answervec);
-					#	features[i] += [d if not d.isnan() else float('inf')]
 
-
-
+    # Save our feature set
     savePickle(features, featureFile);
     return features
 
@@ -157,20 +161,32 @@ def evaluateScore(pairs, features, labels):
 
 	# For every ML Algorithm we trained...
     for algorithm, name in algorithms:
-        num_eval = len(pairs)/5
+
+        # For every question (it has 5 answers)
+        num_eval = len(pairs)/5;
         guesses = [];
         for i in range(num_eval):
             correct = []
+
+            # Go through each answer/question pair
             for (answer, question), phi, label in zip(pairs[i*5:i*5+5], features[i*5:i*5+5], labels[i*5:i*5+5]):
+
+                # Get prediction
                 prediction =  algorithm.predict(phi)[0];
+
+                # If we predict the answer is right
                 if prediction == 1:
                     correct.append(answer)
-            # TODO: create parameter that determines when not to guess
+            
+            # If we think no answer is right, we omit to answer the question
             if len(correct) == 0:
                 guesses.append((-1, 0));
+
+            # Otherwise, we choose the first model that gets the answer right
             else:
                 guesses.append((correct[0], question.getCorrectWord()))
-		# How did this ML algorithm do?
+
+		# How did this ML algorithm do? (Evaluation)
         scoring.score_model(guesses, verbose=True, modelname=name);
 
 

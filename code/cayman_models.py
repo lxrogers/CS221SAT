@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# Cayman Simpson (cayman@stanford.edu), Orry Despo (odespo@stanford.edu), Lawrence Rogers (lxrogers@stanford.edu)
+# CS221, Created: 10 October 2015
+# file: cayman_models.py
+
 from cayman_utility import *
 
 # All models take in a glove class
@@ -15,7 +20,7 @@ from cayman_utility import *
 #   and findBestVector in utility.py
 
 
-# Useful globals at bottom of file
+# Useful globals at bottom of file (because of function definition issues)
 
 
 #####################################################################################################################
@@ -145,13 +150,16 @@ def distanceModel(glove, question, distfunc=cosine, threshold=2, tvec=False):
             mindist, bestanswer = dist,answer
     return (bestanswer, mindist)
 
-
+# Laplacian Unigram Model (smoothed)
 def unigramModel(unigrams, bigrams, question, distfunc=cosine, threshold=2, tvec=False):
     return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: unigrams.score(x[1]));
 
+# Laplacian Bigram Model (smoothed)
 def bigramModel(unigrams, bigrams, question, distfunc=cosine, threshold=2, tvec=False):
     return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: bigrams.score(x[1]));
-# Not used -- too long to load
+
+
+# # Not used -- too long to load
 # def backOffModel(question, distfunc=cosine, threshold=2, tvec=False):
 #     if(not rev):
 #         return max([(question.answers[i], question.getFilledSentence(i)) for i in xrange(len(question.answers))], key=lambda x: backoff.score(x[1]));
@@ -165,6 +173,7 @@ def bigramModel(unigrams, bigrams, question, distfunc=cosine, threshold=2, tvec=
 #     return question.answers[random.randint(0,len(question.answers)) - 1];
 #     
 
+# All models that use VSMS (need glove)
 vsm_models = [
     ("Sentence", sentenceModel),
     ("Distance Model", distanceModel),
@@ -177,6 +186,7 @@ vsm_models = [
     ("Double Noun Model", doubleNounModel)
 ];
 
+# All models that work by predicting what word (VSM) should go in the blank
 targetvec_models = [
     ("Sentence", sentenceModel),
     ("Double Blank Combo VSM", doubleSentenceModel),
@@ -186,11 +196,15 @@ targetvec_models = [
     ("Double Noun Model", doubleNounModel)
 ];
 
+# Language models (N-gram) that use Laplacian Smoothing
+# Stupid Backoff should be in here, but took too long to load
 language_models = [
     ("Unigram", unigramModel),
     ("Bigram", bigramModel)
 ];
 
+# All our distance functions we used to determine distance in high-dimensional
+# space
 distances = [
     (kldist, "kldist"),
     (jsd, "jsd"),
@@ -198,5 +212,3 @@ distances = [
     (L2, "L2"),
     (jaccard, "jaccard")
 ];
-
-

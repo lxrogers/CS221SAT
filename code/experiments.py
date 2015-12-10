@@ -1,16 +1,27 @@
+#!/usr/bin/env python
+# Cayman Simpson (cayman@stanford.edu), Orry Despo (odespo@stanford.edu), Lawrence Rogers (lxrogers@stanford.edu)
+# CS221, Created: 10 October 2015
+# file: experiments.py
+
 from Question import *
 from cayman_utility import *
 from Glove import *
 from cayman_models import *
 
+# Runs experiments exploring our models and VSMS to see what approaches might be best.
+
+# Tokenizes String
 def convertStringToVec(string):
 	return map(lambda x: x.strip().lower(), filter(lambda x: len(x) > 0,  re.split("[^A-Za-z0-9_\']", string)));
 
 #let's find out if there are different parts of the sentence that match the CORRECT answer very well
 def experiment1(glove_file="../data/glove_vectors/glove.6B.100d.txt", question_dir="../data/all_sat/seven_sat_raw.txt"):
+
+	# Look at text before blank
 	def getBeforeBlankText(sentence):
 		return sentence[:sentence.find("____")]
 
+	# Look at text after blank
 	def getAfterBlankText(sentence):
 		return sentence[sentence.find("____") + len("____"):]
 
@@ -27,6 +38,7 @@ def experiment1(glove_file="../data/glove_vectors/glove.6B.100d.txt", question_d
 	print "Experimenting on 100 percent of questions" 
 	for i in range(int(math.floor(len(questions) * 1))):#change 1 to decimal to reduce amount of questions
 		question = questions[i]
+
 		#only want single blanks for now
 		if len(re.findall ( '____(.*?)____', question.text, re.DOTALL)) != 0:
 			continue
@@ -38,7 +50,8 @@ def experiment1(glove_file="../data/glove_vectors/glove.6B.100d.txt", question_d
 		before_vec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), getBeforeBlankText(question.text)))
 		after_vec = glove.getAverageVec(filter(lambda x: x not in stopwords.words('english'), getAfterBlankText(question.text)))
 		
-
+		# prints if using the sentence model (average of all sentence's VSMS) is less than
+		# both before and after
 		total_distance = cosine(answer_vec, total_vec)
 		before_distance = cosine(answer_vec, before_vec) if len(before_vec) > 2 else 2
 		after_distance = cosine(answer_vec, after_vec) if len(after_vec) > 2 else 2
@@ -72,6 +85,7 @@ def experiment2(glove_file="../data/glove_vectors/glove.6B.50d.txt", question_di
         else:
             singles.append(q)
 
+    # Maps the number of models that answered the question right to the number of questions that that happened to
     print "Looking at every question for every model"
     num_right = {}
     for q in doubles:
@@ -88,5 +102,6 @@ def experiment2(glove_file="../data/glove_vectors/glove.6B.50d.txt", question_di
         print models_right
     print num_right
 
+# Actually run the experiments down here
 #experiment1()
 experiment2()

@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# Cayman Simpson (cayman@stanford.edu), Orry Despo (odespo@stanford.edu), Lawrence Rogers (lxrogers@stanford.edu)
+# CS221, Created: 10 October 2015
+# file: scoring.py
+
+# Converstion table of raw score to SAT score by straight conversion of
+# raw score to standard deviation, as defined by the College Board guidelines
 SCORE_CONVERSION_TABLE = dict([(67, 800), (31, 500), (66, 800), (30, 500), 
                                (65, 800), (29, 490), (64, 790), (28, 480), 
                                (63, 770), (27, 480), (62, 760), (26, 470),
@@ -17,23 +24,41 @@ SCORE_CONVERSION_TABLE = dict([(67, 800), (31, 500), (66, 800), (30, 500),
                                (35, 530), (-1, 210), (34, 520), (-2, 200),
                                (33, 520), (32, 510)])
 
+# Scores a model based on its guesses
 def score_model(guess_answer_pairs, verbose=False, modelname="Name Not Given"):
+
+    # Print the model name
     if(verbose): print '\033[95mModel: ' + modelname + "\033[0m";
 
     num_correct = 0
     num_omitted = 0;
     unscaled_score = 0.0
+
+    # For every guess/gold answer pair, we keep track if we omit, get the answer correct
+    # or get the answer wrong
     for guess, answer in guess_answer_pairs:
+
+        # If we get the answer right, we adjust our counts based on SAT scoring guidelines
         if guess == answer:
             num_correct += 1
             unscaled_score += 1.0
+
+        # If we choose to omit the answer (by returing None or -1) we adjust our counts
+        # based on the SAT scoring guidelines
         elif guess == None or guess == -1:
             unscaled_score += 0.0
             num_omitted += 1;
+
+        # If we guess, but we get the answer wrong, we adjust our counts based on the
+        # SAT scoring guidelines
         else:
             unscaled_score -= 0.25
+
+    # We then scale our score
     scaled_score = scale_score(unscaled_score, len(guess_answer_pairs))
     score = SCORE_CONVERSION_TABLE[scaled_score]
+
+    # Print out the results of our guesses
     if(verbose):
         print "SAT SCORE: " + str(score)
         print "\tBreakdown:"
@@ -44,8 +69,13 @@ def score_model(guess_answer_pairs, verbose=False, modelname="Name Not Given"):
         print "\tConverted SAT Score: " + str(score) + "/800\n"
     return score
 
+# Used to check if our models can correctly guess a wrong answer. This comes from the idea that
+# even though our models may not be picking the right answer, they may be able to identify the wrong
+# answer. With the scoring of the SAT, if the model predicts the wrong answer, then random guessing
+# does not hurt your score (if you are choosing out of 4).
 def score_elimination_model(guess_answer_pairs, verbose=False, modelname="Name Not Given"):
     print '\033[95m Bad-Answer Predicting Model: ' + modelname + "\033[0m";
+
     num_correct = sum([1 if g == a else 0 for g,a in guess_answer_pairs]);
     num_wrong = sum([1 if g != a else 0 for g,a in guess_answer_pairs]);
 
@@ -56,6 +86,8 @@ def score_elimination_model(guess_answer_pairs, verbose=False, modelname="Name N
         print "\tNumber of Accidental Right Answers: " + str(num_correct) + "/" + str(len(guess_answer_pairs))
         print "\tPercent Accidental Right Answers: " + str(float(int(float(num_correct)/len(guess_answer_pairs)*10000))/100) + "%\n"
 
+# Scale the score to 67 questions, as if all the questions of the type answered by our models 
+# comprised the entire Critical Reading section of the SAT.
 def scale_score(unscaled_score, num_questions):
     float_scaled_score = (unscaled_score/num_questions)
     float_scaled_score *= (len(SCORE_CONVERSION_TABLE)-3) 

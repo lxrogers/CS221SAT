@@ -1,7 +1,12 @@
+#!/usr/bin/env python
+# Cayman Simpson (cayman@stanford.edu), Orry Despo (odespo@stanford.edu), Lawrence Rogers (lxrogers@stanford.edu)
+# CS221, Created: 10 October 2015
+# file: cayman_utility.py
+
+# Imports
 import scipy
 import itertools
 from sklearn import svm
-#from nltk.tag.stanford import POSTagger
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
 from nltk.corpus import gutenberg
@@ -25,6 +30,7 @@ import cPickle
 def loadPickle(filename):
     return cPickle.load(file(filename));
 
+# Saves a pickle file
 def savePickle(obj, filename):
     w = open(filename, 'wb'); # Saving in binary format
     cPickle.dump(obj, w, -1); # Using highest protocol
@@ -47,6 +53,7 @@ def error(msg, shouldExit):
     print '\033[91m' + msg + '\033[0m';
     if(shouldExit): sys.exit();
 
+# Prints out message in yellow
 def inform(msg):
     print '\033[93m' + str(msg) + '\033[0m';
 
@@ -101,6 +108,7 @@ def cosine(u, v):
 # =====================================================================================================================================================
 # =====================================================================================================================================================
 
+# Loads well-formed questions from either a file or all files in a directory
 def loadQuestions(directory="../data/train/"):
     files = []
     if(isfile(directory)):
@@ -109,11 +117,14 @@ def loadQuestions(directory="../data/train/"):
         files = getRecursiveFiles(directory, lambda x: x[x.rfind("/") + 1] != "." and ".txt" in x and x[-1] != '~' and "norvig" not in x.lower());
     return [Question(text) for filename in files for text in readFile(filename).split("\n\n") ];
 
-
+# We default to save all trained N-gram data
 global save
 save = True
 
 # Returns (unigram_dict, bigram_dict, trigram_dict)
+# This method trains from all the files in a directory, or from a certain file and saves them for future use.
+# If there is already saved data, we load that data for speed.
+# The Stupid Backoff model (which Google uses) is uncommented because of the size of the corpus
 def getGrams(path="../data/Holmes_Training_Data/"):
     loadFile = "../data/languagemodels"
     u = UnigramModel();
@@ -150,6 +161,7 @@ def getGrams(path="../data/Holmes_Training_Data/"):
     return u, b, c
 
 
+# Returns the distance between a given_vec and a given answer
 def distanceSingleWords(glove, given_vec, given_answer, distfunc=cosine):
     vec = None;
     answer_words = getStrippedAnswerWords(given_answer)
@@ -262,6 +274,8 @@ def answerWordDistance(glove, answer, distfunc=cosine):
         return .5
     return distfunc(vec1, vec2)
 
+# Given mode, which == support or negative, will return the double answer that has the biggest
+# distances between the double answer (for double answer questions only)
 def getMaxDoubleBlankAnswer(glove, mode, question, distfunc=cosine):
     distances = [(answer, answerWordDistance(glove, answer)) for answer in question.answers]
     if mode == "support":
@@ -269,7 +283,7 @@ def getMaxDoubleBlankAnswer(glove, mode, question, distfunc=cosine):
     else:
         return max(distances, key=lambda x: x[1])
 
-# Returns lists of nouns, verbs, and adjectives of sentence
+# Returns lists of nouns, verbs, and adjectives in the sentence (array of words)
 def getPOSVecs(sentence):
     nounVec = []
     verbVec = []

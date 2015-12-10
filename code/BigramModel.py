@@ -1,19 +1,23 @@
+#!/usr/bin/env python
+# Cayman Simpson (cayman@stanford.edu), Orry Despo (odespo@stanford.edu), Lawrence Rogers (lxrogers@stanford.edu)
+# CS221, Created: 10 October 2015
+# file: BigramModel.py
+
 import collections, math
+
+# So that I can pickle unigramCounts and bigram Counts
 def zero_fn():
     return 0;
+
+# Laplacian-Smoothed Bigram Model
 class BigramModel:
 
     def __init__(self):
-        """Initialize your data structures in the constructor."""
         self.bigramCounts = collections.defaultdict(zero_fn);
         self.unigramCounts = collections.defaultdict(zero_fn);
 
+    # Trains the model on the corpus (couns unigrams and bigrams)
     def train(self, corpus):
-        """ Takes a corpus and trains your language model. 
-        Compute any counts or other corpus statistics in this function.
-        """  
-
-
         for sentence in corpus:
             for i in xrange(len(sentence) - 1):  
                 word1 = sentence[i];
@@ -23,11 +27,8 @@ class BigramModel:
 
             self.unigramCounts[sentence[len(sentence) - 1]] += 1;
         
-
+    # Gives the log probability of the sentence happening organically based on the bigrams/unigrams
     def score(self, sentence):
-        """ Takes a list of strings as argument and returns the log-probability of the 
-        sentence using your language model. Use whatever data you computed in train() here.
-        """
         s = 0;
         for i in xrange(len(sentence) - 1):
             word1 = sentence[i];

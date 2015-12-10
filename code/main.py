@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 # Cayman Simpson (cayman@stanford.edu), Orry Despo (odespo@stanford.edu), Lawrence Rogers (lxrogers@stanford.edu)
 # CS221, Created: 10 October 2015
