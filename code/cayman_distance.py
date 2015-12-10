@@ -103,20 +103,23 @@ def featurize(X):
 			# For every type of distance metric
             for distance, dist_name in models.distances:
                 if (dist_name == "kldist" or dist_name == "jsd" or dist_name == "jaccard"): continue;
-				# For every answer/question combo
-                for i, (answer, question) in enumerate(X):
-
+				# For every question 
+                for j in range(len(X)/5):
+                    question = X[j*5][1]
                     # Get the vector that the model predicts should go in the blank
                     targetvec = model(glove, question, tvec=True)
 
-                    # If the answer is not in the Glove dictionary, we say it's max distance
-                    if (targetvec == None or isinstance(targetvec, tuple)):
-                        features[i].append(2)
+                    # For every answer/question combo
+                    for t, (answer, question) in enumerate(X[j*5:j*5+5]):
+                        i = j*5 + t
+                        # If the answer is not in the Glove dictionary, we say it's max distance
+                        if (targetvec == None or isinstance(targetvec, tuple)):
+                            features[i].append(2)
 
-                    # If the distance is valid, we add it as a feature
-                    else:
-                        answer_dist = distanceSingleWords(glove, targetvec, answer, distance)
-                        features[i].append(answer_dist if not math.isnan(answer_dist) else 2)
+                        # If the distance is valid, we add it as a feature
+                        else:
+                            answer_dist = distanceSingleWords(glove, targetvec, answer, distance)
+                            features[i].append(answer_dist if not math.isnan(answer_dist) else 2)
 
     # Save our feature set
     savePickle(features, featureFile);
@@ -204,8 +207,8 @@ def main():
 	# Create or Load the dataset in -- X is array of questions, y is labels (name of model to use)
     inform("Generating/Loading dataset...");
     X, y = generateDataset("../data/cayman_all_training.txt");
-
-	# Convert array of Questions (X) into sentence features phi(X)
+	
+    # Convert array of Questions (X) into sentence features phi(X)
     inform("Featurizing all " + str(len(X)) + " questions...");
     phi = featurize(X);
     
