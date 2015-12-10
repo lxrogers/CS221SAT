@@ -38,8 +38,8 @@ algorithms = [
 # Create dataset of (X, y) where X is questions, y is labels.
 #	 In this case, y is the label of which algorithm to use to answer the question based on
 #	 sentence features.
-def generateDataset(datafile):
-    generatedFile = "../data/cayman_sentence_data/sentenceDataset.pickle"
+def generateDataset(datafile, dev=True):
+    generatedFile = "../data/cayman_sentence_data/sentenceDataset.pickle" if dev else "../data/cayman_sentence_data/sentenceTestDataset.pickle"
     print generatedFile
 	# No need to generate twice. 
     if(isfile(generatedFile)):
@@ -192,6 +192,10 @@ def featurize(q):
     features[MAX_DIST_AFTER] = max(getDist(q.getSentence()[features[BLANK_POSITION_INDEX]:], answer) for answer in q.answers)
     features[MIN_TOTAL_DIST] = min(getDist(q.getSentence(), answer) for answer in q.answers)
     features[MAX_TOTAL_DIST] = min(getDist(q.getSentence(), answer) for answer in q.answers)
+    
+    for i in range(1, len(features)):
+        for j in range(i+1, len(features)):
+            features.append(features[i]*features[j])
 
     return features
 
@@ -263,7 +267,7 @@ def evaluateScore(questions, features, labels):
 
 
 # Main method
-def main():
+def main(dev=True):
 
     # Create or Load the dataset in -- X is array of questions, y is labels (name of model to use)
     inform("Generating/Loading dataset...");
@@ -284,18 +288,26 @@ def main():
     
     inform("Training Machine Learning algorithms...");
     train(train_features, train_labels);
+    
+    if dev:
+        inform("Training Error");
+        evaluateML(train_features, train_labels);
 
-    inform("Training Error");
-    evaluateML(train_features, train_labels);
+        inform("Dev Error");
+        evaluateML(dev_features, dev_labels);
 
-    inform("Dev Error");
-    evaluateML(dev_features, dev_labels);
+        inform("Evaluating Score of ML algorithms choosing models on Training Data");
+        evaluateScore(train_questions, train_features, train_labels);
 
-    inform("Evaluating Score of ML algorithms choosing models on Training Data");
-    evaluateScore(train_questions, train_features, train_labels);
+        inform("Evaluating Score of ML algorithms choosing models on Dev");
+        evaluateScore(dev_questions, dev_features, dev_labels);
+    else:
+        t_X, t_y = generateDataset("../data/test/test_sat.txt")
+        inform("Featurizing all " + str(len(X)) + " test questions...");
+        t_phi = map(lambda x: featurize(x), t_X);
+        inform("Evaluating Score of ML algorithms choosing models on Test");
+        evaluateScore(t_X, t_phi, t_y);
 
-    inform("Evaluating Score of ML algorithms choosing models on Dev");
-    evaluateScore(dev_questions, dev_features, dev_labels);
 
 # Boilerplate code
 if __name__ == "__main__":
