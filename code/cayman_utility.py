@@ -291,11 +291,15 @@ def getPOSVecs(sentence):
     for word in sentence:
         synsets = wn.synsets(word)
         if len(synsets) < 1 or word in stopwords.words('english'): continue
-        pos = str(synsets[0].pos())
-        if pos == 'n':
-            nounVec.append(word)
-        elif pos == 'v':
-            verbVec.append(word)
-        elif pos == 'a':
-            adjVec.append(word)
+        try:
+            pos = str(synsets[0].pos())
+            if pos == 'n':
+                nounVec.append(word)
+            elif pos == 'v':
+                verbVec.append(word)
+            elif pos == 'a':
+                adjVec.append(word)
+        except:
+            # Because of str is not callable error on line 294
+            pass;
     return nounVec, verbVec, adjVec
