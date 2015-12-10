@@ -78,7 +78,7 @@ def featurize(X):
         return loadPickle(featureFile);
 
 	#weightings = ["pmi", "ppmi", "tfidf", "None"];
-    weightings = ["tfidf", "None", "pmi", "ppmi"];
+    weightings = ["tfidf", "None"];
     lsa = []; #[250,100,50,25]
 
     features = [[1]]*len(X); # Starting out with bias features
@@ -96,13 +96,13 @@ def featurize(X):
 
 		# For every type of model
         for name, model in models.targetvec_models:
-
+            
             # Weighted VSM is the same as Sentence VSM because we don't use unigram counts
             if (name == "Weighted VSM"): continue;
 
 			# For every type of distance metric
             for distance, dist_name in models.distances:
-
+                if (dist_name == "kldist" or dist_name == "jsd" or dist_name == "jaccard"): continue;
 				# For every answer/question combo
                 for i, (answer, question) in enumerate(X):
 
